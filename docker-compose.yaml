@@ -1,0 +1,72 @@
+version: "3"
+services:
+  client3:
+    container_name: client3
+    build:
+      context: ./client
+      dockerfile: Dockerfile.dev
+    ports:
+      - "3000:3000"
+    depends_on:
+      - api3
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+      - HOST=0.0.0.0
+      - WDS_SOCKET_PORT=3000
+    volumes:
+      - ./client:/app
+      - /app/node_modules
+    command: npm run dev -- --host 0.0.0.0
+
+  landing3:
+    container_name: landing3
+    build:
+      context: ./landing
+      dockerfile: Dockerfile.dev
+    ports:
+      - "3001:3001"
+    depends_on:
+      - api3
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+      - HOST=0.0.0.0
+    volumes:
+      - ./landing:/app
+      - /app/node_modules
+    command: npm run dev:ssr
+
+  api3:
+    container_name: api3
+    build:
+      context: ./api
+      dockerfile: Dockerfile.dev
+    ports:
+      - "5000:5000"
+      - "9229:9229"
+    depends_on:
+      db3:
+        condition: service_healthy
+    volumes:
+      - ./api:/app
+      - /app/node_modules
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+      - NODE_ENV=development
+    command: npm run start:dev:nodemon
+
+  db3:
+    container_name: db3
+    image: postgres
+    volumes:
+      - ./.containers/db:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres3
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    ports:
+      - "5432:5432"
