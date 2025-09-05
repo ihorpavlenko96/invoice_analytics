@@ -1,0 +1,96 @@
+name: CD Pipeline
+
+on:
+  workflow_dispatch: # Manual trigger equivalent to 'trigger: none'
+    inputs:
+      ci_run_id:
+        description: 'CI Pipeline Run ID to deploy from'
+        required: true
+        type: string
+
+env:
+  PREFIX: aitemplate
+  ENVIRONMENT: test
+  ACR_LOGIN_SERVER: 'demoinvoiceanalyticsa.azurecr.io'
+  ACR_NAME: 'demoinvoiceanalyticsa'
+  RESOURCE_GROUP_NAME: 'demo-invoice-analytics'
+  API_APP_NAME: 'invoice-analytics-app'
+  CLIENT_APP_NAME: 'invoice-analytics-api-app'
+
+jobs:
+  push-images:
+    runs-on: ubuntu-latest
+    outputs:
+      image-version: ${{ steps.set-version.outputs.image-version }}
+    
+    steps:
+      - name: Download Docker Images from CI
+        uses: actions/download-artifact@v4
+        with:
+          name: docker-images
+          path: ./docker-images
+          run-id: ${{ github.event.inputs.ci_run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Download Deployment Manifest from CI
+        uses: actions/download-artifact@v4
+        with:
+          name: deployment-manifest
+          path: ./
+          run-id: ${{ github.event.inputs.ci_run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Load Docker Images
+        run: |
+          docker load -i ./docker-images/api-image.tar
+          docker load -i ./docker-images/client-image.tar
+
+      - name: Azure CLI Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Push Images to ACR
+        id: set-version
+        run: |
+          az acr login --name ${{ env.ACR_NAME }}
+
+          VERSION=$(cat deployment.json | jq -r .version)
+          echo "Detected Version: $VERSION"
+          echo "image-version=$VERSION" >> $GITHUB_OUTPUT
+
+          docker tag api:$VERSION ${{ env.ACR_LOGIN_SERVER }}/api:$VERSION
+          docker tag api:$VERSION ${{ env.ACR_LOGIN_SERVER }}/api:latest
+          docker push ${{ env.ACR_LOGIN_SERVER }}/api:$VERSION
+          docker push ${{ env.ACR_LOGIN_SERVER }}/api:latest
+
+          docker tag client:$VERSION ${{ env.ACR_LOGIN_SERVER }}/client:$VERSION
+          docker tag client:$VERSION ${{ env.ACR_LOGIN_SERVER }}/client:latest
+          docker push ${{ env.ACR_LOGIN_SERVER }}/client:$VERSION
+          docker push ${{ env.ACR_LOGIN_SERVER }}/client:latest
+
+  update-services:
+    needs: push-images
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Azure CLI Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Update Azure App Services
+        run: |
+          # Update API App Settings
+          az webapp config appsettings set --resource-group ${{ env.RESOURCE_GROUP_NAME }} --name ${{ env.API_APP_NAME }} --settings \
+            CLERK_SECRET_KEY="${{ secrets.CLERK_SECRET_KEY }}" \
+            DEFAULT_SUPER_ADMIN_EMAIL="${{ secrets.DEFAULT_SUPER_ADMIN_EMAIL }}" \
+            DEFAULT_TENANT_ID="${{ secrets.DEFAULT_TENANT_ID }}" \
+            NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY="${{ secrets.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY }}" \
+            CORS_ORIGIN="${{ secrets.CORS_ORIGIN }}" \
+            SENTRY_DSN="${{ secrets.SENTRY_DSN }}" \
+            SENTRY_RELEASE="${{ needs.push-images.outputs.image-version }}"
+
+          # Restart App Services
+          az webapp restart --resource-group ${{ env.RESOURCE_GROUP_NAME }} --name ${{ env.API_APP_NAME }}
+          az webapp restart --resource-group ${{ env.RESOURCE_GROUP_NAME }} --name ${{ env.CLIENT_APP_NAME }}
