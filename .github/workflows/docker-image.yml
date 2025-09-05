@@ -15,8 +15,8 @@ env:
   ACR_LOGIN_SERVER: 'demoinvoiceanalyticsa.azurecr.io'
   ACR_NAME: 'demoinvoiceanalyticsa'
   RESOURCE_GROUP_NAME: 'demo-invoice-analytics'
-  API_APP_NAME: 'invoice-analytics-app'
-  CLIENT_APP_NAME: 'invoice-analytics-api-app'
+  API_APP_NAME: 'invoice-analytics-api-app'
+  CLIENT_APP_NAME: 'invoice-analytics-app'
   PREFIX: 'aitemplate'
   ENVIRONMENT: 'test'
 
