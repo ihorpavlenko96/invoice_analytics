@@ -51,7 +51,7 @@ async function bootstrap() {
         await dataSource.runMigrations();
 
         await createDefaultSuperAdmin(app, logger);
-        await createDefaultTenants(app, logger);
+        // await createDefaultTenants(app, logger);
 
         app.enableCors({
             origin: process.env.CORS_ORIGIN
@@ -96,28 +96,28 @@ async function createDefaultTenants(app: INestApplication, logger: Logger): Prom
             tenantAlias: 'houstonautopartsinc',
             adminFirstName: 'Houston',
             adminLastName: 'AutoParts',
-            adminEmail: 'bogib14126@nutrv.com',
+            adminEmail: 'bogib141261@nutrv.com',
         },
         {
             tenantName: 'PowerTorque Systems Inc.',
             tenantAlias: 'powertorquesystemsinc',
             adminFirstName: 'Power',
             adminLastName: 'Torque',
-            adminEmail: 'zt0a1@chefalicious.com',
+            adminEmail: 'zt0a11@chefalicious.com',
         },
         {
             tenantName: 'MetroDrive Components',
             tenantAlias: 'metrodrivecomponents',
             adminFirstName: 'Metro',
             adminLastName: 'Drive',
-            adminEmail: 'ko3ux@chefalicious.com',
+            adminEmail: 'ko3ux11@chefalicious.com',
         },
         {
             tenantName: 'H-Town Motor Supply',
             tenantAlias: 'htownmotorsupply',
             adminFirstName: 'H-Town',
             adminLastName: 'Motor',
-            adminEmail: 'x5m3l@chefalicious.com',
+            adminEmail: 'x5m3l11@chefalicious.com',
         },
     ];
 
