@@ -102,8 +102,6 @@ jobs:
     name: Deploy to Azure
     needs: build
     runs-on: ubuntu-latest
-    # Only deploy on push to main branch (not on PRs)
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     
     steps:
       - name: Download Docker Images
