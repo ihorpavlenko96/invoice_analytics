@@ -26,8 +26,10 @@ FROM nginx:alpine
 # Copy built files
 COPY --from=builder /app/dist /usr/share/nginx/html
 
-# Copy nginx config only if it exists
-COPY --from=builder /app/nginx.conf /etc/nginx/nginx.conf 2>/dev/null || true
+# Copy nginx config if it exists
+# Using a shell script approach to handle optional file
+RUN --mount=type=bind,from=builder,source=/app,target=/mnt/app \
+    if [ -f /mnt/app/nginx.conf ]; then cp /mnt/app/nginx.conf /etc/nginx/nginx.conf; fi
 
 EXPOSE 80
 
