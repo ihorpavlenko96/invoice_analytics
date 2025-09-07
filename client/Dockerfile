@@ -1,6 +1,7 @@
+# syntax=docker/dockerfile:1
 FROM node:18-alpine AS builder
 
-# Accept build arguments (no defaults - GitHub Actions will provide them)
+# Accept build arguments
 ARG VITE_API_URL
 ARG VITE_CLERK_PUBLISHABLE_KEY
 
@@ -8,26 +9,28 @@ ARG VITE_CLERK_PUBLISHABLE_KEY
 ENV VITE_API_URL=${VITE_API_URL}
 ENV VITE_CLERK_PUBLISHABLE_KEY=${VITE_CLERK_PUBLISHABLE_KEY}
 
-RUN apk add --no-cache libc6-compat
-
 WORKDIR /app
 
+# Copy package files
 COPY package*.json ./
-RUN npm install --ignore-scripts
 
+# Use cache mount for npm packages and npm ci for faster builds
+RUN --mount=type=cache,target=/root/.npm \
+    npm ci --ignore-scripts
+
+# Copy source code
 COPY . .
 
-# Build the application
+# Build the application (vite build doesn't run linting)
 RUN npm run build
 
-# Production stage
-FROM nginx:alpine
+# Production stage - use nginx alpine for smallest size
+FROM nginx:alpine AS runner
 
 # Copy built files
 COPY --from=builder /app/dist /usr/share/nginx/html
 
 # Copy nginx config if it exists
-# Using a shell script approach to handle optional file
 RUN --mount=type=bind,from=builder,source=/app,target=/mnt/app \
     if [ -f /mnt/app/nginx.conf ]; then cp /mnt/app/nginx.conf /etc/nginx/nginx.conf; fi
 
