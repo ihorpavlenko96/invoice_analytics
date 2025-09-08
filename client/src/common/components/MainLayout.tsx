@@ -14,13 +14,12 @@ import {
   ListItemButton,
   ListItemText,
   ListItemIcon,
-  useTheme as useMuiTheme,
+  useTheme,
   useMediaQuery,
 } from '@mui/material';
 import { Theme } from '@mui/material/styles';
 import MenuIcon from '@mui/icons-material/Menu';
 import CustomUserButton from './CustomUserButton';
-import ThemeSwitcher from './ThemeSwitcher';
 import useUserRoles from '../hooks/useUserRoles';
 import { ROLES } from '../constants/roles';
 import InvoiceFileUpload from '../../modules/invoices/components/InvoiceFileUpload';
@@ -35,7 +34,7 @@ type NavItem = {
 };
 
 const MainLayout: React.FC = () => {
-  const theme = useMuiTheme();
+  const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const [mobileOpen, setMobileOpen] = useState(false);
   const userRoles = useUserRoles();
@@ -153,8 +152,7 @@ const MainLayout: React.FC = () => {
               ))}
             </Box>
 
-            <Box sx={{ ml: { xs: 1, md: 2 }, display: 'flex', alignItems: 'center' }}>
-              <ThemeSwitcher />
+            <Box sx={{ ml: { xs: 1, md: 2 } }}>
               <CustomUserButton afterSignOutUrl="/" />
             </Box>
           </Toolbar>
