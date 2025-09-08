@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { useSnackbar } from 'notistack';
 import {
   Box,
@@ -11,7 +11,12 @@ import {
   Dialog,
   DialogContent,
   DialogTitle,
+  FormControl,
   IconButton,
+  InputAdornment,
+  InputLabel,
+  MenuItem,
+  Select,
   Stack,
   Table,
   TableBody,
@@ -19,14 +24,20 @@ import {
   TableContainer,
   TableHead,
   TableRow,
+  TextField,
+  ToggleButton,
+  ToggleButtonGroup,
   Tooltip,
   Typography,
   useTheme,
+  SelectChangeEvent,
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import HighlightOffIcon from '@mui/icons-material/HighlightOff';
+import SearchIcon from '@mui/icons-material/Search';
+import ClearIcon from '@mui/icons-material/Clear';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { User } from '../types/user.ts';
 import UserForm from '../components/UserForm.tsx';
@@ -61,6 +72,11 @@ const UserManagementPage: React.FC<UserManagementPageProps> = () => {
 
   const userRoles = useUserRoles();
   const isSuperAdmin = userRoles.includes(ROLES.SUPER_ADMIN);
+
+  // Filter states
+  const [emailFilter, setEmailFilter] = useState('');
+  const [rolesFilter, setRolesFilter] = useState<string[]>([]);
+  const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'inactive'>('all');
 
   const {
     isFormOpen,
@@ -99,6 +115,71 @@ const UserManagementPage: React.FC<UserManagementPageProps> = () => {
   }, [usersError, enqueueSnackbar]);
 
   const users: User[] = usersData?.data ?? [];
+
+  // Get unique roles from all users for the filter dropdown
+  const availableRoles = useMemo(() => {
+    const rolesSet = new Set<string>();
+    users.forEach(user => {
+      user.roles?.forEach(role => {
+        rolesSet.add(role.name);
+      });
+    });
+    return Array.from(rolesSet).sort();
+  }, [users]);
+
+  // Filter users based on selected filters
+  const filteredUsers = useMemo(() => {
+    return users.filter(user => {
+      // Email filter
+      if (emailFilter && !user.email.toLowerCase().includes(emailFilter.toLowerCase())) {
+        return false;
+      }
+
+      // Roles filter
+      if (rolesFilter.length > 0) {
+        const userRoleNames = user.roles?.map(r => r.name) || [];
+        const hasMatchingRole = rolesFilter.some(filterRole => 
+          userRoleNames.includes(filterRole)
+        );
+        if (!hasMatchingRole) {
+          return false;
+        }
+      }
+
+      // Status filter
+      if (statusFilter !== 'all') {
+        if (statusFilter === 'active' && !user.isActive) return false;
+        if (statusFilter === 'inactive' && user.isActive) return false;
+      }
+
+      return true;
+    });
+  }, [users, emailFilter, rolesFilter, statusFilter]);
+
+  // Handlers for filter changes
+  const handleEmailFilterChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setEmailFilter(event.target.value);
+  };
+
+  const handleRolesFilterChange = (event: SelectChangeEvent<string[]>) => {
+    const value = event.target.value;
+    setRolesFilter(typeof value === 'string' ? value.split(',') : value);
+  };
+
+  const handleStatusFilterChange = (
+    event: React.MouseEvent<HTMLElement>,
+    newStatus: 'all' | 'active' | 'inactive' | null,
+  ) => {
+    if (newStatus !== null) {
+      setStatusFilter(newStatus);
+    }
+  };
+
+  const handleClearFilters = () => {
+    setEmailFilter('');
+    setRolesFilter([]);
+    setStatusFilter('all');
+  };
 
   const { mutateAsync: removeUserMutate, isPending: isDeleting } = useMutation({
     mutationFn: deleteUser,
@@ -177,6 +258,90 @@ const UserManagementPage: React.FC<UserManagementPageProps> = () => {
           }
         />
         <CardContent sx={{ p: 0, '&:last-child': { pb: 0 } }}>
+          {/* Filter Bar */}
+          <Box
+            sx={{
+              p: 2,
+              backgroundColor: theme.palette.action.hover,
+              borderBottom: `1px solid ${theme.palette.divider}`,
+              display: 'flex',
+              gap: 2,
+              alignItems: 'center',
+              flexWrap: 'wrap',
+            }}>
+            {/* Email Search */}
+            <TextField
+              size="small"
+              placeholder="Search by email"
+              value={emailFilter}
+              onChange={handleEmailFilterChange}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <SearchIcon fontSize="small" />
+                  </InputAdornment>
+                ),
+              }}
+              sx={{ minWidth: 250 }}
+            />
+
+            {/* Roles Filter */}
+            <FormControl size="small" sx={{ minWidth: 200 }}>
+              <InputLabel>Filter by roles</InputLabel>
+              <Select
+                multiple
+                value={rolesFilter}
+                onChange={handleRolesFilterChange}
+                label="Filter by roles"
+                renderValue={(selected) => (
+                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                    {selected.map((value) => (
+                      <Chip key={value} label={value} size="small" />
+                    ))}
+                  </Box>
+                )}
+              >
+                {availableRoles.map((role) => (
+                  <MenuItem key={role} value={role}>
+                    {role}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+
+            {/* Status Filter */}
+            <ToggleButtonGroup
+              value={statusFilter}
+              exclusive
+              onChange={handleStatusFilterChange}
+              size="small"
+              aria-label="status filter"
+            >
+              <ToggleButton value="all" aria-label="all users">
+                All
+              </ToggleButton>
+              <ToggleButton value="active" aria-label="active users">
+                Active
+              </ToggleButton>
+              <ToggleButton value="inactive" aria-label="inactive users">
+                Inactive
+              </ToggleButton>
+            </ToggleButtonGroup>
+
+            {/* Clear Filters Button */}
+            {(emailFilter || rolesFilter.length > 0 || statusFilter !== 'all') && (
+              <Button
+                variant="outlined"
+                size="small"
+                onClick={handleClearFilters}
+                startIcon={<ClearIcon />}
+                sx={{ ml: 'auto' }}
+              >
+                Clear Filters
+              </Button>
+            )}
+          </Box>
+
           {isLoading && (
             <Box sx={{ display: 'flex', justifyContent: 'center', my: 5 }}>
               <CircularProgress />
@@ -218,14 +383,14 @@ const UserManagementPage: React.FC<UserManagementPageProps> = () => {
                       borderBottom: 0,
                     },
                   }}>
-                  {users.length === 0 && !isLoading && (
+                  {filteredUsers.length === 0 && !isLoading && (
                     <TableRow>
-                      <TableCell colSpan={isSuperAdmin ? 9 : 8} align="center" sx={{ py: 3 }}>
-                        No users found.
+                      <TableCell colSpan={isSuperAdmin ? 7 : 6} align="center" sx={{ py: 3 }}>
+                        {users.length === 0 ? 'No users found.' : 'No users match the selected filters.'}
                       </TableCell>
                     </TableRow>
                   )}
-                  {users.map((user) => (
+                  {filteredUsers.map((user) => (
                     <TableRow key={user.id}>
                       <TableCell component="th" scope="row">
                         {user.email}
