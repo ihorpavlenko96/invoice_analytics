@@ -233,7 +233,7 @@ const UserManagementPage: React.FC<UserManagementPageProps> = () => {
                       <TableCell>
                         {`${user.firstName ?? '-'} ${user.lastName ?? ''}`.trim()}
                       </TableCell>
-                      {isSuperAdmin && <TableCell>{user.tenant?.name ?? 'N/A'}</TableCell>}
+                      {isSuperAdmin && <TableCell>{user.tenant?.name ?? '-'}</TableCell>}
                       <TableCell>{formatRoles(user.roles)}</TableCell>
                       <TableCell>
                         <Chip
