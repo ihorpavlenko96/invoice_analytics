@@ -134,7 +134,6 @@ const TenantManagementPage: React.FC<TenantManagementPageProps> = () => {
                     }}>
                     <TableCell>Tenant Name</TableCell>
                     <TableCell>Alias</TableCell>
-                    <TableCell>Billing Contact</TableCell>
                     <TableCell align="right">Actions</TableCell>
                   </TableRow>
                 </TableHead>
@@ -154,7 +153,7 @@ const TenantManagementPage: React.FC<TenantManagementPageProps> = () => {
                   }}>
                   {tenants.length === 0 && !isLoading && (
                     <TableRow>
-                      <TableCell colSpan={5} align="center" sx={{ py: 3 }}>
+                      <TableCell colSpan={4} align="center" sx={{ py: 3 }}>
                         No tenants found.
                       </TableCell>
                     </TableRow>
@@ -165,7 +164,6 @@ const TenantManagementPage: React.FC<TenantManagementPageProps> = () => {
                         {tenant.name}
                       </TableCell>
                       <TableCell>{tenant.alias}</TableCell>
-                      <TableCell>{tenant.billingContact || '-'}</TableCell>
                       <TableCell align="right">
                         <Button
                           variant="text"
