@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState, useMemo, useCallback } from 'react';
 import { useSnackbar } from 'notistack';
 import {
   Box,
@@ -22,7 +22,17 @@ import {
   Tooltip,
   Typography,
   useTheme,
+  TextField,
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel,
+  SelectChangeEvent,
 } from '@mui/material';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+import ClearIcon from '@mui/icons-material/Clear';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
@@ -32,12 +42,15 @@ import { User } from '../types/user.ts';
 import UserForm from '../components/UserForm.tsx';
 import ConfirmationDialog from '../../../common/components/ConfirmationDialog.tsx';
 import useUserRoles from '../../../common/hooks/useUserRoles';
-import { ROLES } from '../../../common/constants/roles';
+import { ROLES, RoleValue } from '../../../common/constants/roles';
 import { getUsers } from '../userQueries.ts';
 import { deleteUser, activateUser, deactivateUser } from '../userMutations.ts';
 import { CACHE_TIMES } from '../../../common/constants/cacheTimes.ts';
 import { useUserManagementStore } from '../stores/userManagementStore';
 import { USER_QUERY_KEYS } from '../userQueryKeys.ts';
+import { getTenants } from '../../tenants/tenantQueries.ts';
+import { TENANT_QUERY_KEYS } from '../../tenants/tenantQueryKeys.ts';
+import { debounce } from 'lodash';
 
 type UserManagementPageProps = Record<string, unknown>;
 
@@ -54,6 +67,15 @@ const formatRoles = (roles: User['roles']): React.ReactNode => {
   );
 };
 
+type FilterState = {
+  email: string;
+  name: string;
+  tenant: string;
+  roles: string[];
+  status: string;
+  createdAt: Date | null;
+};
+
 const UserManagementPage: React.FC<UserManagementPageProps> = () => {
   const { enqueueSnackbar } = useSnackbar();
   const queryClient = useQueryClient();
@@ -61,6 +83,17 @@ const UserManagementPage: React.FC<UserManagementPageProps> = () => {
 
   const userRoles = useUserRoles();
   const isSuperAdmin = userRoles.includes(ROLES.SUPER_ADMIN);
+
+  const [filters, setFilters] = useState<FilterState>({
+    email: '',
+    name: '',
+    tenant: '',
+    roles: [],
+    status: '',
+    createdAt: null,
+  });
+
+  const [debouncedFilters, setDebouncedFilters] = useState<FilterState>(filters);
 
   const {
     isFormOpen,
@@ -99,6 +132,125 @@ const UserManagementPage: React.FC<UserManagementPageProps> = () => {
   }, [usersError, enqueueSnackbar]);
 
   const users: User[] = usersData?.data ?? [];
+
+  const { data: tenantsData } = useQuery({
+    queryKey: [TENANT_QUERY_KEYS.GET_TENANTS],
+    queryFn: getTenants,
+    staleTime: CACHE_TIMES.DEFAULT,
+    enabled: isSuperAdmin,
+  });
+
+  const tenants = tenantsData?.data ?? [];
+
+  // Debounced update for text filters
+  const debouncedUpdate = useMemo(
+    () =>
+      debounce((newFilters: FilterState) => {
+        setDebouncedFilters(newFilters);
+      }, 300),
+    []
+  );
+
+  useEffect(() => {
+    debouncedUpdate(filters);
+  }, [filters, debouncedUpdate]);
+
+  // Filter users based on current filter state
+  const filteredUsers = useMemo(() => {
+    return users.filter((user) => {
+      // Email filter
+      if (debouncedFilters.email && !user.email.toLowerCase().includes(debouncedFilters.email.toLowerCase())) {
+        return false;
+      }
+
+      // Name filter
+      if (debouncedFilters.name) {
+        const fullName = `${user.firstName ?? ''} ${user.lastName ?? ''}`.toLowerCase();
+        if (!fullName.includes(debouncedFilters.name.toLowerCase())) {
+          return false;
+        }
+      }
+
+      // Tenant filter
+      if (debouncedFilters.tenant && user.tenant?.id !== debouncedFilters.tenant) {
+        return false;
+      }
+
+      // Roles filter
+      if (debouncedFilters.roles.length > 0) {
+        const userRoleNames = user.roles.map(r => r.name);
+        const hasMatchingRole = debouncedFilters.roles.some(filterRole => 
+          userRoleNames.includes(filterRole as RoleValue)
+        );
+        if (!hasMatchingRole) {
+          return false;
+        }
+      }
+
+      // Status filter
+      if (debouncedFilters.status !== '') {
+        const isActiveFilter = debouncedFilters.status === 'active';
+        if (user.isActive !== isActiveFilter) {
+          return false;
+        }
+      }
+
+      // Created date filter
+      if (debouncedFilters.createdAt) {
+        const userDate = new Date(user.createdAt);
+        const filterDate = new Date(debouncedFilters.createdAt);
+        // Compare dates (year, month, day)
+        if (
+          userDate.getFullYear() !== filterDate.getFullYear() ||
+          userDate.getMonth() !== filterDate.getMonth() ||
+          userDate.getDate() !== filterDate.getDate()
+        ) {
+          return false;
+        }
+      }
+
+      return true;
+    });
+  }, [users, debouncedFilters]);
+
+  const handleTextFilterChange = useCallback((field: keyof FilterState) => (event: React.ChangeEvent<HTMLInputElement>) => {
+    setFilters(prev => ({ ...prev, [field]: event.target.value }));
+  }, []);
+
+  const handleSelectFilterChange = useCallback((field: keyof FilterState) => (event: SelectChangeEvent<string>) => {
+    setFilters(prev => ({ ...prev, [field]: event.target.value }));
+  }, []);
+
+  const handleMultiSelectFilterChange = useCallback((field: keyof FilterState) => (event: SelectChangeEvent<string[]>) => {
+    const value = event.target.value;
+    setFilters(prev => ({ ...prev, [field]: typeof value === 'string' ? value.split(',') : value }));
+  }, []);
+
+  const handleDateFilterChange = useCallback((value: Date | null) => {
+    setFilters(prev => ({ ...prev, createdAt: value }));
+  }, []);
+
+  const clearFilters = useCallback(() => {
+    setFilters({
+      email: '',
+      name: '',
+      tenant: '',
+      roles: [],
+      status: '',
+      createdAt: null,
+    });
+  }, []);
+
+  const hasActiveFilters = useMemo(() => {
+    return (
+      filters.email !== '' ||
+      filters.name !== '' ||
+      filters.tenant !== '' ||
+      filters.roles.length > 0 ||
+      filters.status !== '' ||
+      filters.createdAt !== null
+    );
+  }, [filters]);
 
   const { mutateAsync: removeUserMutate, isPending: isDeleting } = useMutation({
     mutationFn: deleteUser,
@@ -176,6 +328,108 @@ const UserManagementPage: React.FC<UserManagementPageProps> = () => {
             </Button>
           }
         />
+        <CardContent>
+          {/* Filter Controls */}
+          <Box sx={{ mb: 3 }}>
+            <Stack direction="row" spacing={2} sx={{ mb: 2, flexWrap: 'wrap' }}>
+              <TextField
+                label="Email"
+                variant="outlined"
+                size="small"
+                value={filters.email}
+                onChange={handleTextFilterChange('email')}
+                sx={{ minWidth: 200 }}
+              />
+              <TextField
+                label="Name"
+                variant="outlined"
+                size="small"
+                value={filters.name}
+                onChange={handleTextFilterChange('name')}
+                sx={{ minWidth: 200 }}
+              />
+              {isSuperAdmin && (
+                <FormControl size="small" sx={{ minWidth: 200 }}>
+                  <InputLabel>Tenant</InputLabel>
+                  <Select
+                    value={filters.tenant}
+                    onChange={handleSelectFilterChange('tenant')}
+                    label="Tenant"
+                  >
+                    <MenuItem value="">All</MenuItem>
+                    {tenants.map((tenant) => (
+                      <MenuItem key={tenant.id} value={tenant.id}>
+                        {tenant.name}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              )}
+              <FormControl size="small" sx={{ minWidth: 200 }}>
+                <InputLabel>Roles</InputLabel>
+                <Select
+                  multiple
+                  value={filters.roles}
+                  onChange={handleMultiSelectFilterChange('roles')}
+                  label="Roles"
+                  renderValue={(selected) => (
+                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                      {selected.map((value) => (
+                        <Chip key={value} label={value} size="small" />
+                      ))}
+                    </Box>
+                  )}
+                >
+                  {Object.values(ROLES).map((role) => (
+                    <MenuItem key={role} value={role}>
+                      {role}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+              <FormControl size="small" sx={{ minWidth: 200 }}>
+                <InputLabel>Status</InputLabel>
+                <Select
+                  value={filters.status}
+                  onChange={handleSelectFilterChange('status')}
+                  label="Status"
+                >
+                  <MenuItem value="">All</MenuItem>
+                  <MenuItem value="active">Active</MenuItem>
+                  <MenuItem value="inactive">Inactive</MenuItem>
+                </Select>
+              </FormControl>
+              <LocalizationProvider dateAdapter={AdapterDateFns}>
+                <DatePicker
+                  label="Created At"
+                  value={filters.createdAt}
+                  onChange={handleDateFilterChange}
+                  slotProps={{
+                    textField: {
+                      size: 'small',
+                      sx: { minWidth: 200 },
+                    },
+                  }}
+                />
+              </LocalizationProvider>
+              {hasActiveFilters && (
+                <Button
+                  variant="outlined"
+                  startIcon={<ClearIcon />}
+                  onClick={clearFilters}
+                  size="small"
+                >
+                  Clear Filters
+                </Button>
+              )}
+            </Stack>
+            {hasActiveFilters && (
+              <Typography variant="body2" color="text.secondary">
+                Showing {filteredUsers.length} of {users.length} users
+              </Typography>
+            )}
+          </Box>
+        </CardContent>
         <CardContent sx={{ p: 0, '&:last-child': { pb: 0 } }}>
           {isLoading && (
             <Box sx={{ display: 'flex', justifyContent: 'center', my: 5 }}>
@@ -218,14 +472,14 @@ const UserManagementPage: React.FC<UserManagementPageProps> = () => {
                       borderBottom: 0,
                     },
                   }}>
-                  {users.length === 0 && !isLoading && (
+                  {filteredUsers.length === 0 && !isLoading && (
                     <TableRow>
                       <TableCell colSpan={isSuperAdmin ? 9 : 8} align="center" sx={{ py: 3 }}>
-                        No users found.
+                        {hasActiveFilters ? 'No users match the current filters.' : 'No users found.'}
                       </TableCell>
                     </TableRow>
                   )}
-                  {users.map((user) => (
+                  {filteredUsers.map((user) => (
                     <TableRow key={user.id}>
                       <TableCell component="th" scope="row">
                         {user.email}
