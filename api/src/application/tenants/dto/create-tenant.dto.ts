@@ -1,4 +1,12 @@
-import { IsNotEmpty, IsString, MaxLength, Matches, IsLowercase } from 'class-validator';
+import {
+    IsNotEmpty,
+    IsString,
+    MaxLength,
+    Matches,
+    IsLowercase,
+    IsOptional,
+    IsEmail,
+} from 'class-validator';
 import { ALIAS_PATTERN } from '../../../domain/constants/validation-patterns.const';
 import { ApiProperty } from '@nestjs/swagger';
 
@@ -28,4 +36,15 @@ export class CreateTenantDto {
         message: 'Alias must be lowercase alphanumeric with hyphens and no leading/trailing hyphen',
     })
     alias: string;
+
+    @ApiProperty({
+        description: 'Billing contact email address',
+        example: 'billing@acme-corp.com',
+        required: false,
+        maxLength: 255,
+    })
+    @IsOptional()
+    @IsEmail()
+    @MaxLength(255)
+    billingContact?: string;
 }
