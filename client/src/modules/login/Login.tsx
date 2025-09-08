@@ -11,7 +11,6 @@ import {
   Stack,
   CircularProgress,
   Alert,
-  Theme,
 } from '@mui/material';
 import { useSignIn } from '@clerk/clerk-react';
 import { useState, FormEvent, ChangeEvent } from 'react';
