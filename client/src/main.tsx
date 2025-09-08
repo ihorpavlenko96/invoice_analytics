@@ -89,7 +89,7 @@ const queryClient = new QueryClient({
   },
 });
 
-// eslint-disable-next-line react-refresh/only-export-components
+ 
 const RootComponent: React.FC = () => {
   return (
     <ThemeProvider>
