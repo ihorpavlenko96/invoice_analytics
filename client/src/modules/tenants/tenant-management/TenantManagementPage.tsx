@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect } from 'react';
 import { useSnackbar } from 'notistack';
 import {
   Box,
@@ -16,7 +16,6 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  TableSortLabel,
   Typography,
   useTheme,
 } from '@mui/material';
@@ -72,37 +71,7 @@ const TenantManagementPage: React.FC<TenantManagementPageProps> = () => {
     onSettled: () => resetDeleteState(),
   });
 
-  type SortableColumns = 'name' | 'alias';
-  type SortOrder = 'asc' | 'desc';
-
-  const [sortBy, setSortBy] = useState<SortableColumns | null>(null);
-  const [sortOrder, setSortOrder] = useState<SortOrder>('asc');
-
   const tenants = tenantsData?.data ?? [];
-
-  const sortedTenants = useMemo(() => {
-    if (!sortBy) return tenants;
-
-    return [...tenants].sort((a, b) => {
-      const aValue = a[sortBy]?.toLowerCase() || '';
-      const bValue = b[sortBy]?.toLowerCase() || '';
-      
-      if (sortOrder === 'asc') {
-        return aValue.localeCompare(bValue);
-      } else {
-        return bValue.localeCompare(aValue);
-      }
-    });
-  }, [tenants, sortBy, sortOrder]);
-
-  const handleSort = (column: SortableColumns) => {
-    if (sortBy === column) {
-      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
-    } else {
-      setSortBy(column);
-      setSortOrder('asc');
-    }
-  };
 
   useEffect(() => {
     if (queryError) {
@@ -163,22 +132,8 @@ const TenantManagementPage: React.FC<TenantManagementPageProps> = () => {
                         borderBottom: `1px solid ${theme.palette.divider}`,
                       },
                     }}>
-                    <TableCell>
-                      <TableSortLabel
-                        active={sortBy === 'name'}
-                        direction={sortBy === 'name' ? sortOrder : 'asc'}
-                        onClick={() => handleSort('name')}>
-                        Tenant Name
-                      </TableSortLabel>
-                    </TableCell>
-                    <TableCell>
-                      <TableSortLabel
-                        active={sortBy === 'alias'}
-                        direction={sortBy === 'alias' ? sortOrder : 'asc'}
-                        onClick={() => handleSort('alias')}>
-                        Alias
-                      </TableSortLabel>
-                    </TableCell>
+                    <TableCell>Tenant Name</TableCell>
+                    <TableCell>Alias</TableCell>
                     <TableCell align="right">Actions</TableCell>
                   </TableRow>
                 </TableHead>
@@ -196,14 +151,14 @@ const TenantManagementPage: React.FC<TenantManagementPageProps> = () => {
                       borderBottom: 0,
                     },
                   }}>
-                  {sortedTenants.length === 0 && !isLoading && (
+                  {tenants.length === 0 && !isLoading && (
                     <TableRow>
                       <TableCell colSpan={4} align="center" sx={{ py: 3 }}>
                         No tenants found.
                       </TableCell>
                     </TableRow>
                   )}
-                  {sortedTenants.map((tenant) => (
+                  {tenants.map((tenant) => (
                     <TableRow key={tenant.id}>
                       <TableCell component="th" scope="row">
                         {tenant.name}
