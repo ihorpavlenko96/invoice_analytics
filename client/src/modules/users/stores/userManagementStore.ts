@@ -1,6 +1,16 @@
 import { create } from 'zustand';
 import { User } from '../types/user';
 
+interface UserFilters {
+  email: string;
+  name: string;
+  tenant: string;
+  roles: string[];
+  status: 'all' | 'active' | 'inactive';
+  dateFrom: string;
+  dateTo: string;
+}
+
 interface UserManagementState {
   isFormOpen: boolean;
   selectedUser: User | null;
@@ -8,6 +18,7 @@ interface UserManagementState {
   userToDeleteId: string | null;
   isConfirmToggleStatusDialogOpen: boolean;
   userToToggleStatus: User | null;
+  filters: UserFilters;
 
   openCreateForm: () => void;
   openEditForm: (user: User) => void;
@@ -20,7 +31,20 @@ interface UserManagementState {
   openConfirmToggleStatusDialog: (user: User) => void;
   closeConfirmToggleStatusDialog: () => void;
   resetToggleStatusState: () => void;
+
+  updateFilters: (filters: Partial<UserFilters>) => void;
+  clearFilters: () => void;
 }
+
+const initialFilters: UserFilters = {
+  email: '',
+  name: '',
+  tenant: '',
+  roles: [],
+  status: 'all',
+  dateFrom: '',
+  dateTo: '',
+};
 
 export const useUserManagementStore = create<UserManagementState>((set) => ({
   // Initial state
@@ -30,6 +54,7 @@ export const useUserManagementStore = create<UserManagementState>((set) => ({
   userToDeleteId: null,
   isConfirmToggleStatusDialogOpen: false,
   userToToggleStatus: null,
+  filters: initialFilters,
 
   openCreateForm: (): void => set({ isFormOpen: true, selectedUser: null }),
   openEditForm: (user: User): void => set({ isFormOpen: true, selectedUser: user }),
@@ -47,4 +72,8 @@ export const useUserManagementStore = create<UserManagementState>((set) => ({
     set({ isConfirmToggleStatusDialogOpen: false, userToToggleStatus: null }),
   resetToggleStatusState: (): void =>
     set({ isConfirmToggleStatusDialogOpen: false, userToToggleStatus: null }),
+
+  updateFilters: (filters: Partial<UserFilters>): void =>
+    set((state) => ({ filters: { ...state.filters, ...filters } })),
+  clearFilters: (): void => set({ filters: initialFilters }),
 }));
