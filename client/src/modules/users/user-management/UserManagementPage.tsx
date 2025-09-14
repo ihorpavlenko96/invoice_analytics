@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect } from 'react';
 import { useSnackbar } from 'notistack';
 import {
   Box,
@@ -28,10 +28,8 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import HighlightOffIcon from '@mui/icons-material/HighlightOff';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { isAfter, isBefore, parseISO, isValid } from 'date-fns';
 import { User } from '../types/user.ts';
 import UserForm from '../components/UserForm.tsx';
-import UserFilters from '../components/UserFilters.tsx';
 import ConfirmationDialog from '../../../common/components/ConfirmationDialog.tsx';
 import useUserRoles from '../../../common/hooks/useUserRoles';
 import { ROLES } from '../../../common/constants/roles';
@@ -71,7 +69,6 @@ const UserManagementPage: React.FC<UserManagementPageProps> = () => {
     userToDeleteId,
     isConfirmToggleStatusDialogOpen,
     userToToggleStatus,
-    filters,
     openCreateForm,
     openEditForm,
     closeForm,
@@ -101,59 +98,7 @@ const UserManagementPage: React.FC<UserManagementPageProps> = () => {
     }
   }, [usersError, enqueueSnackbar]);
 
-  const allUsers: User[] = usersData?.data ?? [];
-
-  const filteredUsers: User[] = useMemo(() => {
-    return allUsers.filter((user) => {
-      if (filters.email && !user.email.toLowerCase().includes(filters.email.toLowerCase())) {
-        return false;
-      }
-
-      const fullName = `${user.firstName ?? ''} ${user.lastName ?? ''}`.trim().toLowerCase();
-      if (filters.name && !fullName.includes(filters.name.toLowerCase())) {
-        return false;
-      }
-
-      if (filters.tenant && user.tenant?.name !== filters.tenant) {
-        return false;
-      }
-
-      if (filters.roles.length > 0) {
-        const userRoleNames = user.roles?.map(role => role.name) || [];
-        const hasAnyRole = filters.roles.some(filterRole => userRoleNames.includes(filterRole));
-        if (!hasAnyRole) {
-          return false;
-        }
-      }
-
-      if (filters.status !== 'all') {
-        const isActive = filters.status === 'active';
-        if (user.isActive !== isActive) {
-          return false;
-        }
-      }
-
-      if (filters.dateFrom) {
-        const fromDate = parseISO(filters.dateFrom);
-        const userDate = parseISO(user.createdAt);
-        if (isValid(fromDate) && isValid(userDate) && isBefore(userDate, fromDate)) {
-          return false;
-        }
-      }
-
-      if (filters.dateTo) {
-        const toDate = parseISO(filters.dateTo);
-        const userDate = parseISO(user.createdAt);
-        if (isValid(toDate) && isValid(userDate) && isAfter(userDate, toDate)) {
-          return false;
-        }
-      }
-
-      return true;
-    });
-  }, [allUsers, filters]);
-
-  const users = filteredUsers;
+  const users: User[] = usersData?.data ?? [];
 
   const { mutateAsync: removeUserMutate, isPending: isDeleting } = useMutation({
     mutationFn: deleteUser,
@@ -231,9 +176,6 @@ const UserManagementPage: React.FC<UserManagementPageProps> = () => {
             </Button>
           }
         />
-        <Box sx={{ p: 2, borderBottom: `1px solid ${theme.palette.divider}` }}>
-          <UserFilters users={allUsers} />
-        </Box>
         <CardContent sx={{ p: 0, '&:last-child': { pb: 0 } }}>
           {isLoading && (
             <Box sx={{ display: 'flex', justifyContent: 'center', my: 5 }}>
