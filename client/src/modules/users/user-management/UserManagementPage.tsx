@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { useSnackbar } from 'notistack';
 import {
   Box,
@@ -19,6 +19,7 @@ import {
   TableContainer,
   TableHead,
   TableRow,
+  TableSortLabel,
   Tooltip,
   Typography,
   useTheme,
@@ -98,7 +99,68 @@ const UserManagementPage: React.FC<UserManagementPageProps> = () => {
     }
   }, [usersError, enqueueSnackbar]);
 
+  type SortableColumns = 'email' | 'name' | 'tenant' | 'status' | 'createdAt';
+  type SortOrder = 'asc' | 'desc';
+
+  const [sortBy, setSortBy] = useState<SortableColumns | null>(null);
+  const [sortOrder, setSortOrder] = useState<SortOrder>('asc');
+
   const users: User[] = usersData?.data ?? [];
+
+  const sortedUsers = useMemo(() => {
+    if (!sortBy) return users;
+
+    return [...users].sort((a, b) => {
+      let aValue: string;
+      let bValue: string;
+
+      switch (sortBy) {
+        case 'email':
+          aValue = a.email?.toLowerCase() || '';
+          bValue = b.email?.toLowerCase() || '';
+          break;
+        case 'name':
+          aValue = `${a.firstName || ''} ${a.lastName || ''}`.trim().toLowerCase();
+          bValue = `${b.firstName || ''} ${b.lastName || ''}`.trim().toLowerCase();
+          break;
+        case 'tenant':
+          aValue = a.tenant?.name?.toLowerCase() || '';
+          bValue = b.tenant?.name?.toLowerCase() || '';
+          break;
+        case 'status':
+          aValue = a.isActive ? 'active' : 'inactive';
+          bValue = b.isActive ? 'active' : 'inactive';
+          break;
+        case 'createdAt':
+          aValue = a.createdAt || '';
+          bValue = b.createdAt || '';
+          break;
+        default:
+          return 0;
+      }
+
+      if (sortBy === 'createdAt') {
+        const dateA = new Date(aValue).getTime();
+        const dateB = new Date(bValue).getTime();
+        return sortOrder === 'asc' ? dateA - dateB : dateB - dateA;
+      }
+
+      if (sortOrder === 'asc') {
+        return aValue.localeCompare(bValue);
+      } else {
+        return bValue.localeCompare(aValue);
+      }
+    });
+  }, [users, sortBy, sortOrder]);
+
+  const handleSort = (column: SortableColumns) => {
+    if (sortBy === column) {
+      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortBy(column);
+      setSortOrder('asc');
+    }
+  };
 
   const { mutateAsync: removeUserMutate, isPending: isDeleting } = useMutation({
     mutationFn: deleteUser,
@@ -195,12 +257,49 @@ const UserManagementPage: React.FC<UserManagementPageProps> = () => {
                         borderBottom: `1px solid ${theme.palette.divider}`,
                       },
                     }}>
-                    <TableCell>Email</TableCell>
-                    <TableCell>Name</TableCell>
-                    {isSuperAdmin && <TableCell>Tenant</TableCell>}
+                    <TableCell>
+                      <TableSortLabel
+                        active={sortBy === 'email'}
+                        direction={sortBy === 'email' ? sortOrder : 'asc'}
+                        onClick={() => handleSort('email')}>
+                        Email
+                      </TableSortLabel>
+                    </TableCell>
+                    <TableCell>
+                      <TableSortLabel
+                        active={sortBy === 'name'}
+                        direction={sortBy === 'name' ? sortOrder : 'asc'}
+                        onClick={() => handleSort('name')}>
+                        Name
+                      </TableSortLabel>
+                    </TableCell>
+                    {isSuperAdmin && (
+                      <TableCell>
+                        <TableSortLabel
+                          active={sortBy === 'tenant'}
+                          direction={sortBy === 'tenant' ? sortOrder : 'asc'}
+                          onClick={() => handleSort('tenant')}>
+                          Tenant
+                        </TableSortLabel>
+                      </TableCell>
+                    )}
                     <TableCell>Roles</TableCell>
-                    <TableCell>Status</TableCell>
-                    <TableCell>Created At</TableCell>
+                    <TableCell>
+                      <TableSortLabel
+                        active={sortBy === 'status'}
+                        direction={sortBy === 'status' ? sortOrder : 'asc'}
+                        onClick={() => handleSort('status')}>
+                        Status
+                      </TableSortLabel>
+                    </TableCell>
+                    <TableCell>
+                      <TableSortLabel
+                        active={sortBy === 'createdAt'}
+                        direction={sortBy === 'createdAt' ? sortOrder : 'asc'}
+                        onClick={() => handleSort('createdAt')}>
+                        Created At
+                      </TableSortLabel>
+                    </TableCell>
                     <TableCell align="right">Actions</TableCell>
                   </TableRow>
                 </TableHead>
@@ -218,14 +317,14 @@ const UserManagementPage: React.FC<UserManagementPageProps> = () => {
                       borderBottom: 0,
                     },
                   }}>
-                  {users.length === 0 && !isLoading && (
+                  {sortedUsers.length === 0 && !isLoading && (
                     <TableRow>
                       <TableCell colSpan={isSuperAdmin ? 9 : 8} align="center" sx={{ py: 3 }}>
                         No users found.
                       </TableCell>
                     </TableRow>
                   )}
-                  {users.map((user) => (
+                  {sortedUsers.map((user) => (
                     <TableRow key={user.id}>
                       <TableCell component="th" scope="row">
                         {user.email}
