@@ -1,5 +1,16 @@
 import { create } from 'zustand';
 import { User } from '../types/user';
+import { RoleValue } from '../../../common/constants/roles';
+
+interface UserFilters {
+  email: string;
+  name: string;
+  tenant: string;
+  role: RoleValue | '';
+  status: 'all' | 'active' | 'inactive';
+  dateFrom: string;
+  dateTo: string;
+}
 
 interface UserManagementState {
   isFormOpen: boolean;
@@ -8,6 +19,10 @@ interface UserManagementState {
   userToDeleteId: string | null;
   isConfirmToggleStatusDialogOpen: boolean;
   userToToggleStatus: User | null;
+
+  filters: UserFilters;
+  setFilter: <K extends keyof UserFilters>(key: K, value: UserFilters[K]) => void;
+  clearFilters: () => void;
 
   openCreateForm: () => void;
   openEditForm: (user: User) => void;
@@ -22,6 +37,16 @@ interface UserManagementState {
   resetToggleStatusState: () => void;
 }
 
+const initialFilters: UserFilters = {
+  email: '',
+  name: '',
+  tenant: '',
+  role: '',
+  status: 'all',
+  dateFrom: '',
+  dateTo: '',
+};
+
 export const useUserManagementStore = create<UserManagementState>((set) => ({
   // Initial state
   isFormOpen: false,
@@ -30,6 +55,16 @@ export const useUserManagementStore = create<UserManagementState>((set) => ({
   userToDeleteId: null,
   isConfirmToggleStatusDialogOpen: false,
   userToToggleStatus: null,
+
+  filters: initialFilters,
+  setFilter: <K extends keyof UserFilters>(key: K, value: UserFilters[K]): void =>
+    set((state) => ({
+      filters: {
+        ...state.filters,
+        [key]: value,
+      },
+    })),
+  clearFilters: (): void => set({ filters: initialFilters }),
 
   openCreateForm: (): void => set({ isFormOpen: true, selectedUser: null }),
   openEditForm: (user: User): void => set({ isFormOpen: true, selectedUser: user }),
