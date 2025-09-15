@@ -23,11 +23,18 @@ import {
   Tooltip,
   Typography,
   useTheme,
+  TextField,
+  Select,
+  MenuItem,
+  FormControl,
+  InputAdornment,
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import HighlightOffIcon from '@mui/icons-material/HighlightOff';
+import SearchIcon from '@mui/icons-material/Search';
+import ClearIcon from '@mui/icons-material/Clear';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { User } from '../types/user.ts';
 import UserForm from '../components/UserForm.tsx';
@@ -70,6 +77,7 @@ const UserManagementPage: React.FC<UserManagementPageProps> = () => {
     userToDeleteId,
     isConfirmToggleStatusDialogOpen,
     userToToggleStatus,
+    filters,
     openCreateForm,
     openEditForm,
     closeForm,
@@ -79,6 +87,8 @@ const UserManagementPage: React.FC<UserManagementPageProps> = () => {
     openConfirmToggleStatusDialog,
     closeConfirmToggleStatusDialog,
     resetToggleStatusState,
+    setFilter,
+    clearFilters,
   } = useUserManagementStore();
 
   const {
@@ -107,10 +117,63 @@ const UserManagementPage: React.FC<UserManagementPageProps> = () => {
 
   const users: User[] = usersData?.data ?? [];
 
-  const sortedUsers = useMemo(() => {
-    if (!sortBy) return users;
+  const filteredUsers = useMemo(() => {
+    return users.filter((user) => {
+      if (filters.email && !user.email.toLowerCase().includes(filters.email.toLowerCase())) {
+        return false;
+      }
 
-    return [...users].sort((a, b) => {
+      if (filters.name) {
+        const fullName = `${user.firstName || ''} ${user.lastName || ''}`.toLowerCase();
+        if (!fullName.includes(filters.name.toLowerCase())) {
+          return false;
+        }
+      }
+
+      if (filters.tenant && user.tenant?.name &&
+          !user.tenant.name.toLowerCase().includes(filters.tenant.toLowerCase())) {
+        return false;
+      }
+
+      if (filters.role) {
+        const hasRole = user.roles.some(role => role.name === filters.role);
+        if (!hasRole) {
+          return false;
+        }
+      }
+
+      if (filters.status) {
+        const userStatus = user.isActive ? 'active' : 'inactive';
+        if (userStatus !== filters.status) {
+          return false;
+        }
+      }
+
+      if (filters.createdAtFrom || filters.createdAtTo) {
+        const createdDate = new Date(user.createdAt);
+        if (filters.createdAtFrom) {
+          const fromDate = new Date(filters.createdAtFrom);
+          if (createdDate < fromDate) {
+            return false;
+          }
+        }
+        if (filters.createdAtTo) {
+          const toDate = new Date(filters.createdAtTo);
+          toDate.setHours(23, 59, 59, 999);
+          if (createdDate > toDate) {
+            return false;
+          }
+        }
+      }
+
+      return true;
+    });
+  }, [users, filters]);
+
+  const sortedUsers = useMemo(() => {
+    if (!sortBy) return filteredUsers;
+
+    return [...filteredUsers].sort((a, b) => {
       let aValue: string;
       let bValue: string;
 
@@ -151,7 +214,7 @@ const UserManagementPage: React.FC<UserManagementPageProps> = () => {
         return bValue.localeCompare(aValue);
       }
     });
-  }, [users, sortBy, sortOrder]);
+  }, [filteredUsers, sortBy, sortOrder]);
 
   const handleSort = (column: SortableColumns) => {
     if (sortBy === column) {
@@ -212,6 +275,16 @@ const UserManagementPage: React.FC<UserManagementPageProps> = () => {
     }
   };
 
+  const hasActiveFilters = Object.values(filters).some(value => value !== '');
+
+  const extractUniqueRoles = useMemo(() => {
+    const rolesSet = new Set<string>();
+    users.forEach(user => {
+      user.roles.forEach(role => rolesSet.add(role.name));
+    });
+    return Array.from(rolesSet).sort();
+  }, [users]);
+
   return (
     <Box sx={{ backgroundColor: theme.palette.background.default }}>
       <Card
@@ -227,15 +300,27 @@ const UserManagementPage: React.FC<UserManagementPageProps> = () => {
             </Typography>
           }
           action={
-            <Button
-              variant="contained"
-              onClick={openCreateForm}
-              sx={{
-                backgroundColor: theme.palette.primary.main,
-                '&:hover': { backgroundColor: theme.palette.primary.dark },
-              }}>
-              + Add User
-            </Button>
+            <Stack direction="row" spacing={2}>
+              {hasActiveFilters && (
+                <Button
+                  variant="outlined"
+                  onClick={clearFilters}
+                  startIcon={<ClearIcon />}
+                  sx={{ borderColor: theme.palette.divider }}
+                >
+                  Clear Filters
+                </Button>
+              )}
+              <Button
+                variant="contained"
+                onClick={openCreateForm}
+                sx={{
+                  backgroundColor: theme.palette.primary.main,
+                  '&:hover': { backgroundColor: theme.palette.primary.dark },
+                }}>
+                + Add User
+              </Button>
+            </Stack>
           }
         />
         <CardContent sx={{ p: 0, '&:last-child': { pb: 0 } }}>
@@ -301,6 +386,117 @@ const UserManagementPage: React.FC<UserManagementPageProps> = () => {
                       </TableSortLabel>
                     </TableCell>
                     <TableCell align="right">Actions</TableCell>
+                  </TableRow>
+                  <TableRow
+                    sx={{
+                      '& th': {
+                        backgroundColor: theme.palette.background.paper,
+                        borderBottom: `2px solid ${theme.palette.divider}`,
+                        padding: '8px',
+                      },
+                    }}>
+                    <TableCell>
+                      <TextField
+                        size="small"
+                        placeholder="Filter by email"
+                        value={filters.email}
+                        onChange={(e) => setFilter('email', e.target.value)}
+                        InputProps={{
+                          startAdornment: (
+                            <InputAdornment position="start">
+                              <SearchIcon fontSize="small" />
+                            </InputAdornment>
+                          ),
+                        }}
+                        sx={{ width: '100%' }}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <TextField
+                        size="small"
+                        placeholder="Filter by name"
+                        value={filters.name}
+                        onChange={(e) => setFilter('name', e.target.value)}
+                        InputProps={{
+                          startAdornment: (
+                            <InputAdornment position="start">
+                              <SearchIcon fontSize="small" />
+                            </InputAdornment>
+                          ),
+                        }}
+                        sx={{ width: '100%' }}
+                      />
+                    </TableCell>
+                    {isSuperAdmin && (
+                      <TableCell>
+                        <TextField
+                          size="small"
+                          placeholder="Filter by tenant"
+                          value={filters.tenant}
+                          onChange={(e) => setFilter('tenant', e.target.value)}
+                          InputProps={{
+                            startAdornment: (
+                              <InputAdornment position="start">
+                                <SearchIcon fontSize="small" />
+                              </InputAdornment>
+                            ),
+                          }}
+                          sx={{ width: '100%' }}
+                        />
+                      </TableCell>
+                    )}
+                    <TableCell>
+                      <FormControl size="small" sx={{ width: '100%' }}>
+                        <Select
+                          value={filters.role}
+                          onChange={(e) => setFilter('role', e.target.value)}
+                          displayEmpty
+                        >
+                          <MenuItem value="">All Roles</MenuItem>
+                          {extractUniqueRoles.map((role) => (
+                            <MenuItem key={role} value={role}>
+                              {role}
+                            </MenuItem>
+                          ))}
+                        </Select>
+                      </FormControl>
+                    </TableCell>
+                    <TableCell>
+                      <FormControl size="small" sx={{ width: '100%' }}>
+                        <Select
+                          value={filters.status}
+                          onChange={(e) => setFilter('status', e.target.value)}
+                          displayEmpty
+                        >
+                          <MenuItem value="">All Status</MenuItem>
+                          <MenuItem value="active">Active</MenuItem>
+                          <MenuItem value="inactive">Inactive</MenuItem>
+                        </Select>
+                      </FormControl>
+                    </TableCell>
+                    <TableCell>
+                      <Stack direction="row" spacing={1}>
+                        <TextField
+                          size="small"
+                          type="date"
+                          placeholder="From"
+                          value={filters.createdAtFrom}
+                          onChange={(e) => setFilter('createdAtFrom', e.target.value)}
+                          InputLabelProps={{ shrink: true }}
+                          sx={{ width: '50%' }}
+                        />
+                        <TextField
+                          size="small"
+                          type="date"
+                          placeholder="To"
+                          value={filters.createdAtTo}
+                          onChange={(e) => setFilter('createdAtTo', e.target.value)}
+                          InputLabelProps={{ shrink: true }}
+                          sx={{ width: '50%' }}
+                        />
+                      </Stack>
+                    </TableCell>
+                    <TableCell></TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody
