@@ -243,7 +243,7 @@ const InvoiceDetails: React.FC<InvoiceDetailsProps> = ({
           <Box sx={{ p: 1, borderRadius: 1, bgcolor: 'primary.dark', color: 'primary.contrastText' }}>
             <Typography
               variant="caption"
-              sx={{ color: 'rgba(255, 255, 255, 0.7)' }}
+              sx={{ color: 'text.secondary' }}
               display="block"
               fontSize="0.7rem">
               Total
