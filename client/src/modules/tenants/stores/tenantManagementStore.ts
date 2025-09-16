@@ -6,8 +6,6 @@ interface TenantManagementState {
   selectedTenant: Tenant | null;
   isConfirmDeleteDialogOpen: boolean;
   tenantToDeleteId: string | null;
-  selectedTenantIds: Set<string>;
-  isBulkEditOpen: boolean;
   openCreateForm: () => void;
   openEditForm: (tenant: Tenant) => void;
   closeForm: () => void;
@@ -15,11 +13,6 @@ interface TenantManagementState {
   closeConfirmDeleteDialog: () => void;
   setTenantToDeleteId: (id: string | null) => void;
   resetDeleteState: () => void;
-  toggleTenantSelection: (id: string) => void;
-  selectAllTenants: (tenantIds: string[]) => void;
-  clearSelection: () => void;
-  openBulkEditDialog: () => void;
-  closeBulkEditDialog: () => void;
 }
 
 export const useTenantManagementStore = create<TenantManagementState>((set) => ({
@@ -27,8 +20,6 @@ export const useTenantManagementStore = create<TenantManagementState>((set) => (
   selectedTenant: null,
   isConfirmDeleteDialogOpen: false,
   tenantToDeleteId: null,
-  selectedTenantIds: new Set<string>(),
-  isBulkEditOpen: false,
 
   openCreateForm: (): void => set({ isFormOpen: true, selectedTenant: null }),
   openEditForm: (tenant: Tenant): void => set({ isFormOpen: true, selectedTenant: tenant }),
@@ -40,27 +31,4 @@ export const useTenantManagementStore = create<TenantManagementState>((set) => (
     set({ isConfirmDeleteDialogOpen: false, tenantToDeleteId: null }),
   setTenantToDeleteId: (id: string | null): void => set({ tenantToDeleteId: id }),
   resetDeleteState: (): void => set({ isConfirmDeleteDialogOpen: false, tenantToDeleteId: null }),
-
-  toggleTenantSelection: (id: string): void =>
-    set((state) => {
-      const newSelection = new Set(state.selectedTenantIds);
-      if (newSelection.has(id)) {
-        newSelection.delete(id);
-      } else {
-        newSelection.add(id);
-      }
-      return { selectedTenantIds: newSelection };
-    }),
-
-  selectAllTenants: (tenantIds: string[]): void =>
-    set((state) => {
-      const currentSize = state.selectedTenantIds.size;
-      const allSelected = currentSize === tenantIds.length && tenantIds.length > 0;
-      return { selectedTenantIds: allSelected ? new Set<string>() : new Set(tenantIds) };
-    }),
-
-  clearSelection: (): void => set({ selectedTenantIds: new Set<string>() }),
-
-  openBulkEditDialog: (): void => set({ isBulkEditOpen: true }),
-  closeBulkEditDialog: (): void => set({ isBulkEditOpen: false, selectedTenantIds: new Set<string>() }),
 }));

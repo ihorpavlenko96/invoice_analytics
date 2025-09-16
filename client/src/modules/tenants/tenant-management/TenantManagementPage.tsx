@@ -6,7 +6,6 @@ import {
   Card,
   CardContent,
   CardHeader,
-  Checkbox,
   CircularProgress,
   Dialog,
   DialogContent,
@@ -23,7 +22,6 @@ import {
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import TenantForm from '../components/TenantForm.tsx';
-import BulkEditForm from '../components/BulkEditForm.tsx';
 import ConfirmationDialog from '../../../common/components/ConfirmationDialog.tsx';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { getTenants } from '../tenantQueries.ts';
@@ -44,19 +42,12 @@ const TenantManagementPage: React.FC<TenantManagementPageProps> = () => {
     selectedTenant,
     isConfirmDeleteDialogOpen,
     tenantToDeleteId,
-    selectedTenantIds,
-    isBulkEditOpen,
     openCreateForm,
     openEditForm,
     closeForm,
     openConfirmDeleteDialog,
     closeConfirmDeleteDialog,
     resetDeleteState,
-    toggleTenantSelection,
-    selectAllTenants,
-    clearSelection,
-    openBulkEditDialog,
-    closeBulkEditDialog,
   } = useTenantManagementStore();
 
   const {
@@ -110,32 +101,15 @@ const TenantManagementPage: React.FC<TenantManagementPageProps> = () => {
             </Typography>
           }
           action={
-            <Box sx={{ display: 'flex', gap: 1 }}>
-              {selectedTenantIds.size > 0 && (
-                <Button
-                  variant="outlined"
-                  onClick={openBulkEditDialog}
-                  sx={{
-                    borderColor: theme.palette.primary.main,
-                    color: theme.palette.primary.main,
-                    '&:hover': {
-                      borderColor: theme.palette.primary.dark,
-                      backgroundColor: theme.palette.action.hover,
-                    },
-                  }}>
-                  Bulk Edit ({selectedTenantIds.size})
-                </Button>
-              )}
-              <Button
-                variant="contained"
-                onClick={openCreateForm}
-                sx={{
-                  backgroundColor: theme.palette.primary.main,
-                  '&:hover': { backgroundColor: theme.palette.primary.dark },
-                }}>
-                + Add Tenant
-              </Button>
-            </Box>
+            <Button
+              variant="contained"
+              onClick={openCreateForm}
+              sx={{
+                backgroundColor: theme.palette.primary.main,
+                '&:hover': { backgroundColor: theme.palette.primary.dark },
+              }}>
+              + Add Tenant
+            </Button>
           }
         />
         <CardContent sx={{ p: 0, '&:last-child': { pb: 0 } }}>
@@ -158,14 +132,6 @@ const TenantManagementPage: React.FC<TenantManagementPageProps> = () => {
                         borderBottom: `1px solid ${theme.palette.divider}`,
                       },
                     }}>
-                    <TableCell padding="checkbox">
-                      <Checkbox
-                        indeterminate={selectedTenantIds.size > 0 && selectedTenantIds.size < tenants.length}
-                        checked={tenants.length > 0 && selectedTenantIds.size === tenants.length}
-                        onChange={() => selectAllTenants(tenants.map(t => t.id))}
-                        inputProps={{ 'aria-label': 'select all tenants' }}
-                      />
-                    </TableCell>
                     <TableCell>Tenant Name</TableCell>
                     <TableCell>Alias</TableCell>
                     <TableCell align="right">Actions</TableCell>
@@ -187,27 +153,18 @@ const TenantManagementPage: React.FC<TenantManagementPageProps> = () => {
                   }}>
                   {tenants.length === 0 && !isLoading && (
                     <TableRow>
-                      <TableCell colSpan={5} align="center" sx={{ py: 3 }}>
+                      <TableCell colSpan={4} align="center" sx={{ py: 3 }}>
                         No tenants found.
                       </TableCell>
                     </TableRow>
                   )}
-                  {tenants.map((tenant) => {
-                    const isSelected = selectedTenantIds.has(tenant.id);
-                    return (
-                      <TableRow key={tenant.id} selected={isSelected}>
-                        <TableCell padding="checkbox">
-                          <Checkbox
-                            checked={isSelected}
-                            onChange={() => toggleTenantSelection(tenant.id)}
-                            inputProps={{ 'aria-labelledby': `tenant-${tenant.id}` }}
-                          />
-                        </TableCell>
-                        <TableCell component="th" scope="row" id={`tenant-${tenant.id}`}>
-                          {tenant.name}
-                        </TableCell>
-                        <TableCell>{tenant.alias}</TableCell>
-                        <TableCell align="right">
+                  {tenants.map((tenant) => (
+                    <TableRow key={tenant.id}>
+                      <TableCell component="th" scope="row">
+                        {tenant.name}
+                      </TableCell>
+                      <TableCell>{tenant.alias}</TableCell>
+                      <TableCell align="right">
                         <Button
                           variant="text"
                           startIcon={<EditIcon />}
@@ -236,9 +193,8 @@ const TenantManagementPage: React.FC<TenantManagementPageProps> = () => {
                           Delete
                         </Button>
                       </TableCell>
-                      </TableRow>
-                    );
-                  })}
+                    </TableRow>
+                  ))}
                 </TableBody>
               </Table>
             </TableContainer>
@@ -262,16 +218,6 @@ const TenantManagementPage: React.FC<TenantManagementPageProps> = () => {
         confirmText="Delete"
         cancelText="Cancel"
       />
-
-      <Dialog open={isBulkEditOpen} onClose={closeBulkEditDialog} maxWidth="sm" fullWidth>
-        <DialogTitle>Bulk Edit Tenants</DialogTitle>
-        <DialogContent>
-          <BulkEditForm
-            selectedTenants={tenants.filter(t => selectedTenantIds.has(t.id))}
-            onClose={closeBulkEditDialog}
-          />
-        </DialogContent>
-      </Dialog>
     </Box>
   );
 };
