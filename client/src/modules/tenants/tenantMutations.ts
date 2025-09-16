@@ -22,3 +22,6 @@ export const updateTenant = (tenantPayload: UpdateTenantPayload) =>
   axios.patch<Tenant>(`/tenants/${tenantPayload.id}`, tenantPayload.data);
 
 export const deleteTenant = (tenantId: string) => axios.delete(`/tenants/${tenantId}`);
+
+export const bulkDeleteTenants = (tenantIds: string[]) =>
+  axios.post('/tenants/bulk-delete', { ids: tenantIds });
