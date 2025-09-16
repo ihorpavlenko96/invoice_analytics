@@ -34,6 +34,18 @@ export type BulkUpdateResult = {
   failureCount: number;
 };
 
+export type BulkDeleteTenantInput = {
+  ids: string[];
+};
+
+export type BulkDeleteResult = {
+  successful: string[];
+  failed: { id: string; error: string }[];
+  total: number;
+  successCount: number;
+  failureCount: number;
+};
+
 export const createTenant = (tenantData: CreateTenantInput) =>
   axios.post<Tenant>('/tenants', tenantData);
 
@@ -44,3 +56,6 @@ export const deleteTenant = (tenantId: string) => axios.delete(`/tenants/${tenan
 
 export const bulkUpdateTenants = (bulkUpdateData: BulkUpdateTenantInput) =>
   axios.patch<BulkUpdateResult>('/tenants/bulk', bulkUpdateData);
+
+export const bulkDeleteTenants = (bulkDeleteData: BulkDeleteTenantInput) =>
+  axios.delete<BulkDeleteResult>('/tenants/bulk', { data: bulkDeleteData });
