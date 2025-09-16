@@ -23,8 +23,6 @@ import { UpdateTenantDto } from '../../application/tenants/dto/update-tenant.dto
 import { TenantDto } from '../../application/tenants/dto/tenant.dto';
 import { BulkUpdateTenantDto } from '../../application/tenants/dto/bulk-update-tenant.dto';
 import { BulkUpdateResultDto } from '../../application/tenants/dto/bulk-update-result.dto';
-import { BulkDeleteTenantDto } from '../../application/tenants/dto/bulk-delete-tenant.dto';
-import { BulkDeleteResultDto } from '../../application/tenants/dto/bulk-delete-result.dto';
 import { RoleName } from '../../domain/enums/role-name.enum';
 import { Authorize } from '../../infrastructure/auth/decorators/authorize.decorator';
 import {
@@ -93,23 +91,6 @@ export class TenantController {
     @ApiForbiddenResponse({ description: 'Forbidden - requires super admin role' })
     async bulkUpdate(@Body() bulkUpdateDto: BulkUpdateTenantDto): Promise<BulkUpdateResultDto> {
         return this.tenantCommands.bulkUpdateTenants(bulkUpdateDto);
-    }
-
-    @Delete('bulk')
-    @ApiOperation({
-        summary: 'Bulk delete tenants',
-        description: 'Deletes multiple tenants in a single request',
-    })
-    @ApiBody({ type: BulkDeleteTenantDto })
-    @ApiResponse({
-        status: HttpStatus.OK,
-        description: 'Bulk delete completed',
-        type: BulkDeleteResultDto,
-    })
-    @ApiUnauthorizedResponse({ description: 'Unauthorized' })
-    @ApiForbiddenResponse({ description: 'Forbidden - requires super admin role' })
-    async bulkDelete(@Body() bulkDeleteDto: BulkDeleteTenantDto): Promise<BulkDeleteResultDto> {
-        return this.tenantCommands.bulkDeleteTenants(bulkDeleteDto);
     }
 
     @Get(':id')

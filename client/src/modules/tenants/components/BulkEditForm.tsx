@@ -83,7 +83,7 @@ const BulkEditForm: React.FC<BulkEditFormProps> = ({ selectedTenants, onClose })
       onSubmit={handleSubmit}
       validateOnChange={false}
       validateOnBlur={true}>
-      {({ dirty }) => (
+      {({ isValid, dirty }) => (
         <Form>
           <Box sx={{ mt: 2 }}>
             <Alert severity="info" sx={{ mb: 2 }}>
