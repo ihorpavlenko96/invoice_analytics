@@ -22,3 +22,18 @@ export const updateTenant = (tenantPayload: UpdateTenantPayload) =>
   axios.patch<Tenant>(`/tenants/${tenantPayload.id}`, tenantPayload.data);
 
 export const deleteTenant = (tenantId: string) => axios.delete(`/tenants/${tenantId}`);
+
+export type BulkDeleteTenantInput = {
+  ids: string[];
+};
+
+export type BulkDeleteResult = {
+  successful: string[];
+  failed: { id: string; error: string }[];
+  total: number;
+  successCount: number;
+  failureCount: number;
+};
+
+export const bulkDeleteTenants = (bulkDeleteData: BulkDeleteTenantInput) =>
+  axios.delete<BulkDeleteResult>('/tenants/bulk', { data: bulkDeleteData });
