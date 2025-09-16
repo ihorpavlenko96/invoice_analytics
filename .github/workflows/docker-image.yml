@@ -5,9 +5,6 @@ on:
     branches:
       - main
       - develop
-  pull_request:
-    branches:
-      - main
   workflow_dispatch: # Manual trigger option
 
 env:
@@ -65,12 +62,8 @@ jobs:
           tags: |
             ${{ env.ACR_LOGIN_SERVER }}/api:${{ steps.version.outputs.version }}
             ${{ env.ACR_LOGIN_SERVER }}/api:latest
-          cache-from: |
-            type=registry,ref=${{ env.ACR_LOGIN_SERVER }}/api:buildcache
-            type=gha
-          cache-to: |
-            type=registry,ref=${{ env.ACR_LOGIN_SERVER }}/api:buildcache,mode=max
-            type=gha,mode=max
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
           platforms: linux/amd64
 
       - name: Build and Push Client Docker Image
@@ -85,12 +78,8 @@ jobs:
           tags: |
             ${{ env.ACR_LOGIN_SERVER }}/client:${{ steps.version.outputs.version }}
             ${{ env.ACR_LOGIN_SERVER }}/client:latest
-          cache-from: |
-            type=registry,ref=${{ env.ACR_LOGIN_SERVER }}/client:buildcache
-            type=gha
-          cache-to: |
-            type=registry,ref=${{ env.ACR_LOGIN_SERVER }}/client:buildcache,mode=max
-            type=gha,mode=max
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
           platforms: linux/amd64
 
   # ==================== CD Stage ====================
