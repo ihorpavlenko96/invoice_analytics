@@ -1,8 +1,6 @@
 import { darkTheme } from './darkTheme';
-import { lightTheme } from './lightTheme';
 
-// Export both themes - ThemeContext handles selection
-export { darkTheme, lightTheme };
-
-// Legacy export for backwards compatibility
+// Export the light theme as the default and only theme
 export const theme = darkTheme;
+
+export { darkTheme };
