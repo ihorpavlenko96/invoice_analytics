@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { useSnackbar } from 'notistack';
 import {
   Box,
@@ -16,6 +16,7 @@ import {
   TableContainer,
   TableHead,
   TableRow,
+  TableSortLabel,
   Typography,
   useTheme,
 } from '@mui/material';
@@ -50,6 +51,12 @@ const TenantManagementPage: React.FC<TenantManagementPageProps> = () => {
     resetDeleteState,
   } = useTenantManagementStore();
 
+  // Sorting state
+  type SortableColumns = 'name' | 'alias';
+  type SortOrder = 'asc' | 'desc';
+  const [sortBy, setSortBy] = useState<SortableColumns | null>(null);
+  const [sortOrder, setSortOrder] = useState<SortOrder>('asc');
+
   const {
     data: tenantsData,
     isLoading: isLoading,
@@ -72,6 +79,44 @@ const TenantManagementPage: React.FC<TenantManagementPageProps> = () => {
   });
 
   const tenants = tenantsData?.data ?? [];
+
+  // Sorting logic
+  const sortedTenants = useMemo(() => {
+    if (!sortBy) return tenants;
+
+    return [...tenants].sort((a, b) => {
+      let aValue: string;
+      let bValue: string;
+
+      switch (sortBy) {
+        case 'name':
+          aValue = a.name?.toLowerCase() || '';
+          bValue = b.name?.toLowerCase() || '';
+          break;
+        case 'alias':
+          aValue = a.alias?.toLowerCase() || '';
+          bValue = b.alias?.toLowerCase() || '';
+          break;
+        default:
+          return 0;
+      }
+
+      if (sortOrder === 'asc') {
+        return aValue.localeCompare(bValue);
+      } else {
+        return bValue.localeCompare(aValue);
+      }
+    });
+  }, [tenants, sortBy, sortOrder]);
+
+  const handleSort = (column: SortableColumns) => {
+    if (sortBy === column) {
+      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortBy(column);
+      setSortOrder('asc');
+    }
+  };
 
   useEffect(() => {
     if (queryError) {
@@ -132,8 +177,22 @@ const TenantManagementPage: React.FC<TenantManagementPageProps> = () => {
                         borderBottom: `1px solid ${theme.palette.divider}`,
                       },
                     }}>
-                    <TableCell>Tenant Name</TableCell>
-                    <TableCell>Alias</TableCell>
+                    <TableCell>
+                      <TableSortLabel
+                        active={sortBy === 'name'}
+                        direction={sortBy === 'name' ? sortOrder : 'asc'}
+                        onClick={() => handleSort('name')}>
+                        Tenant Name
+                      </TableSortLabel>
+                    </TableCell>
+                    <TableCell>
+                      <TableSortLabel
+                        active={sortBy === 'alias'}
+                        direction={sortBy === 'alias' ? sortOrder : 'asc'}
+                        onClick={() => handleSort('alias')}>
+                        Alias
+                      </TableSortLabel>
+                    </TableCell>
                     <TableCell align="right">Actions</TableCell>
                   </TableRow>
                 </TableHead>
@@ -151,14 +210,14 @@ const TenantManagementPage: React.FC<TenantManagementPageProps> = () => {
                       borderBottom: 0,
                     },
                   }}>
-                  {tenants.length === 0 && !isLoading && (
+                  {sortedTenants.length === 0 && !isLoading && (
                     <TableRow>
                       <TableCell colSpan={4} align="center" sx={{ py: 3 }}>
                         No tenants found.
                       </TableCell>
                     </TableRow>
                   )}
-                  {tenants.map((tenant) => (
+                  {sortedTenants.map((tenant) => (
                     <TableRow key={tenant.id}>
                       <TableCell component="th" scope="row">
                         {tenant.name}
