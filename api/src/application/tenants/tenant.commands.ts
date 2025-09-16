@@ -5,6 +5,8 @@ import { ITenantCommands } from './interfaces/tenant-commands.interface';
 import { CreateTenantDto } from './dto/create-tenant.dto';
 import { UpdateTenantDto } from './dto/update-tenant.dto';
 import { TenantDto } from './dto/tenant.dto';
+import { BulkUpdateTenantDto } from './dto/bulk-update-tenant.dto';
+import { BulkUpdateResultDto } from './dto/bulk-update-result.dto';
 
 @Injectable()
 export class TenantCommands implements ITenantCommands {
@@ -61,5 +63,52 @@ export class TenantCommands implements ITenantCommands {
         if (!deleted) {
             throw new NotFoundException(`Tenant with ID ${id} not found`);
         }
+    }
+
+    async bulkUpdateTenants(dto: BulkUpdateTenantDto): Promise<BulkUpdateResultDto> {
+        const result = new BulkUpdateResultDto();
+        result.successful = [];
+        result.failed = [];
+        result.total = dto.updates.length;
+
+        for (const update of dto.updates) {
+            try {
+                const { id, ...updateData } = update;
+
+                if (updateData.alias) {
+                    const existingByAlias = await this.tenantRepository.findByAlias(
+                        updateData.alias,
+                    );
+                    if (existingByAlias && existingByAlias.id !== id) {
+                        result.failed.push({
+                            id,
+                            error: `Alias "${updateData.alias}" already exists for another tenant`,
+                        });
+                        continue;
+                    }
+                }
+
+                const updatedTenant = await this.tenantRepository.update(id, updateData);
+
+                if (!updatedTenant) {
+                    result.failed.push({
+                        id,
+                        error: 'Tenant not found',
+                    });
+                } else {
+                    result.successful.push(this.mapToDto(updatedTenant));
+                }
+            } catch (error) {
+                result.failed.push({
+                    id: update.id,
+                    error: error instanceof Error ? error.message : 'Update failed',
+                });
+            }
+        }
+
+        result.successCount = result.successful.length;
+        result.failureCount = result.failed.length;
+
+        return result;
     }
 }
