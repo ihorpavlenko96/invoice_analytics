@@ -5,8 +5,6 @@ import { ITenantCommands } from './interfaces/tenant-commands.interface';
 import { CreateTenantDto } from './dto/create-tenant.dto';
 import { UpdateTenantDto } from './dto/update-tenant.dto';
 import { TenantDto } from './dto/tenant.dto';
-import { BulkDeleteTenantDto } from './dto/bulk-delete-tenant.dto';
-import { BulkDeleteResultDto } from './dto/bulk-delete-result.dto';
 
 @Injectable()
 export class TenantCommands implements ITenantCommands {
@@ -63,28 +61,5 @@ export class TenantCommands implements ITenantCommands {
         if (!deleted) {
             throw new NotFoundException(`Tenant with ID ${id} not found`);
         }
-    }
-
-    async bulkDeleteTenants(dto: BulkDeleteTenantDto): Promise<BulkDeleteResultDto> {
-        const successful: string[] = [];
-        const failed: Array<{ id: string; error: string }> = [];
-
-        for (const id of dto.ids) {
-            try {
-                const deleted = await this.tenantRepository.delete(id);
-                if (deleted) {
-                    successful.push(id);
-                } else {
-                    failed.push({ id, error: 'Tenant not found' });
-                }
-            } catch (error) {
-                failed.push({
-                    id,
-                    error: error instanceof Error ? error.message : 'Unknown error',
-                });
-            }
-        }
-
-        return new BulkDeleteResultDto(successful, failed);
     }
 }

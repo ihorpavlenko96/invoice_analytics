@@ -6,7 +6,6 @@ import {
   Card,
   CardContent,
   CardHeader,
-  Checkbox,
   CircularProgress,
   Dialog,
   DialogContent,
@@ -26,7 +25,7 @@ import TenantForm from '../components/TenantForm.tsx';
 import ConfirmationDialog from '../../../common/components/ConfirmationDialog.tsx';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { getTenants } from '../tenantQueries.ts';
-import { deleteTenant, bulkDeleteTenants } from '../tenantMutations.ts';
+import { deleteTenant } from '../tenantMutations.ts';
 import { CACHE_TIMES } from '../../../common/constants/cacheTimes.ts';
 import { useTenantManagementStore } from '../stores/tenantManagementStore';
 import { TENANT_QUERY_KEYS } from '../tenantQueryKeys.ts';
@@ -43,19 +42,12 @@ const TenantManagementPage: React.FC<TenantManagementPageProps> = () => {
     selectedTenant,
     isConfirmDeleteDialogOpen,
     tenantToDeleteId,
-    selectedTenantIds,
-    isBulkDeleteDialogOpen,
     openCreateForm,
     openEditForm,
     closeForm,
     openConfirmDeleteDialog,
     closeConfirmDeleteDialog,
     resetDeleteState,
-    toggleTenantSelection,
-    setSelectedTenantIds,
-    clearSelectedTenants,
-    openBulkDeleteDialog,
-    closeBulkDeleteDialog,
   } = useTenantManagementStore();
 
   const {
@@ -79,34 +71,6 @@ const TenantManagementPage: React.FC<TenantManagementPageProps> = () => {
     onSettled: () => resetDeleteState(),
   });
 
-  const { mutateAsync: removeBulkTenants } = useMutation({
-    mutationFn: bulkDeleteTenants,
-    onSuccess: (result) => {
-      queryClient.invalidateQueries({ queryKey: [TENANT_QUERY_KEYS.GET_TENANTS] });
-
-      if (result.data.totalDeleted > 0) {
-        enqueueSnackbar(`Successfully deleted ${result.data.totalDeleted} tenant(s)`, {
-          variant: 'success',
-        });
-      }
-
-      if (result.data.totalFailed > 0) {
-        enqueueSnackbar(`Failed to delete ${result.data.totalFailed} tenant(s)`, {
-          variant: 'error',
-        });
-      }
-    },
-    onError: (error: Error) => {
-      enqueueSnackbar(error.message || 'Failed to delete tenants', {
-        variant: 'error',
-      });
-    },
-    onSettled: () => {
-      closeBulkDeleteDialog();
-      clearSelectedTenants();
-    },
-  });
-
   const tenants = tenantsData?.data ?? [];
 
   useEffect(() => {
@@ -120,20 +84,6 @@ const TenantManagementPage: React.FC<TenantManagementPageProps> = () => {
   const handleConfirmDelete = async (): Promise<void> => {
     if (tenantToDeleteId === null) return;
     await removeTenant(tenantToDeleteId);
-  };
-
-  const handleConfirmBulkDelete = async (): Promise<void> => {
-    if (selectedTenantIds.length === 0) return;
-    await removeBulkTenants(selectedTenantIds);
-  };
-
-  const handleSelectAll = (event: React.ChangeEvent<HTMLInputElement>): void => {
-    if (event.target.checked) {
-      const allIds = tenants.map(tenant => tenant.id);
-      setSelectedTenantIds(allIds);
-    } else {
-      clearSelectedTenants();
-    }
   };
 
   return (
@@ -151,29 +101,15 @@ const TenantManagementPage: React.FC<TenantManagementPageProps> = () => {
             </Typography>
           }
           action={
-            <Box sx={{ display: 'flex', gap: 2 }}>
-              {selectedTenantIds.length > 0 && (
-                <Button
-                  variant="contained"
-                  color="error"
-                  onClick={openBulkDeleteDialog}
-                  sx={{
-                    backgroundColor: theme.palette.error.main,
-                    '&:hover': { backgroundColor: theme.palette.error.dark },
-                  }}>
-                  Delete Selected ({selectedTenantIds.length})
-                </Button>
-              )}
-              <Button
-                variant="contained"
-                onClick={openCreateForm}
-                sx={{
-                  backgroundColor: theme.palette.primary.main,
-                  '&:hover': { backgroundColor: theme.palette.primary.dark },
-                }}>
-                + Add Tenant
-              </Button>
-            </Box>
+            <Button
+              variant="contained"
+              onClick={openCreateForm}
+              sx={{
+                backgroundColor: theme.palette.primary.main,
+                '&:hover': { backgroundColor: theme.palette.primary.dark },
+              }}>
+              + Add Tenant
+            </Button>
           }
         />
         <CardContent sx={{ p: 0, '&:last-child': { pb: 0 } }}>
@@ -196,14 +132,6 @@ const TenantManagementPage: React.FC<TenantManagementPageProps> = () => {
                         borderBottom: `1px solid ${theme.palette.divider}`,
                       },
                     }}>
-                    <TableCell padding="checkbox">
-                      <Checkbox
-                        indeterminate={selectedTenantIds.length > 0 && selectedTenantIds.length < tenants.length}
-                        checked={tenants.length > 0 && selectedTenantIds.length === tenants.length}
-                        onChange={handleSelectAll}
-                        sx={{ color: theme.palette.text.secondary }}
-                      />
-                    </TableCell>
                     <TableCell>Tenant Name</TableCell>
                     <TableCell>Alias</TableCell>
                     <TableCell align="right">Actions</TableCell>
@@ -225,20 +153,13 @@ const TenantManagementPage: React.FC<TenantManagementPageProps> = () => {
                   }}>
                   {tenants.length === 0 && !isLoading && (
                     <TableRow>
-                      <TableCell colSpan={5} align="center" sx={{ py: 3 }}>
+                      <TableCell colSpan={4} align="center" sx={{ py: 3 }}>
                         No tenants found.
                       </TableCell>
                     </TableRow>
                   )}
                   {tenants.map((tenant) => (
                     <TableRow key={tenant.id}>
-                      <TableCell padding="checkbox">
-                        <Checkbox
-                          checked={selectedTenantIds.includes(tenant.id)}
-                          onChange={() => toggleTenantSelection(tenant.id)}
-                          sx={{ color: theme.palette.text.secondary }}
-                        />
-                      </TableCell>
                       <TableCell component="th" scope="row">
                         {tenant.name}
                       </TableCell>
@@ -295,16 +216,6 @@ const TenantManagementPage: React.FC<TenantManagementPageProps> = () => {
         title="Confirm Deletion"
         message={`Are you sure you want to delete tenant ID: ${tenantToDeleteId}? This action cannot be undone.`}
         confirmText="Delete"
-        cancelText="Cancel"
-      />
-
-      <ConfirmationDialog
-        open={isBulkDeleteDialogOpen}
-        onClose={closeBulkDeleteDialog}
-        onConfirm={handleConfirmBulkDelete}
-        title="Confirm Bulk Deletion"
-        message={`Are you sure you want to delete ${selectedTenantIds.length} selected tenant(s)? This action cannot be undone.`}
-        confirmText="Delete All"
         cancelText="Cancel"
       />
     </Box>

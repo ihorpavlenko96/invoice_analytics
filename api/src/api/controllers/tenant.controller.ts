@@ -21,8 +21,6 @@ import {
 import { CreateTenantDto } from '../../application/tenants/dto/create-tenant.dto';
 import { UpdateTenantDto } from '../../application/tenants/dto/update-tenant.dto';
 import { TenantDto } from '../../application/tenants/dto/tenant.dto';
-import { BulkDeleteTenantDto } from '../../application/tenants/dto/bulk-delete-tenant.dto';
-import { BulkDeleteResultDto } from '../../application/tenants/dto/bulk-delete-result.dto';
 import { RoleName } from '../../domain/enums/role-name.enum';
 import { Authorize } from '../../infrastructure/auth/decorators/authorize.decorator';
 import {
@@ -132,23 +130,5 @@ export class TenantController {
     @ApiForbiddenResponse({ description: 'Forbidden - requires super admin role' })
     async remove(@Param('id') id: string): Promise<void> {
         return this.tenantCommands.deleteTenant(id);
-    }
-
-    @Post('bulk-delete')
-    @HttpCode(HttpStatus.OK)
-    @ApiOperation({
-        summary: 'Bulk delete tenants',
-        description: 'Deletes multiple tenants by their IDs',
-    })
-    @ApiBody({ type: BulkDeleteTenantDto })
-    @ApiResponse({
-        status: HttpStatus.OK,
-        description: 'Bulk delete result',
-        type: BulkDeleteResultDto,
-    })
-    @ApiUnauthorizedResponse({ description: 'Unauthorized' })
-    @ApiForbiddenResponse({ description: 'Forbidden - requires super admin role' })
-    async bulkDelete(@Body() bulkDeleteDto: BulkDeleteTenantDto): Promise<BulkDeleteResultDto> {
-        return this.tenantCommands.bulkDeleteTenants(bulkDeleteDto);
     }
 }
