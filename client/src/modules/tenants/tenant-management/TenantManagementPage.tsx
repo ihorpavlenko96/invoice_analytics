@@ -6,6 +6,7 @@ import {
   Card,
   CardContent,
   CardHeader,
+  Checkbox,
   CircularProgress,
   Dialog,
   DialogContent,
@@ -26,7 +27,7 @@ import TenantForm from '../components/TenantForm.tsx';
 import ConfirmationDialog from '../../../common/components/ConfirmationDialog.tsx';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { getTenants } from '../tenantQueries.ts';
-import { deleteTenant } from '../tenantMutations.ts';
+import { deleteTenant, bulkDeleteTenants } from '../tenantMutations.ts';
 import { CACHE_TIMES } from '../../../common/constants/cacheTimes.ts';
 import { useTenantManagementStore } from '../stores/tenantManagementStore';
 import { TENANT_QUERY_KEYS } from '../tenantQueryKeys.ts';
@@ -43,12 +44,19 @@ const TenantManagementPage: React.FC<TenantManagementPageProps> = () => {
     selectedTenant,
     isConfirmDeleteDialogOpen,
     tenantToDeleteId,
+    selectedTenantIds,
+    isConfirmBulkDeleteDialogOpen,
     openCreateForm,
     openEditForm,
     closeForm,
     openConfirmDeleteDialog,
     closeConfirmDeleteDialog,
     resetDeleteState,
+    toggleTenantSelection,
+    selectAllTenants,
+    clearSelection,
+    openConfirmBulkDeleteDialog,
+    closeConfirmBulkDeleteDialog,
   } = useTenantManagementStore();
 
   // Sorting state
@@ -76,6 +84,23 @@ const TenantManagementPage: React.FC<TenantManagementPageProps> = () => {
       });
     },
     onSettled: () => resetDeleteState(),
+  });
+
+  const { mutateAsync: removeBulkTenants } = useMutation({
+    mutationFn: bulkDeleteTenants,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [TENANT_QUERY_KEYS.GET_TENANTS] });
+      enqueueSnackbar(`${selectedTenantIds.size} tenants deleted successfully`, {
+        variant: 'success',
+      });
+      clearSelection();
+    },
+    onError: (error: Error) => {
+      enqueueSnackbar(error.message || 'Failed to delete tenants', {
+        variant: 'error',
+      });
+    },
+    onSettled: () => closeConfirmBulkDeleteDialog(),
   });
 
   const tenants = tenantsData?.data ?? [];
@@ -131,6 +156,20 @@ const TenantManagementPage: React.FC<TenantManagementPageProps> = () => {
     await removeTenant(tenantToDeleteId);
   };
 
+  const handleConfirmBulkDelete = async (): Promise<void> => {
+    if (selectedTenantIds.size === 0) return;
+    await removeBulkTenants(Array.from(selectedTenantIds));
+  };
+
+  const handleSelectAll = (): void => {
+    const allIds = sortedTenants.map(tenant => tenant.id);
+    selectAllTenants(allIds);
+  };
+
+  const isAllSelected = sortedTenants.length > 0 &&
+    sortedTenants.every(tenant => selectedTenantIds.has(tenant.id));
+  const isIndeterminate = sortedTenants.some(tenant => selectedTenantIds.has(tenant.id)) && !isAllSelected;
+
   return (
     <Box sx={{ backgroundColor: theme.palette.background.default }}>
       <Card
@@ -146,15 +185,28 @@ const TenantManagementPage: React.FC<TenantManagementPageProps> = () => {
             </Typography>
           }
           action={
-            <Button
-              variant="contained"
-              onClick={openCreateForm}
-              sx={{
-                backgroundColor: theme.palette.primary.main,
-                '&:hover': { backgroundColor: theme.palette.primary.dark },
-              }}>
-              + Add Tenant
-            </Button>
+            <Box sx={{ display: 'flex', gap: 2 }}>
+              {selectedTenantIds.size > 0 && (
+                <Button
+                  variant="contained"
+                  onClick={openConfirmBulkDeleteDialog}
+                  sx={{
+                    backgroundColor: theme.palette.error.main,
+                    '&:hover': { backgroundColor: theme.palette.error.dark },
+                  }}>
+                  Delete ({selectedTenantIds.size})
+                </Button>
+              )}
+              <Button
+                variant="contained"
+                onClick={openCreateForm}
+                sx={{
+                  backgroundColor: theme.palette.primary.main,
+                  '&:hover': { backgroundColor: theme.palette.primary.dark },
+                }}>
+                + Add Tenant
+              </Button>
+            </Box>
           }
         />
         <CardContent sx={{ p: 0, '&:last-child': { pb: 0 } }}>
@@ -177,6 +229,14 @@ const TenantManagementPage: React.FC<TenantManagementPageProps> = () => {
                         borderBottom: `1px solid ${theme.palette.divider}`,
                       },
                     }}>
+                    <TableCell padding="checkbox">
+                      <Checkbox
+                        color="primary"
+                        indeterminate={isIndeterminate}
+                        checked={isAllSelected}
+                        onChange={handleSelectAll}
+                      />
+                    </TableCell>
                     <TableCell>
                       <TableSortLabel
                         active={sortBy === 'name'}
@@ -212,16 +272,33 @@ const TenantManagementPage: React.FC<TenantManagementPageProps> = () => {
                   }}>
                   {sortedTenants.length === 0 && !isLoading && (
                     <TableRow>
-                      <TableCell colSpan={4} align="center" sx={{ py: 3 }}>
+                      <TableCell colSpan={5} align="center" sx={{ py: 3 }}>
                         No tenants found.
                       </TableCell>
                     </TableRow>
                   )}
-                  {sortedTenants.map((tenant) => (
-                    <TableRow key={tenant.id}>
-                      <TableCell component="th" scope="row">
-                        {tenant.name}
-                      </TableCell>
+                  {sortedTenants.map((tenant) => {
+                    const isSelected = selectedTenantIds.has(tenant.id);
+                    return (
+                      <TableRow
+                        key={tenant.id}
+                        sx={{
+                          '&:hover': {
+                            backgroundColor: theme.palette.action.hover,
+                          },
+                          backgroundColor: isSelected ? theme.palette.action.selected : 'transparent',
+                        }}
+                      >
+                        <TableCell padding="checkbox">
+                          <Checkbox
+                            color="primary"
+                            checked={isSelected}
+                            onChange={() => toggleTenantSelection(tenant.id)}
+                          />
+                        </TableCell>
+                        <TableCell component="th" scope="row">
+                          {tenant.name}
+                        </TableCell>
                       <TableCell>{tenant.alias}</TableCell>
                       <TableCell align="right">
                         <Button
@@ -253,7 +330,8 @@ const TenantManagementPage: React.FC<TenantManagementPageProps> = () => {
                         </Button>
                       </TableCell>
                     </TableRow>
-                  ))}
+                  );
+                })}
                 </TableBody>
               </Table>
             </TableContainer>
@@ -274,6 +352,16 @@ const TenantManagementPage: React.FC<TenantManagementPageProps> = () => {
         onConfirm={handleConfirmDelete}
         title="Confirm Deletion"
         message={`Are you sure you want to delete tenant ID: ${tenantToDeleteId}? This action cannot be undone.`}
+        confirmText="Delete"
+        cancelText="Cancel"
+      />
+
+      <ConfirmationDialog
+        open={isConfirmBulkDeleteDialogOpen}
+        onClose={closeConfirmBulkDeleteDialog}
+        onConfirm={handleConfirmBulkDelete}
+        title="Confirm Bulk Deletion"
+        message={`Are you sure you want to delete ${selectedTenantIds.size} tenants? This action cannot be undone.`}
         confirmText="Delete"
         cancelText="Cancel"
       />

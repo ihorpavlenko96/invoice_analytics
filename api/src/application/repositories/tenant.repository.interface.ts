@@ -10,6 +10,7 @@ export interface ITenantRepository {
     findByAlias(alias: string): Promise<Tenant | null>;
     update(id: string, dto: UpdateTenantDto): Promise<Tenant | null>;
     delete(id: string): Promise<boolean>;
+    bulkDelete(ids: string[]): Promise<void>;
 }
 
 export const TENANT_REPOSITORY = 'ITenantRepository';
