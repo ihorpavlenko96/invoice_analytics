@@ -1,7 +1,6 @@
-import { whiteTheme } from './whiteTheme';
 import { darkTheme } from './darkTheme';
 
-// Export the white theme as the default theme
-export const theme = whiteTheme;
+// Export the light theme as the default and only theme
+export const theme = darkTheme;
 
-export { whiteTheme, darkTheme };
+export { darkTheme };
