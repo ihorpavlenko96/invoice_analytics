@@ -17,9 +17,7 @@ import {
   TableBody,
   TableCell,
   TableContainer,
-  TableHead,
   TableRow,
-  TableSortLabel,
   Tooltip,
   Typography,
   useTheme,
@@ -45,6 +43,7 @@ import { deleteUser, activateUser, deactivateUser } from '../userMutations.ts';
 import { CACHE_TIMES } from '../../../common/constants/cacheTimes.ts';
 import { useUserManagementStore } from '../stores/userManagementStore';
 import { USER_QUERY_KEYS } from '../userQueryKeys.ts';
+import DraggableTableHead from '../components/DraggableTableHead';
 
 type UserManagementPageProps = Record<string, unknown>;
 
@@ -76,6 +75,7 @@ const UserManagementPage: React.FC<UserManagementPageProps> = () => {
     userToDeleteId,
     isConfirmToggleStatusDialogOpen,
     userToToggleStatus,
+    columnOrder,
     openCreateForm,
     openEditForm,
     closeForm,
@@ -85,6 +85,8 @@ const UserManagementPage: React.FC<UserManagementPageProps> = () => {
     openConfirmToggleStatusDialog,
     closeConfirmToggleStatusDialog,
     resetToggleStatusState,
+    setColumnOrder,
+    loadColumnOrder,
   } = useUserManagementStore();
 
   const {
@@ -105,10 +107,9 @@ const UserManagementPage: React.FC<UserManagementPageProps> = () => {
     }
   }, [usersError, enqueueSnackbar]);
 
-  type SortableColumns = 'email' | 'name' | 'tenant' | 'status' | 'createdAt';
   type SortOrder = 'asc' | 'desc';
 
-  const [sortBy, setSortBy] = useState<SortableColumns | null>(null);
+  const [sortBy, setSortBy] = useState<string | null>(null);
   const [sortOrder, setSortOrder] = useState<SortOrder>('asc');
 
   // Filter states
@@ -118,6 +119,33 @@ const UserManagementPage: React.FC<UserManagementPageProps> = () => {
   const [filterRole, setFilterRole] = useState<string>('all');
 
   const users: User[] = usersData?.data ?? [];
+
+  useEffect(() => {
+    loadColumnOrder();
+  }, [loadColumnOrder]);
+
+  const columns = useMemo(() => {
+    const baseColumns = [
+      { id: 'email', label: 'Email', sortable: true },
+      { id: 'name', label: 'Name', sortable: true },
+      { id: 'roles', label: 'Roles', sortable: false },
+      { id: 'status', label: 'Status', sortable: true },
+      { id: 'createdAt', label: 'Created At', sortable: true },
+      { id: 'actions', label: 'Actions', sortable: false, align: 'right' as const },
+    ];
+
+    if (isSuperAdmin) {
+      baseColumns.splice(2, 0, { id: 'tenant', label: 'Tenant', sortable: true });
+    }
+
+    return baseColumns;
+  }, [isSuperAdmin]);
+
+  useEffect(() => {
+    if (columnOrder.length === 0 && columns.length > 0) {
+      setColumnOrder(columns.map(col => col.id));
+    }
+  }, [columns, columnOrder.length, setColumnOrder]);
 
   const sortedUsers = useMemo(() => {
     // First apply filters
@@ -198,7 +226,7 @@ const UserManagementPage: React.FC<UserManagementPageProps> = () => {
     });
   }, [users, sortBy, sortOrder, filterEmail, filterName, filterStatus, filterRole]);
 
-  const handleSort = (column: SortableColumns) => {
+  const handleSort = (column: string) => {
     if (sortBy === column) {
       setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
     } else {
@@ -370,62 +398,14 @@ const UserManagementPage: React.FC<UserManagementPageProps> = () => {
           {!isLoading && (
             <TableContainer>
               <Table stickyHeader aria-label="user table">
-                <TableHead>
-                  <TableRow
-                    sx={{
-                      '& th': {
-                        backgroundColor: theme.palette.action.hover,
-                        color: theme.palette.text.secondary,
-                        fontWeight: 'bold',
-                        borderBottom: `1px solid ${theme.palette.divider}`,
-                      },
-                    }}>
-                    <TableCell>
-                      <TableSortLabel
-                        active={sortBy === 'email'}
-                        direction={sortBy === 'email' ? sortOrder : 'asc'}
-                        onClick={() => handleSort('email')}>
-                        Email
-                      </TableSortLabel>
-                    </TableCell>
-                    <TableCell>
-                      <TableSortLabel
-                        active={sortBy === 'name'}
-                        direction={sortBy === 'name' ? sortOrder : 'asc'}
-                        onClick={() => handleSort('name')}>
-                        Name
-                      </TableSortLabel>
-                    </TableCell>
-                    {isSuperAdmin && (
-                      <TableCell>
-                        <TableSortLabel
-                          active={sortBy === 'tenant'}
-                          direction={sortBy === 'tenant' ? sortOrder : 'asc'}
-                          onClick={() => handleSort('tenant')}>
-                          Tenant
-                        </TableSortLabel>
-                      </TableCell>
-                    )}
-                    <TableCell>Roles</TableCell>
-                    <TableCell>
-                      <TableSortLabel
-                        active={sortBy === 'status'}
-                        direction={sortBy === 'status' ? sortOrder : 'asc'}
-                        onClick={() => handleSort('status')}>
-                        Status
-                      </TableSortLabel>
-                    </TableCell>
-                    <TableCell>
-                      <TableSortLabel
-                        active={sortBy === 'createdAt'}
-                        direction={sortBy === 'createdAt' ? sortOrder : 'asc'}
-                        onClick={() => handleSort('createdAt')}>
-                        Created At
-                      </TableSortLabel>
-                    </TableCell>
-                    <TableCell align="right">Actions</TableCell>
-                  </TableRow>
-                </TableHead>
+                <DraggableTableHead
+                  columns={columns}
+                  columnOrder={columnOrder}
+                  sortBy={sortBy}
+                  sortOrder={sortOrder}
+                  onSort={handleSort}
+                  onReorder={setColumnOrder}
+                />
                 <TableBody
                   sx={{
                     '& tr': {
@@ -442,63 +422,104 @@ const UserManagementPage: React.FC<UserManagementPageProps> = () => {
                   }}>
                   {sortedUsers.length === 0 && !isLoading && (
                     <TableRow>
-                      <TableCell colSpan={isSuperAdmin ? 9 : 8} align="center" sx={{ py: 3 }}>
+                      <TableCell colSpan={columns.length} align="center" sx={{ py: 3 }}>
                         No users found.
                       </TableCell>
                     </TableRow>
                   )}
-                  {sortedUsers.map((user) => (
-                    <TableRow key={user.id}>
-                      <TableCell component="th" scope="row">
-                        {user.email}
-                      </TableCell>
-                      <TableCell>
-                        {`${user.firstName ?? '-'} ${user.lastName ?? ''}`.trim()}
-                      </TableCell>
-                      {isSuperAdmin && <TableCell>{user.tenant?.name ?? '-'}</TableCell>}
-                      <TableCell>{formatRoles(user.roles)}</TableCell>
-                      <TableCell>
-                        <Chip
-                          icon={user.isActive ? <CheckCircleOutlineIcon /> : <HighlightOffIcon />}
-                          label={user.isActive ? 'Active' : 'Inactive'}
-                          color={user.isActive ? 'success' : 'error'}
-                          size="small"
-                          variant="outlined"
-                        />
-                      </TableCell>
-                      <TableCell>{formatDate(user.createdAt)}</TableCell>
-                      <TableCell align="right">
-                        <Tooltip title={user.isActive ? 'Deactivate User' : 'Activate User'}>
-                          <IconButton
-                            onClick={() => openConfirmToggleStatusDialog(user)}
-                            size="small"
-                            color={user.isActive ? 'warning' : 'success'}
-                            sx={{ mr: 0.5 }}
-                            disabled={isTogglingStatus && userToToggleStatus?.id === user.id}>
-                            {user.isActive ? <HighlightOffIcon /> : <CheckCircleOutlineIcon />}
-                          </IconButton>
-                        </Tooltip>
-                        <Tooltip title="Edit User">
-                          <IconButton
-                            onClick={() => openEditForm(user)}
-                            size="small"
-                            color="primary"
-                            sx={{ mr: 0.5 }}>
-                            <EditIcon />
-                          </IconButton>
-                        </Tooltip>
-                        <Tooltip title="Delete User">
-                          <IconButton
-                            onClick={() => openConfirmDeleteDialog(user.id)}
-                            size="small"
-                            color="error"
-                            disabled={isDeleting && userToDeleteId === user.id}>
-                            <DeleteIcon />
-                          </IconButton>
-                        </Tooltip>
-                      </TableCell>
-                    </TableRow>
-                  ))}
+                  {sortedUsers.map((user) => {
+                    const orderedColumns = columnOrder.length > 0
+                      ? columnOrder.map(id => columns.find(col => col.id === id)).filter(Boolean)
+                      : columns;
+
+                    return (
+                      <TableRow key={user.id}>
+                        {orderedColumns.map((column) => {
+                          if (!column) return null;
+
+                          switch (column.id) {
+                            case 'email':
+                              return (
+                                <TableCell key={column.id} component="th" scope="row">
+                                  {user.email}
+                                </TableCell>
+                              );
+                            case 'name':
+                              return (
+                                <TableCell key={column.id}>
+                                  {`${user.firstName ?? '-'} ${user.lastName ?? ''}`.trim()}
+                                </TableCell>
+                              );
+                            case 'tenant':
+                              return (
+                                <TableCell key={column.id}>
+                                  {user.tenant?.name ?? '-'}
+                                </TableCell>
+                              );
+                            case 'roles':
+                              return (
+                                <TableCell key={column.id}>
+                                  {formatRoles(user.roles)}
+                                </TableCell>
+                              );
+                            case 'status':
+                              return (
+                                <TableCell key={column.id}>
+                                  <Chip
+                                    icon={user.isActive ? <CheckCircleOutlineIcon /> : <HighlightOffIcon />}
+                                    label={user.isActive ? 'Active' : 'Inactive'}
+                                    color={user.isActive ? 'success' : 'error'}
+                                    size="small"
+                                    variant="outlined"
+                                  />
+                                </TableCell>
+                              );
+                            case 'createdAt':
+                              return (
+                                <TableCell key={column.id}>
+                                  {formatDate(user.createdAt)}
+                                </TableCell>
+                              );
+                            case 'actions':
+                              return (
+                                <TableCell key={column.id} align="right">
+                                  <Tooltip title={user.isActive ? 'Deactivate User' : 'Activate User'}>
+                                    <IconButton
+                                      onClick={() => openConfirmToggleStatusDialog(user)}
+                                      size="small"
+                                      color={user.isActive ? 'warning' : 'success'}
+                                      sx={{ mr: 0.5 }}
+                                      disabled={isTogglingStatus && userToToggleStatus?.id === user.id}>
+                                      {user.isActive ? <HighlightOffIcon /> : <CheckCircleOutlineIcon />}
+                                    </IconButton>
+                                  </Tooltip>
+                                  <Tooltip title="Edit User">
+                                    <IconButton
+                                      onClick={() => openEditForm(user)}
+                                      size="small"
+                                      color="primary"
+                                      sx={{ mr: 0.5 }}>
+                                      <EditIcon />
+                                    </IconButton>
+                                  </Tooltip>
+                                  <Tooltip title="Delete User">
+                                    <IconButton
+                                      onClick={() => openConfirmDeleteDialog(user.id)}
+                                      size="small"
+                                      color="error"
+                                      disabled={isDeleting && userToDeleteId === user.id}>
+                                      <DeleteIcon />
+                                    </IconButton>
+                                  </Tooltip>
+                                </TableCell>
+                              );
+                            default:
+                              return null;
+                          }
+                        })}
+                      </TableRow>
+                    );
+                  })}
                 </TableBody>
               </Table>
             </TableContainer>
