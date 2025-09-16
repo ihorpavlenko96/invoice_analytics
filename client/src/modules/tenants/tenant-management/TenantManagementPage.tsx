@@ -27,7 +27,7 @@ import BulkEditForm from '../components/BulkEditForm.tsx';
 import ConfirmationDialog from '../../../common/components/ConfirmationDialog.tsx';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { getTenants } from '../tenantQueries.ts';
-import { deleteTenant } from '../tenantMutations.ts';
+import { deleteTenant, bulkDeleteTenants } from '../tenantMutations.ts';
 import { CACHE_TIMES } from '../../../common/constants/cacheTimes.ts';
 import { useTenantManagementStore } from '../stores/tenantManagementStore';
 import { TENANT_QUERY_KEYS } from '../tenantQueryKeys.ts';
@@ -46,6 +46,7 @@ const TenantManagementPage: React.FC<TenantManagementPageProps> = () => {
     tenantToDeleteId,
     selectedTenantIds,
     isBulkEditOpen,
+    isBulkDeleteDialogOpen,
     openCreateForm,
     openEditForm,
     closeForm,
@@ -54,9 +55,10 @@ const TenantManagementPage: React.FC<TenantManagementPageProps> = () => {
     resetDeleteState,
     toggleTenantSelection,
     selectAllTenants,
-    clearSelection,
     openBulkEditDialog,
     closeBulkEditDialog,
+    openBulkDeleteDialog,
+    closeBulkDeleteDialog,
   } = useTenantManagementStore();
 
   const {
@@ -80,6 +82,30 @@ const TenantManagementPage: React.FC<TenantManagementPageProps> = () => {
     onSettled: () => resetDeleteState(),
   });
 
+  const { mutateAsync: bulkDelete } = useMutation({
+    mutationFn: bulkDeleteTenants,
+    onSuccess: (response) => {
+      const { data } = response;
+      if (data.successCount > 0) {
+        enqueueSnackbar(`Successfully deleted ${data.successCount} tenant(s)`, {
+          variant: 'success',
+        });
+      }
+      if (data.failureCount > 0) {
+        enqueueSnackbar(`Failed to delete ${data.failureCount} tenant(s)`, {
+          variant: 'error',
+        });
+      }
+      queryClient.invalidateQueries({ queryKey: [TENANT_QUERY_KEYS.GET_TENANTS] });
+    },
+    onError: (error: Error) => {
+      enqueueSnackbar(error.message || 'Failed to delete tenants', {
+        variant: 'error',
+      });
+    },
+    onSettled: () => closeBulkDeleteDialog(),
+  });
+
   const tenants = tenantsData?.data ?? [];
 
   useEffect(() => {
@@ -93,6 +119,11 @@ const TenantManagementPage: React.FC<TenantManagementPageProps> = () => {
   const handleConfirmDelete = async (): Promise<void> => {
     if (tenantToDeleteId === null) return;
     await removeTenant(tenantToDeleteId);
+  };
+
+  const handleConfirmBulkDelete = async (): Promise<void> => {
+    const idsToDelete = Array.from(selectedTenantIds);
+    await bulkDelete({ ids: idsToDelete });
   };
 
   return (
@@ -112,19 +143,34 @@ const TenantManagementPage: React.FC<TenantManagementPageProps> = () => {
           action={
             <Box sx={{ display: 'flex', gap: 1 }}>
               {selectedTenantIds.size > 0 && (
-                <Button
-                  variant="outlined"
-                  onClick={openBulkEditDialog}
-                  sx={{
-                    borderColor: theme.palette.primary.main,
-                    color: theme.palette.primary.main,
-                    '&:hover': {
-                      borderColor: theme.palette.primary.dark,
-                      backgroundColor: theme.palette.action.hover,
-                    },
-                  }}>
-                  Bulk Edit ({selectedTenantIds.size})
-                </Button>
+                <>
+                  <Button
+                    variant="outlined"
+                    onClick={openBulkEditDialog}
+                    sx={{
+                      borderColor: theme.palette.primary.main,
+                      color: theme.palette.primary.main,
+                      '&:hover': {
+                        borderColor: theme.palette.primary.dark,
+                        backgroundColor: theme.palette.action.hover,
+                      },
+                    }}>
+                    Bulk Edit ({selectedTenantIds.size})
+                  </Button>
+                  <Button
+                    variant="outlined"
+                    onClick={openBulkDeleteDialog}
+                    sx={{
+                      borderColor: theme.palette.error.main,
+                      color: theme.palette.error.main,
+                      '&:hover': {
+                        borderColor: theme.palette.error.dark,
+                        backgroundColor: theme.palette.action.hover,
+                      },
+                    }}>
+                    Bulk Delete ({selectedTenantIds.size})
+                  </Button>
+                </>
               )}
               <Button
                 variant="contained"
@@ -272,6 +318,16 @@ const TenantManagementPage: React.FC<TenantManagementPageProps> = () => {
           />
         </DialogContent>
       </Dialog>
+
+      <ConfirmationDialog
+        open={isBulkDeleteDialogOpen}
+        onClose={closeBulkDeleteDialog}
+        onConfirm={handleConfirmBulkDelete}
+        title="Confirm Bulk Deletion"
+        message={`Are you sure you want to delete ${selectedTenantIds.size} selected tenant(s)? This action cannot be undone.`}
+        confirmText="Delete All"
+        cancelText="Cancel"
+      />
     </Box>
   );
 };

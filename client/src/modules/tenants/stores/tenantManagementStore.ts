@@ -8,6 +8,7 @@ interface TenantManagementState {
   tenantToDeleteId: string | null;
   selectedTenantIds: Set<string>;
   isBulkEditOpen: boolean;
+  isBulkDeleteDialogOpen: boolean;
   openCreateForm: () => void;
   openEditForm: (tenant: Tenant) => void;
   closeForm: () => void;
@@ -20,6 +21,8 @@ interface TenantManagementState {
   clearSelection: () => void;
   openBulkEditDialog: () => void;
   closeBulkEditDialog: () => void;
+  openBulkDeleteDialog: () => void;
+  closeBulkDeleteDialog: () => void;
 }
 
 export const useTenantManagementStore = create<TenantManagementState>((set) => ({
@@ -29,6 +32,7 @@ export const useTenantManagementStore = create<TenantManagementState>((set) => (
   tenantToDeleteId: null,
   selectedTenantIds: new Set<string>(),
   isBulkEditOpen: false,
+  isBulkDeleteDialogOpen: false,
 
   openCreateForm: (): void => set({ isFormOpen: true, selectedTenant: null }),
   openEditForm: (tenant: Tenant): void => set({ isFormOpen: true, selectedTenant: tenant }),
@@ -63,4 +67,7 @@ export const useTenantManagementStore = create<TenantManagementState>((set) => (
 
   openBulkEditDialog: (): void => set({ isBulkEditOpen: true }),
   closeBulkEditDialog: (): void => set({ isBulkEditOpen: false, selectedTenantIds: new Set<string>() }),
+
+  openBulkDeleteDialog: (): void => set({ isBulkDeleteDialogOpen: true }),
+  closeBulkDeleteDialog: (): void => set({ isBulkDeleteDialogOpen: false, selectedTenantIds: new Set<string>() }),
 }));
