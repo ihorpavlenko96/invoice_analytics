@@ -12,15 +12,4 @@ export class UpdateTenantDto {
     @IsString()
     @MaxLength(255)
     name?: string;
-
-    @ApiProperty({
-        description: 'Alias of the tenant',
-        example: 'updated-corp',
-        required: false,
-        maxLength: 50,
-    })
-    @IsOptional()
-    @IsString()
-    @MaxLength(50)
-    alias?: string;
 }

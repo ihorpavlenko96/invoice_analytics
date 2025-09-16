@@ -21,8 +21,6 @@ import {
 import { CreateTenantDto } from '../../application/tenants/dto/create-tenant.dto';
 import { UpdateTenantDto } from '../../application/tenants/dto/update-tenant.dto';
 import { TenantDto } from '../../application/tenants/dto/tenant.dto';
-import { BulkUpdateTenantDto } from '../../application/tenants/dto/bulk-update-tenant.dto';
-import { BulkUpdateResultDto } from '../../application/tenants/dto/bulk-update-result.dto';
 import { RoleName } from '../../domain/enums/role-name.enum';
 import { Authorize } from '../../infrastructure/auth/decorators/authorize.decorator';
 import {
@@ -74,23 +72,6 @@ export class TenantController {
     @ApiForbiddenResponse({ description: 'Forbidden - requires super admin role' })
     async findAll(): Promise<TenantDto[]> {
         return this.tenantQueries.findAllTenants();
-    }
-
-    @Patch('bulk')
-    @ApiOperation({
-        summary: 'Bulk update tenants',
-        description: 'Updates multiple tenants in a single request',
-    })
-    @ApiBody({ type: BulkUpdateTenantDto })
-    @ApiResponse({
-        status: HttpStatus.OK,
-        description: 'Bulk update completed',
-        type: BulkUpdateResultDto,
-    })
-    @ApiUnauthorizedResponse({ description: 'Unauthorized' })
-    @ApiForbiddenResponse({ description: 'Forbidden - requires super admin role' })
-    async bulkUpdate(@Body() bulkUpdateDto: BulkUpdateTenantDto): Promise<BulkUpdateResultDto> {
-        return this.tenantCommands.bulkUpdateTenants(bulkUpdateDto);
     }
 
     @Get(':id')

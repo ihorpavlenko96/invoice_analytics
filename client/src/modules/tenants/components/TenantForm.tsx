@@ -77,10 +77,7 @@ const TenantForm: React.FC<TenantFormProps> = ({ tenant, onClose }) => {
 
   const handleSubmit = async (values: TenantFormValues): Promise<void> => {
     if (tenant) {
-      const updateData: UpdateTenantInput = {
-        name: values.name,
-        alias: values.alias
-      };
+      const updateData: UpdateTenantInput = { name: values.name };
       await updateTenantMutate({ id: tenant.id, data: updateData });
     } else {
       const createPayload: CreateTenantInput = { name: values.name, alias: values.alias };
@@ -115,6 +112,7 @@ const TenantForm: React.FC<TenantFormProps> = ({ tenant, onClose }) => {
                 variant="outlined"
                 fullWidth
                 required
+                disabled={!!tenant}
                 error={touched.alias && !!errors.alias}
                 helperText={touched.alias && errors.alias}
               />
