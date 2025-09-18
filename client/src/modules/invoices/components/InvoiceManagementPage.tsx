@@ -10,6 +10,11 @@ import {
   InputAdornment,
   Typography,
   useTheme,
+  Grid,
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel,
 } from '@mui/material';
 import { SmartToy as AIIcon, Search as SearchIcon } from '@mui/icons-material';
 import { useInvoices } from '../invoiceQueries';
@@ -32,13 +37,24 @@ const InvoiceManagementPage: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
+
+  // Filter states
+  const [filterStatus, setFilterStatus] = useState<string>('all');
+  const [filterVendor, setFilterVendor] = useState<string>('');
+  const [filterCustomer, setFilterCustomer] = useState<string>('');
+  const [filterAmountRange, setFilterAmountRange] = useState<string>('all');
+  const [filterIssueDateFrom, setFilterIssueDateFrom] = useState<string>('');
+  const [filterIssueDateTo, setFilterIssueDateTo] = useState<string>('');
+  const [filterDueDateFrom, setFilterDueDateFrom] = useState<string>('');
+  const [filterDueDateTo, setFilterDueDateTo] = useState<string>('');
+
   const theme = useTheme();
 
   const { user } = useUser();
   const userRoles = (user?.publicMetadata?.roles as string[]) || [];
   const isSuperAdmin = userRoles.includes('Super Admin');
 
-  // Fetch all invoices with pagination
+  // Fetch all invoices with pagination and filters
   const {
     data: paginatedInvoices = {
       items: [],
@@ -48,7 +64,16 @@ const InvoiceManagementPage: React.FC = () => {
       totalPages: 1,
     } as PaginatedResponseDto<Invoice>,
     isLoading: isInvoicesLoading,
-  } = useInvoices(searchTerm, page, limit);
+  } = useInvoices(searchTerm, page, limit, {
+    status: filterStatus,
+    vendor: filterVendor,
+    customer: filterCustomer,
+    amountRange: filterAmountRange,
+    issueDateFrom: filterIssueDateFrom,
+    issueDateTo: filterIssueDateTo,
+    dueDateFrom: filterDueDateFrom,
+    dueDateTo: filterDueDateTo,
+  });
 
   // Fetch selected invoice details
   const { data: selectedInvoice, isLoading: isInvoiceLoading } = useInvoice(
@@ -97,6 +122,18 @@ const InvoiceManagementPage: React.FC = () => {
   const handleRowsPerPageChange = (newLimit: number) => {
     setLimit(newLimit);
     setPage(1); // Reset to first page when changing limit
+  };
+
+  // Handle clear filters
+  const handleClearFilters = () => {
+    setFilterStatus('all');
+    setFilterVendor('');
+    setFilterCustomer('');
+    setFilterAmountRange('all');
+    setFilterIssueDateFrom('');
+    setFilterIssueDateTo('');
+    setFilterDueDateFrom('');
+    setFilterDueDateTo('');
   };
 
   // Apply custom styles to fix pagination alignment
@@ -203,6 +240,131 @@ const InvoiceManagementPage: React.FC = () => {
                 ),
               }}
             />
+          </Box>
+
+          {/* Filter section */}
+          <Box sx={{ p: 2, pt: 1 }}>
+            <Grid container spacing={2} alignItems="center">
+              {/* Status Filter */}
+              <Grid item xs={12} sm={6} md={2}>
+                <FormControl fullWidth size="small">
+                  <InputLabel>Status</InputLabel>
+                  <Select
+                    value={filterStatus}
+                    onChange={(e) => setFilterStatus(e.target.value)}
+                    label="Status"
+                  >
+                    <MenuItem value="all">All Status</MenuItem>
+                    <MenuItem value="active">Active</MenuItem>
+                    <MenuItem value="overdue">Overdue</MenuItem>
+                  </Select>
+                </FormControl>
+              </Grid>
+
+              {/* Vendor Filter */}
+              <Grid item xs={12} sm={6} md={2}>
+                <TextField
+                  fullWidth
+                  size="small"
+                  label="Vendor"
+                  value={filterVendor}
+                  onChange={(e) => setFilterVendor(e.target.value)}
+                  placeholder="Filter by vendor"
+                />
+              </Grid>
+
+              {/* Customer Filter */}
+              <Grid item xs={12} sm={6} md={2}>
+                <TextField
+                  fullWidth
+                  size="small"
+                  label="Customer"
+                  value={filterCustomer}
+                  onChange={(e) => setFilterCustomer(e.target.value)}
+                  placeholder="Filter by customer"
+                />
+              </Grid>
+
+              {/* Amount Range Filter */}
+              <Grid item xs={12} sm={6} md={2}>
+                <FormControl fullWidth size="small">
+                  <InputLabel>Amount</InputLabel>
+                  <Select
+                    value={filterAmountRange}
+                    onChange={(e) => setFilterAmountRange(e.target.value)}
+                    label="Amount"
+                  >
+                    <MenuItem value="all">All Amounts</MenuItem>
+                    <MenuItem value="0-100">$0 - $100</MenuItem>
+                    <MenuItem value="100-1000">$100 - $1,000</MenuItem>
+                    <MenuItem value="1000-10000">$1,000 - $10,000</MenuItem>
+                    <MenuItem value="10000+">$10,000+</MenuItem>
+                  </Select>
+                </FormControl>
+              </Grid>
+
+              {/* Issue Date Range */}
+              <Grid item xs={12} sm={6} md={2}>
+                <TextField
+                  fullWidth
+                  size="small"
+                  label="Issue Date From"
+                  type="date"
+                  value={filterIssueDateFrom}
+                  onChange={(e) => setFilterIssueDateFrom(e.target.value)}
+                  InputLabelProps={{ shrink: true }}
+                />
+              </Grid>
+
+              <Grid item xs={12} sm={6} md={2}>
+                <TextField
+                  fullWidth
+                  size="small"
+                  label="Issue Date To"
+                  type="date"
+                  value={filterIssueDateTo}
+                  onChange={(e) => setFilterIssueDateTo(e.target.value)}
+                  InputLabelProps={{ shrink: true }}
+                />
+              </Grid>
+
+              {/* Due Date Range */}
+              <Grid item xs={12} sm={6} md={2}>
+                <TextField
+                  fullWidth
+                  size="small"
+                  label="Due Date From"
+                  type="date"
+                  value={filterDueDateFrom}
+                  onChange={(e) => setFilterDueDateFrom(e.target.value)}
+                  InputLabelProps={{ shrink: true }}
+                />
+              </Grid>
+
+              <Grid item xs={12} sm={6} md={2}>
+                <TextField
+                  fullWidth
+                  size="small"
+                  label="Due Date To"
+                  type="date"
+                  value={filterDueDateTo}
+                  onChange={(e) => setFilterDueDateTo(e.target.value)}
+                  InputLabelProps={{ shrink: true }}
+                />
+              </Grid>
+
+              {/* Clear Filters Button */}
+              <Grid item xs={12} sm={6} md={2}>
+                <Button
+                  fullWidth
+                  variant="outlined"
+                  onClick={handleClearFilters}
+                  size="small"
+                >
+                  Clear Filters
+                </Button>
+              </Grid>
+            </Grid>
           </Box>
 
           {isInvoicesLoading && (
