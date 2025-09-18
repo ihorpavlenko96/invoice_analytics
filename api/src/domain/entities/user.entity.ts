@@ -27,6 +27,9 @@ export class User {
     firstName?: string;
 
     @Column({ length: 100, nullable: true })
+    middleName?: string;
+
+    @Column({ length: 100, nullable: true })
     lastName?: string;
 
     @Column({ default: true })

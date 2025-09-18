@@ -10,6 +10,7 @@ export type User = {
   email: string;
   subId?: string;
   firstName?: string;
+  middleName?: string;
   lastName?: string;
   tenant: {
     id: string;
