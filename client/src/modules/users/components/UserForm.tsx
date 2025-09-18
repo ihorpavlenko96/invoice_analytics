@@ -46,6 +46,7 @@ type UserFormProps = {
 
 type UserFormValues = {
   firstName: string;
+  middleName: string;
   lastName: string;
   email: string;
   tenantId?: string;
@@ -55,6 +56,7 @@ type UserFormValues = {
 const generateUserSchema = (allRoles: Role[]) =>
   Yup.object().shape({
     firstName: Yup.string().max(100, 'Too Long!').optional(),
+    middleName: Yup.string().max(100, 'Too Long!').optional(),
     lastName: Yup.string().max(100, 'Too Long!').optional(),
     email: Yup.string().email('Invalid email').max(255).required('Required'),
     tenantId: Yup.string().when(['roleIds', '$isSuperAdmin'], {
@@ -150,6 +152,7 @@ const UserForm: React.FC<UserFormProps> = ({ user, onClose }) => {
   const initialValues = useMemo(
     (): UserFormValues => ({
       firstName: user?.firstName ?? '',
+      middleName: user?.middleName ?? '',
       lastName: user?.lastName ?? '',
       email: user?.email ?? '',
       tenantId: user?.tenant?.id ?? undefined,
@@ -163,6 +166,7 @@ const UserForm: React.FC<UserFormProps> = ({ user, onClose }) => {
       const updateData: UpdateUserInput = {
         email: values.email,
         firstName: values.firstName || undefined,
+        middleName: values.middleName || undefined,
         lastName: values.lastName || undefined,
         roleIds: values.roleIds,
       };
@@ -180,6 +184,7 @@ const UserForm: React.FC<UserFormProps> = ({ user, onClose }) => {
         const createPayload: CreateUserSuperAdminInput = {
           email: values.email,
           firstName: values.firstName || undefined,
+          middleName: values.middleName || undefined,
           lastName: values.lastName || undefined,
           roleIds: values.roleIds,
           tenantId: values.tenantId,
@@ -190,6 +195,7 @@ const UserForm: React.FC<UserFormProps> = ({ user, onClose }) => {
         const createPayload: CreateUserInput = {
           email: values.email,
           firstName: values.firstName || undefined,
+          middleName: values.middleName || undefined,
           lastName: values.lastName || undefined,
           roleIds: values.roleIds,
         };
@@ -226,6 +232,14 @@ const UserForm: React.FC<UserFormProps> = ({ user, onClose }) => {
                 fullWidth
                 error={touched.firstName && !!errors.firstName}
                 helperText={touched.firstName && errors.firstName}
+              />
+              <Field
+                as={TextField}
+                name="middleName"
+                label="Middle Name (Optional)"
+                fullWidth
+                error={touched.middleName && !!errors.middleName}
+                helperText={touched.middleName && errors.middleName}
               />
               <Field
                 as={TextField}

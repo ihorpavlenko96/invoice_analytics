@@ -6,6 +6,7 @@ export type CreateUserInput = {
   roleIds: string[];
   subId?: string;
   firstName?: string;
+  middleName?: string;
   lastName?: string;
 };
 
@@ -18,6 +19,7 @@ export type UpdateUserInput = {
   roleIds?: string[];
   subId?: string;
   firstName?: string;
+  middleName?: string;
   lastName?: string;
 };
 

@@ -44,6 +44,17 @@ export class CreateUserDto {
     firstName?: string;
 
     @ApiProperty({
+        description: 'Middle name of the user',
+        example: 'Michael',
+        required: false,
+        maxLength: 100,
+    })
+    @IsOptional()
+    @IsString()
+    @MaxLength(100)
+    middleName?: string;
+
+    @ApiProperty({
         description: 'Last name of the user',
         example: 'Doe',
         required: false,

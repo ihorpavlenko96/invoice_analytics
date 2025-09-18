@@ -22,6 +22,9 @@ export class UserDto {
     @ApiProperty({ description: 'First name of the user', required: false, example: 'John' })
     firstName?: string;
 
+    @ApiProperty({ description: 'Middle name of the user', required: false, example: 'Michael' })
+    middleName?: string;
+
     @ApiProperty({ description: 'Last name of the user', required: false, example: 'Doe' })
     lastName?: string;
 
