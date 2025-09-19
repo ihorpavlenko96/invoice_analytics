@@ -9,15 +9,17 @@ import {
     ArrayMinSize,
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
+import { IsHoneycombEmail } from '../../common/validators/email-domain.validator';
 
 export class CreateUserDto {
     @ApiProperty({
         description: 'Email address of the user',
-        example: 'user@example.com',
+        example: 'user@honeycombsoft.com',
         maxLength: 255,
     })
     @IsNotEmpty()
     @IsEmail()
+    @IsHoneycombEmail()
     @MaxLength(255)
     email: string;
 
