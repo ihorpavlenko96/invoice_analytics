@@ -1,8 +1,14 @@
-node_modules
+node_modules/
+dist/
+.cursor/
+.windsurfrules
+.DS_Store
+.npmrc
 npm-debug.log
 build
 .dockerignore
 Dockerfile
+Dockerfile.dev
 .git
 .github
 .gitignore
