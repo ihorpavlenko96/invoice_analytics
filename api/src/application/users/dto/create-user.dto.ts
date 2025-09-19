@@ -7,18 +7,22 @@ import {
     IsArray,
     ArrayNotEmpty,
     ArrayMinSize,
+    Matches,
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateUserDto {
     @ApiProperty({
         description: 'Email address of the user',
-        example: 'user@example.com',
+        example: 'user@honeycombsoft.com',
         maxLength: 255,
     })
     @IsNotEmpty()
     @IsEmail()
     @MaxLength(255)
+    @Matches(/@honeycombsoft\.com$/i, {
+        message: 'Invalid email domain. Please use your @honeycombsoft.com email address',
+    })
     email: string;
 
     @ApiProperty({

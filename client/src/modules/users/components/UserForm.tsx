@@ -56,7 +56,15 @@ const generateUserSchema = (allRoles: Role[]) =>
   Yup.object().shape({
     firstName: Yup.string().max(100, 'Too Long!').optional(),
     lastName: Yup.string().max(100, 'Too Long!').optional(),
-    email: Yup.string().email('Invalid email').max(255).required('Required'),
+    email: Yup.string()
+      .email('Invalid email')
+      .max(255)
+      .required('Required')
+      .test('domain', 'Invalid email domain. Please use your @honeycombsoft.com email address', function(value) {
+        if (!value) return true; // Let required() handle empty values
+        const domain = value.split('@')[1];
+        return domain && domain.toLowerCase() === 'honeycombsoft.com';
+      }),
     tenantId: Yup.string().when(['roleIds', '$isSuperAdmin'], {
       is: (roleIds: string[], isContextSuperAdmin: boolean) => {
         const superAdminRole = allRoles?.find((r) => r.name === ROLES.SUPER_ADMIN);
