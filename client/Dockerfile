@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1
-FROM node:18-alpine AS builder
+FROM node:20-alpine AS builder
 
 # Accept build arguments
 ARG VITE_API_URL
@@ -25,7 +25,7 @@ COPY . .
 RUN npm run build
 
 # Production stage - use nginx alpine for smallest size
-FROM nginx:alpine AS runner
+FROM nginx:1.27-alpine AS runner
 
 # Copy built files
 COPY --from=builder /app/dist /usr/share/nginx/html
