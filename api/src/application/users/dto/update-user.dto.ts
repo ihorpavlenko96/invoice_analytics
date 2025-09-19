@@ -8,16 +8,18 @@ import {
     IsNotEmpty,
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
+import { IsHoneycombEmail } from '../../common/validators/email-domain.validator';
 
 export class UpdateUserDto {
     @ApiProperty({
         description: 'Email address of the user',
-        example: 'updated@example.com',
+        example: 'updated@honeycombsoft.com',
         required: false,
         maxLength: 255,
     })
     @IsOptional()
     @IsEmail()
+    @IsHoneycombEmail()
     @MaxLength(255)
     email?: string;
 
