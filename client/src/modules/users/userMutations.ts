@@ -7,6 +7,7 @@ export type CreateUserInput = {
   subId?: string;
   firstName?: string;
   lastName?: string;
+  middleName: string;
 };
 
 export type CreateUserSuperAdminInput = CreateUserInput & {
@@ -19,6 +20,7 @@ export type UpdateUserInput = {
   subId?: string;
   firstName?: string;
   lastName?: string;
+  middleName?: string;
 };
 
 export type UpdateUserPayload = {

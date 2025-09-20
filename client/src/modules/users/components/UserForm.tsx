@@ -47,6 +47,7 @@ type UserFormProps = {
 type UserFormValues = {
   firstName: string;
   lastName: string;
+  middleName: string;
   email: string;
   tenantId?: string;
   roleIds: string[];
@@ -56,6 +57,7 @@ const generateUserSchema = (allRoles: Role[]) =>
   Yup.object().shape({
     firstName: Yup.string().max(100, 'Too Long!').optional(),
     lastName: Yup.string().max(100, 'Too Long!').optional(),
+    middleName: Yup.string().max(50, 'Too Long!').required('Middle name is required'),
     email: Yup.string()
       .email('Invalid email')
       .max(255)
@@ -159,6 +161,7 @@ const UserForm: React.FC<UserFormProps> = ({ user, onClose }) => {
     (): UserFormValues => ({
       firstName: user?.firstName ?? '',
       lastName: user?.lastName ?? '',
+      middleName: user?.middleName ?? '',
       email: user?.email ?? '',
       tenantId: user?.tenant?.id ?? undefined,
       roleIds: user?.roles?.map((r) => r.id) ?? [],
@@ -172,6 +175,7 @@ const UserForm: React.FC<UserFormProps> = ({ user, onClose }) => {
         email: values.email,
         firstName: values.firstName || undefined,
         lastName: values.lastName || undefined,
+        middleName: values.middleName,
         roleIds: values.roleIds,
       };
 
@@ -189,6 +193,7 @@ const UserForm: React.FC<UserFormProps> = ({ user, onClose }) => {
           email: values.email,
           firstName: values.firstName || undefined,
           lastName: values.lastName || undefined,
+          middleName: values.middleName,
           roleIds: values.roleIds,
           tenantId: values.tenantId,
         };
@@ -199,6 +204,7 @@ const UserForm: React.FC<UserFormProps> = ({ user, onClose }) => {
           email: values.email,
           firstName: values.firstName || undefined,
           lastName: values.lastName || undefined,
+          middleName: values.middleName,
           roleIds: values.roleIds,
         };
 
@@ -234,6 +240,15 @@ const UserForm: React.FC<UserFormProps> = ({ user, onClose }) => {
                 fullWidth
                 error={touched.firstName && !!errors.firstName}
                 helperText={touched.firstName && errors.firstName}
+              />
+              <Field
+                as={TextField}
+                name="middleName"
+                label="Middle Name"
+                fullWidth
+                required
+                error={touched.middleName && !!errors.middleName}
+                helperText={touched.middleName && errors.middleName}
               />
               <Field
                 as={TextField}

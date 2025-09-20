@@ -55,6 +55,17 @@ export class CreateUserDto {
     lastName?: string;
 
     @ApiProperty({
+        description: 'Middle name of the user',
+        example: 'William',
+        required: true,
+        maxLength: 50,
+    })
+    @IsNotEmpty()
+    @IsString()
+    @MaxLength(50)
+    middleName: string;
+
+    @ApiProperty({
         description: 'List of role IDs to assign to the user',
         example: ['123e4567-e89b-12d3-a456-426614174000'],
         type: [String],
