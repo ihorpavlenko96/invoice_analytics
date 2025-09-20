@@ -11,7 +11,7 @@ export type User = {
   subId?: string;
   firstName?: string;
   lastName?: string;
-  middleName?: string;
+  middleName: string;
   tenant: {
     id: string;
     name: string;

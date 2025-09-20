@@ -57,13 +57,13 @@ export class CreateUserDto {
     @ApiProperty({
         description: 'Middle name of the user',
         example: 'William',
-        required: false,
+        required: true,
         maxLength: 50,
     })
-    @IsOptional()
+    @IsNotEmpty()
     @IsString()
     @MaxLength(50)
-    middleName?: string;
+    middleName: string;
 
     @ApiProperty({
         description: 'List of role IDs to assign to the user',

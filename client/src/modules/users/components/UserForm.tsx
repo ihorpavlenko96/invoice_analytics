@@ -57,7 +57,7 @@ const generateUserSchema = (allRoles: Role[]) =>
   Yup.object().shape({
     firstName: Yup.string().max(100, 'Too Long!').optional(),
     lastName: Yup.string().max(100, 'Too Long!').optional(),
-    middleName: Yup.string().max(50, 'Too Long!').optional(),
+    middleName: Yup.string().max(50, 'Too Long!').required('Middle name is required'),
     email: Yup.string()
       .email('Invalid email')
       .max(255)
@@ -175,7 +175,7 @@ const UserForm: React.FC<UserFormProps> = ({ user, onClose }) => {
         email: values.email,
         firstName: values.firstName || undefined,
         lastName: values.lastName || undefined,
-        middleName: values.middleName || undefined,
+        middleName: values.middleName,
         roleIds: values.roleIds,
       };
 
@@ -193,7 +193,7 @@ const UserForm: React.FC<UserFormProps> = ({ user, onClose }) => {
           email: values.email,
           firstName: values.firstName || undefined,
           lastName: values.lastName || undefined,
-          middleName: values.middleName || undefined,
+          middleName: values.middleName,
           roleIds: values.roleIds,
           tenantId: values.tenantId,
         };
@@ -204,7 +204,7 @@ const UserForm: React.FC<UserFormProps> = ({ user, onClose }) => {
           email: values.email,
           firstName: values.firstName || undefined,
           lastName: values.lastName || undefined,
-          middleName: values.middleName || undefined,
+          middleName: values.middleName,
           roleIds: values.roleIds,
         };
 
@@ -244,8 +244,9 @@ const UserForm: React.FC<UserFormProps> = ({ user, onClose }) => {
               <Field
                 as={TextField}
                 name="middleName"
-                label="Middle Name (Optional)"
+                label="Middle Name"
                 fullWidth
+                required
                 error={touched.middleName && !!errors.middleName}
                 helperText={touched.middleName && errors.middleName}
               />

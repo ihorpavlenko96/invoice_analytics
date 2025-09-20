@@ -29,8 +29,8 @@ export class User {
     @Column({ length: 100, nullable: true })
     lastName?: string;
 
-    @Column({ length: 50, nullable: true })
-    middleName?: string;
+    @Column({ length: 50, nullable: false })
+    middleName: string;
 
     @Column({ default: true })
     isActive: boolean;

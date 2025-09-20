@@ -7,7 +7,7 @@ export type CreateUserInput = {
   subId?: string;
   firstName?: string;
   lastName?: string;
-  middleName?: string;
+  middleName: string;
 };
 
 export type CreateUserSuperAdminInput = CreateUserInput & {
