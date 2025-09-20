@@ -140,6 +140,7 @@ async function createDefaultTenants(app: INestApplication, logger: Logger): Prom
                 {
                     firstName: item.adminFirstName,
                     lastName: item.adminLastName,
+                    middleName: '',
                     email: item.adminEmail,
                     roleIds: [adminRole!.id, userRole!.id],
                 },
@@ -177,6 +178,7 @@ async function createDefaultSuperAdmin(app: INestApplication, logger: Logger): P
         const superAdminDto = new CreateUserBySuperAdminDto();
 
         superAdminDto.email = superAdminEmail;
+        superAdminDto.middleName = '';
         superAdminDto.roleIds = [superAdminRole!.id];
 
         await userCommands.createUserBySuperAdmin(superAdminDto);
