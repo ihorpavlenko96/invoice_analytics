@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   Box,
   Button,
@@ -10,8 +10,13 @@ import {
   InputAdornment,
   Typography,
   useTheme,
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel,
+  Stack,
 } from '@mui/material';
-import { SmartToy as AIIcon, Search as SearchIcon } from '@mui/icons-material';
+import { SmartToy as AIIcon, Search as SearchIcon, Clear as ClearIcon } from '@mui/icons-material';
 import { useInvoices } from '../invoiceQueries';
 import InvoiceTable from './InvoiceTable';
 import InvoiceDetails from './InvoiceDetails';
@@ -32,11 +37,27 @@ const InvoiceManagementPage: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
+
+  // Filter states
+  const [filterStatus, setFilterStatus] = useState<string>('');
+  const [filterCustomer, setFilterCustomer] = useState<string>('');
+  const [filterVendor, setFilterVendor] = useState<string>('');
   const theme = useTheme();
 
   const { user } = useUser();
   const userRoles = (user?.publicMetadata?.roles as string[]) || [];
   const isSuperAdmin = userRoles.includes('Super Admin');
+
+  // Extract unique customers and vendors for filter dropdowns
+  const uniqueCustomers = useMemo(() => {
+    const customers = paginatedInvoices.items.map(invoice => invoice.customerName);
+    return [...new Set(customers)].filter(Boolean).sort();
+  }, [paginatedInvoices.items]);
+
+  const uniqueVendors = useMemo(() => {
+    const vendors = paginatedInvoices.items.map(invoice => invoice.vendorName);
+    return [...new Set(vendors)].filter(Boolean).sort();
+  }, [paginatedInvoices.items]);
 
   // Fetch all invoices with pagination
   const {
@@ -48,7 +69,7 @@ const InvoiceManagementPage: React.FC = () => {
       totalPages: 1,
     } as PaginatedResponseDto<Invoice>,
     isLoading: isInvoicesLoading,
-  } = useInvoices(searchTerm, page, limit);
+  } = useInvoices(searchTerm, page, limit, filterStatus, filterCustomer, filterVendor);
 
   // Fetch selected invoice details
   const { data: selectedInvoice, isLoading: isInvoiceLoading } = useInvoice(
@@ -97,6 +118,13 @@ const InvoiceManagementPage: React.FC = () => {
   const handleRowsPerPageChange = (newLimit: number) => {
     setLimit(newLimit);
     setPage(1); // Reset to first page when changing limit
+  };
+
+  // Handle clearing all filters
+  const handleClearFilters = () => {
+    setFilterStatus('');
+    setFilterCustomer('');
+    setFilterVendor('');
   };
 
   // Apply custom styles to fix pagination alignment
@@ -203,6 +231,74 @@ const InvoiceManagementPage: React.FC = () => {
                 ),
               }}
             />
+          </Box>
+
+          {/* Filter controls */}
+          <Box sx={{ p: 2, borderBottom: `1px solid ${theme.palette.divider}` }}>
+            <Stack direction="row" spacing={2} alignItems="center" flexWrap="wrap">
+              <FormControl size="small" sx={{ minWidth: 150 }}>
+                <InputLabel>Status</InputLabel>
+                <Select
+                  value={filterStatus}
+                  onChange={(e) => setFilterStatus(e.target.value)}
+                  label="Status"
+                >
+                  <MenuItem value="">All</MenuItem>
+                  <MenuItem value="Active">Active</MenuItem>
+                  <MenuItem value="Overdue">Overdue</MenuItem>
+                </Select>
+              </FormControl>
+
+              <FormControl size="small" sx={{ minWidth: 200 }}>
+                <InputLabel>Customer</InputLabel>
+                <Select
+                  value={filterCustomer}
+                  onChange={(e) => setFilterCustomer(e.target.value)}
+                  label="Customer"
+                >
+                  <MenuItem value="">All Customers</MenuItem>
+                  {uniqueCustomers.map((customer) => (
+                    <MenuItem key={customer} value={customer}>
+                      {customer}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+
+              <FormControl size="small" sx={{ minWidth: 200 }}>
+                <InputLabel>Vendor</InputLabel>
+                <Select
+                  value={filterVendor}
+                  onChange={(e) => setFilterVendor(e.target.value)}
+                  label="Vendor"
+                >
+                  <MenuItem value="">All Vendors</MenuItem>
+                  {uniqueVendors.map((vendor) => (
+                    <MenuItem key={vendor} value={vendor}>
+                      {vendor}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+
+              <Button
+                variant="outlined"
+                startIcon={<ClearIcon />}
+                onClick={handleClearFilters}
+                disabled={filterStatus === '' && filterCustomer === '' && filterVendor === ''}
+                sx={{
+                  minWidth: 120,
+                  borderColor: theme.palette.divider,
+                  color: theme.palette.text.secondary,
+                  '&:hover': {
+                    borderColor: theme.palette.text.secondary,
+                    backgroundColor: 'transparent',
+                  },
+                }}
+              >
+                Clear Filters
+              </Button>
+            </Stack>
           </Box>
 
           {isInvoicesLoading && (
