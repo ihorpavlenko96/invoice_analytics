@@ -11,6 +11,7 @@ import {
   Dialog,
   DialogContent,
   DialogTitle,
+  InputAdornment,
   Table,
   TableBody,
   TableCell,
@@ -18,11 +19,13 @@ import {
   TableHead,
   TableRow,
   TableSortLabel,
+  TextField,
   Typography,
   useTheme,
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
+import SearchIcon from '@mui/icons-material/Search';
 import TenantForm from '../components/TenantForm.tsx';
 import ConfirmationDialog from '../../../common/components/ConfirmationDialog.tsx';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -65,6 +68,9 @@ const TenantManagementPage: React.FC<TenantManagementPageProps> = () => {
   const [sortBy, setSortBy] = useState<SortableColumns | null>(null);
   const [sortOrder, setSortOrder] = useState<SortOrder>('asc');
 
+  // Filter state
+  const [searchFilter, setSearchFilter] = useState<string>('');
+
   const {
     data: tenantsData,
     isLoading: isLoading,
@@ -105,11 +111,25 @@ const TenantManagementPage: React.FC<TenantManagementPageProps> = () => {
 
   const tenants = tenantsData?.data ?? [];
 
-  // Sorting logic
-  const sortedTenants = useMemo(() => {
-    if (!sortBy) return tenants;
+  // Filtering and sorting logic
+  const filteredAndSortedTenants = useMemo(() => {
+    // First apply filter
+    let filteredTenants = tenants;
 
-    return [...tenants].sort((a, b) => {
+    if (searchFilter) {
+      filteredTenants = tenants.filter((tenant) => {
+        const searchTerm = searchFilter.toLowerCase();
+        return (
+          tenant.name?.toLowerCase().includes(searchTerm) ||
+          tenant.alias?.toLowerCase().includes(searchTerm)
+        );
+      });
+    }
+
+    // Then apply sorting
+    if (!sortBy) return filteredTenants;
+
+    return [...filteredTenants].sort((a, b) => {
       let aValue: string;
       let bValue: string;
 
@@ -132,7 +152,7 @@ const TenantManagementPage: React.FC<TenantManagementPageProps> = () => {
         return bValue.localeCompare(aValue);
       }
     });
-  }, [tenants, sortBy, sortOrder]);
+  }, [tenants, sortBy, sortOrder, searchFilter]);
 
   const handleSort = (column: SortableColumns) => {
     if (sortBy === column) {
@@ -162,13 +182,13 @@ const TenantManagementPage: React.FC<TenantManagementPageProps> = () => {
   };
 
   const handleSelectAll = (): void => {
-    const allIds = sortedTenants.map(tenant => tenant.id);
+    const allIds = filteredAndSortedTenants.map(tenant => tenant.id);
     selectAllTenants(allIds);
   };
 
-  const isAllSelected = sortedTenants.length > 0 &&
-    sortedTenants.every(tenant => selectedTenantIds.has(tenant.id));
-  const isIndeterminate = sortedTenants.some(tenant => selectedTenantIds.has(tenant.id)) && !isAllSelected;
+  const isAllSelected = filteredAndSortedTenants.length > 0 &&
+    filteredAndSortedTenants.every(tenant => selectedTenantIds.has(tenant.id));
+  const isIndeterminate = filteredAndSortedTenants.some(tenant => selectedTenantIds.has(tenant.id)) && !isAllSelected;
 
   return (
     <Box sx={{ backgroundColor: theme.palette.background.default }}>
@@ -210,6 +230,25 @@ const TenantManagementPage: React.FC<TenantManagementPageProps> = () => {
           }
         />
         <CardContent sx={{ p: 0, '&:last-child': { pb: 0 } }}>
+          {/* Search Filter Section */}
+          <Box sx={{ p: 2, borderBottom: `1px solid ${theme.palette.divider}` }}>
+            <TextField
+              label="Search tenants..."
+              variant="outlined"
+              size="small"
+              value={searchFilter}
+              onChange={(e) => setSearchFilter(e.target.value)}
+              sx={{ minWidth: 300 }}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <SearchIcon color="action" />
+                  </InputAdornment>
+                ),
+              }}
+            />
+          </Box>
+
           {isLoading && (
             <Box sx={{ display: 'flex', justifyContent: 'center', my: 5 }}>
               <CircularProgress />
@@ -270,14 +309,14 @@ const TenantManagementPage: React.FC<TenantManagementPageProps> = () => {
                       borderBottom: 0,
                     },
                   }}>
-                  {sortedTenants.length === 0 && !isLoading && (
+                  {filteredAndSortedTenants.length === 0 && !isLoading && (
                     <TableRow>
                       <TableCell colSpan={5} align="center" sx={{ py: 3 }}>
-                        No tenants found.
+                        {searchFilter ? 'No tenants match your search.' : 'No tenants found.'}
                       </TableCell>
                     </TableRow>
                   )}
-                  {sortedTenants.map((tenant) => {
+                  {filteredAndSortedTenants.map((tenant) => {
                     const isSelected = selectedTenantIds.has(tenant.id);
                     return (
                       <TableRow
