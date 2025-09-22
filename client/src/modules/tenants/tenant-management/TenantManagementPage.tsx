@@ -11,7 +11,6 @@ import {
   Dialog,
   DialogContent,
   DialogTitle,
-  Stack,
   Table,
   TableBody,
   TableCell,
@@ -19,13 +18,11 @@ import {
   TableHead,
   TableRow,
   TableSortLabel,
-  TextField,
   Typography,
   useTheme,
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
-import ClearIcon from '@mui/icons-material/Clear';
 import TenantForm from '../components/TenantForm.tsx';
 import ConfirmationDialog from '../../../common/components/ConfirmationDialog.tsx';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -68,9 +65,6 @@ const TenantManagementPage: React.FC<TenantManagementPageProps> = () => {
   const [sortBy, setSortBy] = useState<SortableColumns | null>(null);
   const [sortOrder, setSortOrder] = useState<SortOrder>('asc');
 
-  // Filter states
-  const [searchTerm, setSearchTerm] = useState<string>('');
-
   const {
     data: tenantsData,
     isLoading: isLoading,
@@ -111,25 +105,11 @@ const TenantManagementPage: React.FC<TenantManagementPageProps> = () => {
 
   const tenants = tenantsData?.data ?? [];
 
-  // Filtering and sorting logic
-  const filteredAndSortedTenants = useMemo(() => {
-    // First apply filters
-    const filteredTenants = tenants.filter((tenant) => {
-      // Search term filter - searches both name and alias
-      if (searchTerm) {
-        const searchLower = searchTerm.toLowerCase();
-        const nameMatch = tenant.name?.toLowerCase().includes(searchLower);
-        const aliasMatch = tenant.alias?.toLowerCase().includes(searchLower);
-        return nameMatch || aliasMatch;
-      }
+  // Sorting logic
+  const sortedTenants = useMemo(() => {
+    if (!sortBy) return tenants;
 
-      return true;
-    });
-
-    // Then apply sorting
-    if (!sortBy) return filteredTenants;
-
-    return [...filteredTenants].sort((a, b) => {
+    return [...tenants].sort((a, b) => {
       let aValue: string;
       let bValue: string;
 
@@ -152,7 +132,7 @@ const TenantManagementPage: React.FC<TenantManagementPageProps> = () => {
         return bValue.localeCompare(aValue);
       }
     });
-  }, [tenants, sortBy, sortOrder, searchTerm]);
+  }, [tenants, sortBy, sortOrder]);
 
   const handleSort = (column: SortableColumns) => {
     if (sortBy === column) {
@@ -161,10 +141,6 @@ const TenantManagementPage: React.FC<TenantManagementPageProps> = () => {
       setSortBy(column);
       setSortOrder('asc');
     }
-  };
-
-  const handleClearFilters = () => {
-    setSearchTerm('');
   };
 
   useEffect(() => {
@@ -186,13 +162,13 @@ const TenantManagementPage: React.FC<TenantManagementPageProps> = () => {
   };
 
   const handleSelectAll = (): void => {
-    const allIds = filteredAndSortedTenants.map(tenant => tenant.id);
+    const allIds = sortedTenants.map(tenant => tenant.id);
     selectAllTenants(allIds);
   };
 
-  const isAllSelected = filteredAndSortedTenants.length > 0 &&
-    filteredAndSortedTenants.every(tenant => selectedTenantIds.has(tenant.id));
-  const isIndeterminate = filteredAndSortedTenants.some(tenant => selectedTenantIds.has(tenant.id)) && !isAllSelected;
+  const isAllSelected = sortedTenants.length > 0 &&
+    sortedTenants.every(tenant => selectedTenantIds.has(tenant.id));
+  const isIndeterminate = sortedTenants.some(tenant => selectedTenantIds.has(tenant.id)) && !isAllSelected;
 
   return (
     <Box sx={{ backgroundColor: theme.palette.background.default }}>
@@ -234,36 +210,6 @@ const TenantManagementPage: React.FC<TenantManagementPageProps> = () => {
           }
         />
         <CardContent sx={{ p: 0, '&:last-child': { pb: 0 } }}>
-          {/* Filter Section */}
-          <Box sx={{ p: 2, borderBottom: `1px solid ${theme.palette.divider}` }}>
-            <Stack direction="row" spacing={2} alignItems="center" flexWrap="wrap">
-              <TextField
-                label="Search tenants..."
-                placeholder="Search by name or alias"
-                variant="outlined"
-                size="small"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                sx={{ minWidth: 300 }}
-              />
-              <Button
-                variant="outlined"
-                startIcon={<ClearIcon />}
-                onClick={handleClearFilters}
-                disabled={searchTerm === ''}
-                sx={{
-                  minWidth: 120,
-                  borderColor: theme.palette.divider,
-                  color: theme.palette.text.secondary,
-                  '&:hover': {
-                    borderColor: theme.palette.primary.main,
-                    backgroundColor: theme.palette.action.hover,
-                  },
-                }}>
-                Clear Filters
-              </Button>
-            </Stack>
-          </Box>
           {isLoading && (
             <Box sx={{ display: 'flex', justifyContent: 'center', my: 5 }}>
               <CircularProgress />
@@ -324,14 +270,14 @@ const TenantManagementPage: React.FC<TenantManagementPageProps> = () => {
                       borderBottom: 0,
                     },
                   }}>
-                  {filteredAndSortedTenants.length === 0 && !isLoading && (
+                  {sortedTenants.length === 0 && !isLoading && (
                     <TableRow>
                       <TableCell colSpan={5} align="center" sx={{ py: 3 }}>
                         No tenants found.
                       </TableCell>
                     </TableRow>
                   )}
-                  {filteredAndSortedTenants.map((tenant) => {
+                  {sortedTenants.map((tenant) => {
                     const isSelected = selectedTenantIds.has(tenant.id);
                     return (
                       <TableRow
