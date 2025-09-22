@@ -69,8 +69,7 @@ const TenantManagementPage: React.FC<TenantManagementPageProps> = () => {
   const [sortOrder, setSortOrder] = useState<SortOrder>('asc');
 
   // Filter states
-  const [filterName, setFilterName] = useState<string>('');
-  const [filterAlias, setFilterAlias] = useState<string>('');
+  const [searchTerm, setSearchTerm] = useState<string>('');
 
   const {
     data: tenantsData,
@@ -116,14 +115,12 @@ const TenantManagementPage: React.FC<TenantManagementPageProps> = () => {
   const filteredAndSortedTenants = useMemo(() => {
     // First apply filters
     const filteredTenants = tenants.filter((tenant) => {
-      // Name filter
-      if (filterName && !tenant.name?.toLowerCase().includes(filterName.toLowerCase())) {
-        return false;
-      }
-
-      // Alias filter
-      if (filterAlias && !tenant.alias?.toLowerCase().includes(filterAlias.toLowerCase())) {
-        return false;
+      // Search term filter - searches both name and alias
+      if (searchTerm) {
+        const searchLower = searchTerm.toLowerCase();
+        const nameMatch = tenant.name?.toLowerCase().includes(searchLower);
+        const aliasMatch = tenant.alias?.toLowerCase().includes(searchLower);
+        return nameMatch || aliasMatch;
       }
 
       return true;
@@ -155,7 +152,7 @@ const TenantManagementPage: React.FC<TenantManagementPageProps> = () => {
         return bValue.localeCompare(aValue);
       }
     });
-  }, [tenants, sortBy, sortOrder, filterName, filterAlias]);
+  }, [tenants, sortBy, sortOrder, searchTerm]);
 
   const handleSort = (column: SortableColumns) => {
     if (sortBy === column) {
@@ -167,8 +164,7 @@ const TenantManagementPage: React.FC<TenantManagementPageProps> = () => {
   };
 
   const handleClearFilters = () => {
-    setFilterName('');
-    setFilterAlias('');
+    setSearchTerm('');
   };
 
   useEffect(() => {
@@ -242,26 +238,19 @@ const TenantManagementPage: React.FC<TenantManagementPageProps> = () => {
           <Box sx={{ p: 2, borderBottom: `1px solid ${theme.palette.divider}` }}>
             <Stack direction="row" spacing={2} alignItems="center" flexWrap="wrap">
               <TextField
-                label="Filter by Name"
+                label="Search tenants..."
+                placeholder="Search by name or alias"
                 variant="outlined"
                 size="small"
-                value={filterName}
-                onChange={(e) => setFilterName(e.target.value)}
-                sx={{ minWidth: 200 }}
-              />
-              <TextField
-                label="Filter by Alias"
-                variant="outlined"
-                size="small"
-                value={filterAlias}
-                onChange={(e) => setFilterAlias(e.target.value)}
-                sx={{ minWidth: 200 }}
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                sx={{ minWidth: 300 }}
               />
               <Button
                 variant="outlined"
                 startIcon={<ClearIcon />}
                 onClick={handleClearFilters}
-                disabled={filterName === '' && filterAlias === ''}
+                disabled={searchTerm === ''}
                 sx={{
                   minWidth: 120,
                   borderColor: theme.palette.divider,
