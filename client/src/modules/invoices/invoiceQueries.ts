@@ -10,6 +10,10 @@ import { invoiceService } from './services/invoiceService';
  * @param filterStatus - Optional status filter (Active/Overdue)
  * @param filterCustomer - Optional customer filter
  * @param filterVendor - Optional vendor filter
+ * @param filterIssueDateFrom - Optional issue date from filter
+ * @param filterIssueDateTo - Optional issue date to filter
+ * @param filterDueDateFrom - Optional due date from filter
+ * @param filterDueDateTo - Optional due date to filter
  */
 export const useInvoices = (
   searchTerm = '',
@@ -17,10 +21,25 @@ export const useInvoices = (
   limit = 10,
   filterStatus = '',
   filterCustomer = '',
-  filterVendor = ''
+  filterVendor = '',
+  filterIssueDateFrom: Date | null = null,
+  filterIssueDateTo: Date | null = null,
+  filterDueDateFrom: Date | null = null,
+  filterDueDateTo: Date | null = null
 ) => {
   return useQuery({
-    queryKey: invoiceKeys.list(searchTerm, page, limit, filterStatus, filterCustomer, filterVendor),
+    queryKey: invoiceKeys.list(
+      searchTerm,
+      page,
+      limit,
+      filterStatus,
+      filterCustomer,
+      filterVendor,
+      filterIssueDateFrom,
+      filterIssueDateTo,
+      filterDueDateFrom,
+      filterDueDateTo
+    ),
     queryFn: async () => {
       const paginatedResponse = await invoiceService.getInvoices(page, limit);
 
@@ -61,8 +80,49 @@ export const useInvoices = (
         );
       }
 
+      // Issue date from filter
+      if (filterIssueDateFrom) {
+        filteredItems = filteredItems.filter((invoice) => {
+          const issueDate = new Date(invoice.issueDate);
+          return issueDate >= filterIssueDateFrom;
+        });
+      }
+
+      // Issue date to filter
+      if (filterIssueDateTo) {
+        filteredItems = filteredItems.filter((invoice) => {
+          const issueDate = new Date(invoice.issueDate);
+          return issueDate <= filterIssueDateTo;
+        });
+      }
+
+      // Due date from filter
+      if (filterDueDateFrom) {
+        filteredItems = filteredItems.filter((invoice) => {
+          const dueDate = new Date(invoice.dueDate);
+          return dueDate >= filterDueDateFrom;
+        });
+      }
+
+      // Due date to filter
+      if (filterDueDateTo) {
+        filteredItems = filteredItems.filter((invoice) => {
+          const dueDate = new Date(invoice.dueDate);
+          return dueDate <= filterDueDateTo;
+        });
+      }
+
       // Return filtered items with updated counts if any filters are applied
-      if (searchTerm || filterStatus || filterCustomer || filterVendor) {
+      if (
+        searchTerm ||
+        filterStatus ||
+        filterCustomer ||
+        filterVendor ||
+        filterIssueDateFrom ||
+        filterIssueDateTo ||
+        filterDueDateFrom ||
+        filterDueDateTo
+      ) {
         return {
           ...paginatedResponse,
           items: filteredItems,

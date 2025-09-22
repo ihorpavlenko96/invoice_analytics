@@ -17,6 +17,9 @@ import {
   Stack,
 } from '@mui/material';
 import { SmartToy as AIIcon, Search as SearchIcon, Clear as ClearIcon } from '@mui/icons-material';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { useInvoices } from '../invoiceQueries';
 import InvoiceTable from './InvoiceTable';
 import InvoiceDetails from './InvoiceDetails';
@@ -42,6 +45,10 @@ const InvoiceManagementPage: React.FC = () => {
   const [filterStatus, setFilterStatus] = useState<string>('');
   const [filterCustomer, setFilterCustomer] = useState<string>('');
   const [filterVendor, setFilterVendor] = useState<string>('');
+  const [filterIssueDateFrom, setFilterIssueDateFrom] = useState<Date | null>(null);
+  const [filterIssueDateTo, setFilterIssueDateTo] = useState<Date | null>(null);
+  const [filterDueDateFrom, setFilterDueDateFrom] = useState<Date | null>(null);
+  const [filterDueDateTo, setFilterDueDateTo] = useState<Date | null>(null);
   const theme = useTheme();
 
   const { user } = useUser();
@@ -69,7 +76,18 @@ const InvoiceManagementPage: React.FC = () => {
       totalPages: 1,
     } as PaginatedResponseDto<Invoice>,
     isLoading: isInvoicesLoading,
-  } = useInvoices(searchTerm, page, limit, filterStatus, filterCustomer, filterVendor);
+  } = useInvoices(
+    searchTerm,
+    page,
+    limit,
+    filterStatus,
+    filterCustomer,
+    filterVendor,
+    filterIssueDateFrom,
+    filterIssueDateTo,
+    filterDueDateFrom,
+    filterDueDateTo
+  );
 
   // Fetch selected invoice details
   const { data: selectedInvoice, isLoading: isInvoiceLoading } = useInvoice(
@@ -125,6 +143,10 @@ const InvoiceManagementPage: React.FC = () => {
     setFilterStatus('');
     setFilterCustomer('');
     setFilterVendor('');
+    setFilterIssueDateFrom(null);
+    setFilterIssueDateTo(null);
+    setFilterDueDateFrom(null);
+    setFilterDueDateTo(null);
   };
 
   // Apply custom styles to fix pagination alignment
@@ -234,72 +256,132 @@ const InvoiceManagementPage: React.FC = () => {
           </Box>
 
           {/* Filter controls */}
-          <Box sx={{ p: 2, borderBottom: `1px solid ${theme.palette.divider}` }}>
-            <Stack direction="row" spacing={2} alignItems="center" flexWrap="wrap">
-              <FormControl size="small" sx={{ minWidth: 150 }}>
-                <InputLabel>Status</InputLabel>
-                <Select
-                  value={filterStatus}
-                  onChange={(e) => setFilterStatus(e.target.value)}
-                  label="Status"
-                >
-                  <MenuItem value="">All</MenuItem>
-                  <MenuItem value="Active">Active</MenuItem>
-                  <MenuItem value="Overdue">Overdue</MenuItem>
-                </Select>
-              </FormControl>
+          <LocalizationProvider dateAdapter={AdapterDateFns}>
+            <Box sx={{ p: 2, borderBottom: `1px solid ${theme.palette.divider}` }}>
+              <Stack direction="row" spacing={2} alignItems="center" flexWrap="wrap" sx={{ mb: 2 }}>
+                <FormControl size="small" sx={{ minWidth: 150 }}>
+                  <InputLabel>Status</InputLabel>
+                  <Select
+                    value={filterStatus}
+                    onChange={(e) => setFilterStatus(e.target.value)}
+                    label="Status"
+                  >
+                    <MenuItem value="">All</MenuItem>
+                    <MenuItem value="Active">Active</MenuItem>
+                    <MenuItem value="Overdue">Overdue</MenuItem>
+                  </Select>
+                </FormControl>
 
-              <FormControl size="small" sx={{ minWidth: 200 }}>
-                <InputLabel>Customer</InputLabel>
-                <Select
-                  value={filterCustomer}
-                  onChange={(e) => setFilterCustomer(e.target.value)}
-                  label="Customer"
-                >
-                  <MenuItem value="">All Customers</MenuItem>
-                  {uniqueCustomers.map((customer) => (
-                    <MenuItem key={customer} value={customer}>
-                      {customer}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
+                <FormControl size="small" sx={{ minWidth: 200 }}>
+                  <InputLabel>Customer</InputLabel>
+                  <Select
+                    value={filterCustomer}
+                    onChange={(e) => setFilterCustomer(e.target.value)}
+                    label="Customer"
+                  >
+                    <MenuItem value="">All Customers</MenuItem>
+                    {uniqueCustomers.map((customer) => (
+                      <MenuItem key={customer} value={customer}>
+                        {customer}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
 
-              <FormControl size="small" sx={{ minWidth: 200 }}>
-                <InputLabel>Vendor</InputLabel>
-                <Select
-                  value={filterVendor}
-                  onChange={(e) => setFilterVendor(e.target.value)}
-                  label="Vendor"
-                >
-                  <MenuItem value="">All Vendors</MenuItem>
-                  {uniqueVendors.map((vendor) => (
-                    <MenuItem key={vendor} value={vendor}>
-                      {vendor}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
+                <FormControl size="small" sx={{ minWidth: 200 }}>
+                  <InputLabel>Vendor</InputLabel>
+                  <Select
+                    value={filterVendor}
+                    onChange={(e) => setFilterVendor(e.target.value)}
+                    label="Vendor"
+                  >
+                    <MenuItem value="">All Vendors</MenuItem>
+                    {uniqueVendors.map((vendor) => (
+                      <MenuItem key={vendor} value={vendor}>
+                        {vendor}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </Stack>
 
-              <Button
-                variant="outlined"
-                startIcon={<ClearIcon />}
-                onClick={handleClearFilters}
-                disabled={filterStatus === '' && filterCustomer === '' && filterVendor === ''}
-                sx={{
-                  minWidth: 120,
-                  borderColor: theme.palette.divider,
-                  color: theme.palette.text.secondary,
-                  '&:hover': {
-                    borderColor: theme.palette.text.secondary,
-                    backgroundColor: 'transparent',
-                  },
-                }}
-              >
-                Clear Filters
-              </Button>
-            </Stack>
-          </Box>
+              <Stack direction="row" spacing={2} alignItems="center" flexWrap="wrap">
+                <DatePicker
+                  label="Issue Date From"
+                  value={filterIssueDateFrom}
+                  onChange={(newValue) => setFilterIssueDateFrom(newValue)}
+                  slotProps={{
+                    textField: {
+                      size: 'small',
+                      sx: { minWidth: 180 }
+                    }
+                  }}
+                />
+
+                <DatePicker
+                  label="Issue Date To"
+                  value={filterIssueDateTo}
+                  onChange={(newValue) => setFilterIssueDateTo(newValue)}
+                  slotProps={{
+                    textField: {
+                      size: 'small',
+                      sx: { minWidth: 180 }
+                    }
+                  }}
+                />
+
+                <DatePicker
+                  label="Due Date From"
+                  value={filterDueDateFrom}
+                  onChange={(newValue) => setFilterDueDateFrom(newValue)}
+                  slotProps={{
+                    textField: {
+                      size: 'small',
+                      sx: { minWidth: 180 }
+                    }
+                  }}
+                />
+
+                <DatePicker
+                  label="Due Date To"
+                  value={filterDueDateTo}
+                  onChange={(newValue) => setFilterDueDateTo(newValue)}
+                  slotProps={{
+                    textField: {
+                      size: 'small',
+                      sx: { minWidth: 180 }
+                    }
+                  }}
+                />
+
+                <Button
+                  variant="outlined"
+                  startIcon={<ClearIcon />}
+                  onClick={handleClearFilters}
+                  disabled={
+                    filterStatus === '' &&
+                    filterCustomer === '' &&
+                    filterVendor === '' &&
+                    !filterIssueDateFrom &&
+                    !filterIssueDateTo &&
+                    !filterDueDateFrom &&
+                    !filterDueDateTo
+                  }
+                  sx={{
+                    minWidth: 120,
+                    borderColor: theme.palette.divider,
+                    color: theme.palette.text.secondary,
+                    '&:hover': {
+                      borderColor: theme.palette.text.secondary,
+                      backgroundColor: 'transparent',
+                    },
+                  }}
+                >
+                  Clear Filters
+                </Button>
+              </Stack>
+            </Box>
+          </LocalizationProvider>
 
           {isInvoicesLoading && (
             <Box sx={{ display: 'flex', justifyContent: 'center', my: 5 }}>
