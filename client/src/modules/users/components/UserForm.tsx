@@ -67,15 +67,15 @@ const generateUserSchema = (allRoles: Role[]) =>
         const domain = value.split('@')[1];
         return domain && ['gmail.com', 'honeycombsoft.com'].includes(domain.toLowerCase());
       }),
-    tenantId: Yup.string().when(['roleIds'], function (roleIds: string[]) {
-      const superAdminRole = allRoles?.find((r) => r.name === ROLES.SUPER_ADMIN);
-      const isSuperAdminRoleSelected = roleIds.includes(superAdminRole?.id ?? '');
-      const isContextSuperAdmin = this.options.context?.isSuperAdmin;
+    tenantId: Yup.string().when(['roleIds', '$isSuperAdmin'], {
+      is: (roleIds: string[], isContextSuperAdmin: boolean) => {
+        const superAdminRole = allRoles?.find((r) => r.name === ROLES.SUPER_ADMIN);
+        const isSuperAdminRoleSelected = roleIds.includes(superAdminRole?.id ?? '');
 
-      if (isContextSuperAdmin && !isSuperAdminRoleSelected) {
-        return this.required('Tenant is required unless Super Admin role is selected');
-      }
-      return this.optional();
+        return isContextSuperAdmin && !isSuperAdminRoleSelected;
+      },
+      then: (schema) => schema.required('Tenant is required unless Super Admin role is selected'),
+      otherwise: (schema) => schema.optional(),
     }),
     roleIds: Yup.array()
       .of(Yup.string().required())
