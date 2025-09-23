@@ -16,6 +16,7 @@ import {
   Grid,
 } from '@mui/material';
 import { SmartToy as AIIcon } from '@mui/icons-material';
+import { startOfDay, subDays, subWeeks, format } from 'date-fns';
 import { useInvoices } from '../invoiceQueries';
 import InvoiceTable from './InvoiceTable';
 import InvoiceDetails from './InvoiceDetails';
@@ -36,6 +37,7 @@ const InvoiceManagementPage: React.FC = () => {
   const [filterStatus, setFilterStatus] = useState<string>('all');
   const [filterVendor, setFilterVendor] = useState<string>('');
   const [filterCustomer, setFilterCustomer] = useState<string>('');
+  const [filterDate, setFilterDate] = useState<string>('all');
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
   const theme = useTheme();
@@ -54,7 +56,7 @@ const InvoiceManagementPage: React.FC = () => {
       totalPages: 1,
     } as PaginatedResponseDto<Invoice>,
     isLoading: isInvoicesLoading,
-  } = useInvoices(filterStatus, filterVendor, filterCustomer, page, limit);
+  } = useInvoices(filterStatus, filterVendor, filterCustomer, filterDate, page, limit);
 
   // Fetch selected invoice details
   const { data: selectedInvoice, isLoading: isInvoiceLoading } = useInvoice(
@@ -195,7 +197,7 @@ const InvoiceManagementPage: React.FC = () => {
           {/* Filter controls */}
           <Box sx={{ p: 2, pb: 0 }}>
             <Grid container spacing={2}>
-              <Grid item xs={12} sm={6} md={4}>
+              <Grid item xs={12} sm={6} md={3}>
                 <FormControl fullWidth size="small">
                   <InputLabel>Status</InputLabel>
                   <Select
@@ -209,7 +211,23 @@ const InvoiceManagementPage: React.FC = () => {
                   </Select>
                 </FormControl>
               </Grid>
-              <Grid item xs={12} sm={6} md={4}>
+              <Grid item xs={12} sm={6} md={3}>
+                <FormControl fullWidth size="small">
+                  <InputLabel>Date</InputLabel>
+                  <Select
+                    value={filterDate}
+                    label="Date"
+                    onChange={(e) => setFilterDate(e.target.value)}
+                  >
+                    <MenuItem value="all">All</MenuItem>
+                    <MenuItem value="today">Today</MenuItem>
+                    <MenuItem value="yesterday">Yesterday</MenuItem>
+                    <MenuItem value="last_week">Last Week</MenuItem>
+                    <MenuItem value="last_month">Last Month</MenuItem>
+                  </Select>
+                </FormControl>
+              </Grid>
+              <Grid item xs={12} sm={6} md={3}>
                 <TextField
                   fullWidth
                   size="small"
@@ -220,7 +238,7 @@ const InvoiceManagementPage: React.FC = () => {
                   variant="outlined"
                 />
               </Grid>
-              <Grid item xs={12} sm={6} md={4}>
+              <Grid item xs={12} sm={6} md={3}>
                 <TextField
                   fullWidth
                   size="small"
