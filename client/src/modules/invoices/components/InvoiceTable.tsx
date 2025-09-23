@@ -128,25 +128,29 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({
     }
   };
 
-  // Check if an invoice is overdue
-  const isOverdue = (dueDate: string): boolean => {
-    const today = new Date();
-    const due = new Date(dueDate);
-    return due < today;
-  };
-
   // Calculate and display the status of an invoice
   const getInvoiceStatus = (invoice: Invoice) => {
-    const overdue = isOverdue(invoice.dueDate);
+    const statusMap = {
+      PAID: { label: 'Paid', color: 'success' as const },
+      UNPAID: { label: 'Unpaid', color: 'warning' as const },
+      OVERDUE: { label: 'Overdue', color: 'error' as const },
+    };
+
+    const status = statusMap[invoice.status] || { label: 'Unknown', color: 'default' as const };
 
     return (
       <Chip
-        label={overdue ? 'Overdue' : 'Active'}
-        color={overdue ? 'error' : 'success'}
+        label={status.label}
+        color={status.color}
         size="small"
         sx={{ fontWeight: 'medium' }}
       />
     );
+  };
+
+  // Calculate total amount for current page
+  const calculatePageTotal = (): number => {
+    return invoices.reduce((sum, invoice) => sum + invoice.totalAmount, 0);
   };
 
   return (
@@ -253,6 +257,29 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({
                 <TableCell colSpan={8} align="center" sx={{ py: 3 }}>
                   No invoices found.
                 </TableCell>
+              </TableRow>
+            )}
+            {/* Total row - only show if there are invoices */}
+            {!isLoading && invoices.length > 0 && (
+              <TableRow
+                sx={{
+                  backgroundColor: theme => theme.palette.action.hover,
+                  '& td': {
+                    fontWeight: 'bold',
+                    borderTop: theme => `2px solid ${theme.palette.divider}`,
+                  },
+                }}>
+                <TableCell colSpan={5}>
+                  <Typography variant="body1" fontWeight="bold">
+                    Page Total ({invoices.length} invoices)
+                  </Typography>
+                </TableCell>
+                <TableCell>
+                  <Typography variant="body1" fontWeight="bold">
+                    {formatCurrency(calculatePageTotal())}
+                  </Typography>
+                </TableCell>
+                <TableCell colSpan={2}></TableCell>
               </TableRow>
             )}
           </TableBody>

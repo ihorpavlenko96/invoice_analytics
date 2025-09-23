@@ -105,6 +105,20 @@ export class InvoiceDto {
     totalAmount!: number;
 
     @ApiProperty({
+        description: 'Status of the invoice',
+        example: 'UNPAID',
+        enum: ['PAID', 'UNPAID', 'OVERDUE'],
+    })
+    status!: string;
+
+    @ApiProperty({
+        description: 'Payment terms and conditions',
+        example: 'Net 30 days',
+        required: false,
+    })
+    terms?: string;
+
+    @ApiProperty({
         description: 'Line items in the invoice',
         type: [InvoiceItemDto],
     })
