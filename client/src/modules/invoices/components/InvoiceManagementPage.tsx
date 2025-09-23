@@ -7,7 +7,6 @@ import {
   CardHeader,
   CircularProgress,
   TextField,
-  InputAdornment,
   Typography,
   useTheme,
   Select,
@@ -15,7 +14,7 @@ import {
   FormControl,
   InputLabel,
 } from '@mui/material';
-import { SmartToy as AIIcon, Search as SearchIcon } from '@mui/icons-material';
+import { SmartToy as AIIcon } from '@mui/icons-material';
 import { useInvoices } from '../invoiceQueries';
 import InvoiceTable from './InvoiceTable';
 import InvoiceDetails from './InvoiceDetails';
@@ -33,8 +32,8 @@ const InvoiceManagementPage: React.FC = () => {
   const [selectedInvoiceId, setSelectedInvoiceId] = useState<string | null>(null);
   const [highlightedInvoiceId, setHighlightedInvoiceId] = useState<string | null>(null);
   const [isChatDrawerOpen, setIsChatDrawerOpen] = useState(false);
-  const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
+  const [dateFilter, setDateFilter] = useState('');
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
   const theme = useTheme();
@@ -53,7 +52,7 @@ const InvoiceManagementPage: React.FC = () => {
       totalPages: 1,
     } as PaginatedResponseDto<Invoice>,
     isLoading: isInvoicesLoading,
-  } = useInvoices(searchTerm, page, limit, statusFilter);
+  } = useInvoices('', page, limit, statusFilter, dateFilter);
 
   // Fetch selected invoice details
   const { data: selectedInvoice, isLoading: isInvoiceLoading } = useInvoice(
@@ -191,22 +190,19 @@ const InvoiceManagementPage: React.FC = () => {
           }
         />
         <CardContent sx={{ p: 0, '&:last-child': { pb: 0 } }}>
-          {/* Search and Filter fields */}
+          {/* Filter fields */}
           <Box sx={{ p: 2, pb: 0 }}>
             <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
               <TextField
-                fullWidth
-                placeholder="Search invoices by number, vendor or customer name..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
+                label="Filter by Issue Date"
+                type="date"
+                value={dateFilter}
+                onChange={(e) => setDateFilter(e.target.value)}
                 variant="outlined"
                 size="small"
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <SearchIcon color="action" />
-                    </InputAdornment>
-                  ),
+                sx={{ minWidth: 200 }}
+                InputLabelProps={{
+                  shrink: true,
                 }}
               />
               <FormControl size="small" sx={{ minWidth: 150 }}>
