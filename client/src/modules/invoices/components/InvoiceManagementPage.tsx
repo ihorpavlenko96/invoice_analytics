@@ -10,6 +10,10 @@ import {
   InputAdornment,
   Typography,
   useTheme,
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel,
 } from '@mui/material';
 import { SmartToy as AIIcon, Search as SearchIcon } from '@mui/icons-material';
 import { useInvoices } from '../invoiceQueries';
@@ -30,6 +34,7 @@ const InvoiceManagementPage: React.FC = () => {
   const [highlightedInvoiceId, setHighlightedInvoiceId] = useState<string | null>(null);
   const [isChatDrawerOpen, setIsChatDrawerOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState('');
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
   const theme = useTheme();
@@ -48,7 +53,7 @@ const InvoiceManagementPage: React.FC = () => {
       totalPages: 1,
     } as PaginatedResponseDto<Invoice>,
     isLoading: isInvoicesLoading,
-  } = useInvoices(searchTerm, page, limit);
+  } = useInvoices(searchTerm, page, limit, statusFilter);
 
   // Fetch selected invoice details
   const { data: selectedInvoice, isLoading: isInvoiceLoading } = useInvoice(
@@ -186,23 +191,37 @@ const InvoiceManagementPage: React.FC = () => {
           }
         />
         <CardContent sx={{ p: 0, '&:last-child': { pb: 0 } }}>
-          {/* Search field */}
+          {/* Search and Filter fields */}
           <Box sx={{ p: 2, pb: 0 }}>
-            <TextField
-              fullWidth
-              placeholder="Search invoices by number, vendor or customer name..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              variant="outlined"
-              size="small"
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <SearchIcon color="action" />
-                  </InputAdornment>
-                ),
-              }}
-            />
+            <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
+              <TextField
+                fullWidth
+                placeholder="Search invoices by number, vendor or customer name..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                variant="outlined"
+                size="small"
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <SearchIcon color="action" />
+                    </InputAdornment>
+                  ),
+                }}
+              />
+              <FormControl size="small" sx={{ minWidth: 150 }}>
+                <InputLabel>Status</InputLabel>
+                <Select
+                  value={statusFilter}
+                  onChange={(e) => setStatusFilter(e.target.value)}
+                  label="Status"
+                >
+                  <MenuItem value="">All</MenuItem>
+                  <MenuItem value="Active">Active</MenuItem>
+                  <MenuItem value="Overdue">Overdue</MenuItem>
+                </Select>
+              </FormControl>
+            </Box>
           </Box>
 
           {isInvoicesLoading && (
