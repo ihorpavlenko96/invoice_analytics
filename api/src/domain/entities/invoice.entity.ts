@@ -55,6 +55,12 @@ export class Invoice {
     @Column({ type: 'decimal', precision: 12, scale: 2 })
     totalAmount!: number;
 
+    @Column({ length: 50, default: 'UNPAID' })
+    status!: string;
+
+    @Column({ type: 'text', nullable: true })
+    terms!: string;
+
     @OneToMany(() => InvoiceItem, (item) => item.invoice, {
         cascade: true,
         eager: true,

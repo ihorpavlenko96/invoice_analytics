@@ -4,36 +4,52 @@ import { invoiceService } from './services/invoiceService';
 
 /**
  * Hook to fetch all invoices
- * @param searchTerm - Optional search term to filter invoices
+ * @param vendorSearch - Optional vendor name search term
+ * @param customerSearch - Optional customer name search term
+ * @param statusFilter - Optional status filter
  * @param page - Page number (starts at 1)
  * @param limit - Number of items per page
  */
-export const useInvoices = (searchTerm = '', page = 1, limit = 10) => {
+export const useInvoices = (
+  vendorSearch = '',
+  customerSearch = '',
+  statusFilter = '',
+  page = 1,
+  limit = 10,
+) => {
   return useQuery({
-    queryKey: invoiceKeys.list(searchTerm, page, limit),
+    queryKey: invoiceKeys.list(vendorSearch, customerSearch, statusFilter, page, limit),
     queryFn: async () => {
       const paginatedResponse = await invoiceService.getInvoices(page, limit);
 
-      // If there's a search term, we filter the items
-      if (searchTerm) {
-        const lowerCaseSearch = searchTerm.toLowerCase();
-        const filteredItems = paginatedResponse.items.filter(
-          (invoice) =>
-            invoice.invoiceNumber.toLowerCase().includes(lowerCaseSearch) ||
-            invoice.vendorName.toLowerCase().includes(lowerCaseSearch) ||
-            invoice.customerName.toLowerCase().includes(lowerCaseSearch),
-        );
+      // Apply filters if any are specified
+      let filteredItems = paginatedResponse.items;
 
-        // Return filtered items with updated counts
-        return {
-          ...paginatedResponse,
-          items: filteredItems,
-          total: filteredItems.length,
-          totalPages: Math.ceil(filteredItems.length / limit),
-        };
+      if (vendorSearch) {
+        const lowerCaseVendorSearch = vendorSearch.toLowerCase();
+        filteredItems = filteredItems.filter((invoice) =>
+          invoice.vendorName.toLowerCase().includes(lowerCaseVendorSearch),
+        );
       }
 
-      return paginatedResponse;
+      if (customerSearch) {
+        const lowerCaseCustomerSearch = customerSearch.toLowerCase();
+        filteredItems = filteredItems.filter((invoice) =>
+          invoice.customerName.toLowerCase().includes(lowerCaseCustomerSearch),
+        );
+      }
+
+      if (statusFilter) {
+        filteredItems = filteredItems.filter((invoice) => invoice.status === statusFilter);
+      }
+
+      // Return filtered items with updated counts
+      return {
+        ...paginatedResponse,
+        items: filteredItems,
+        total: filteredItems.length,
+        totalPages: Math.ceil(filteredItems.length / limit),
+      };
     },
   });
 };
