@@ -6,7 +6,7 @@ import { invoiceService } from './services/invoiceService';
  * Hook to fetch all invoices
  * @param vendorSearch - Optional vendor name search term
  * @param customerSearch - Optional customer name search term
- * @param statusFilter - Optional status filter
+ * @param statusFilter - Optional status filter (unused but kept for compatibility)
  * @param page - Page number (starts at 1)
  * @param limit - Number of items per page
  */
@@ -39,9 +39,7 @@ export const useInvoices = (
         );
       }
 
-      if (statusFilter) {
-        filteredItems = filteredItems.filter((invoice) => invoice.status === statusFilter);
-      }
+      // Status filter removed as requested - keeping parameter for compatibility
 
       // Return filtered items with updated counts
       return {

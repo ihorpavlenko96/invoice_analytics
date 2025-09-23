@@ -10,11 +10,6 @@ import {
   InputAdornment,
   Typography,
   useTheme,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  SelectChangeEvent,
   Grid,
 } from '@mui/material';
 import { SmartToy as AIIcon, Search as SearchIcon } from '@mui/icons-material';
@@ -37,7 +32,6 @@ const InvoiceManagementPage: React.FC = () => {
   const [isChatDrawerOpen, setIsChatDrawerOpen] = useState(false);
   const [vendorSearch, setVendorSearch] = useState('');
   const [customerSearch, setCustomerSearch] = useState('');
-  const [statusFilter, setStatusFilter] = useState<string>('');
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
   const theme = useTheme();
@@ -56,7 +50,7 @@ const InvoiceManagementPage: React.FC = () => {
       totalPages: 1,
     } as PaginatedResponseDto<Invoice>,
     isLoading: isInvoicesLoading,
-  } = useInvoices(vendorSearch, customerSearch, statusFilter, page, limit);
+  } = useInvoices(vendorSearch, customerSearch, '', page, limit);
 
   // Fetch selected invoice details
   const { data: selectedInvoice, isLoading: isInvoiceLoading } = useInvoice(
@@ -107,11 +101,6 @@ const InvoiceManagementPage: React.FC = () => {
     setPage(1); // Reset to first page when changing limit
   };
 
-  // Handle status filter change
-  const handleStatusFilterChange = (event: SelectChangeEvent) => {
-    setStatusFilter(event.target.value);
-    setPage(1); // Reset to first page when changing filter
-  };
 
   // Apply custom styles to fix pagination alignment
   useEffect(() => {
@@ -201,9 +190,9 @@ const InvoiceManagementPage: React.FC = () => {
         />
         <CardContent sx={{ p: 0, '&:last-child': { pb: 0 } }}>
           {/* Filter controls */}
-          <Box sx={{ p: 2, pb: 0 }}>
+          <Box sx={{ p: 2, pb: 0, mb: 2 }}>
             <Grid container spacing={2}>
-              <Grid item xs={12} md={4}>
+              <Grid item xs={12} md={6}>
                 <TextField
                   fullWidth
                   placeholder="Search by vendor name..."
@@ -220,7 +209,7 @@ const InvoiceManagementPage: React.FC = () => {
                   }}
                 />
               </Grid>
-              <Grid item xs={12} md={4}>
+              <Grid item xs={12} md={6}>
                 <TextField
                   fullWidth
                   placeholder="Search by customer name..."
@@ -236,21 +225,6 @@ const InvoiceManagementPage: React.FC = () => {
                     ),
                   }}
                 />
-              </Grid>
-              <Grid item xs={12} md={4}>
-                <FormControl fullWidth size="small">
-                  <InputLabel>Status</InputLabel>
-                  <Select
-                    value={statusFilter}
-                    onChange={handleStatusFilterChange}
-                    label="Status"
-                  >
-                    <MenuItem value="">All</MenuItem>
-                    <MenuItem value="PAID">Paid</MenuItem>
-                    <MenuItem value="UNPAID">Unpaid</MenuItem>
-                    <MenuItem value="OVERDUE">Overdue</MenuItem>
-                  </Select>
-                </FormControl>
               </Grid>
             </Grid>
           </Box>
