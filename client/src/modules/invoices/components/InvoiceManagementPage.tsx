@@ -7,14 +7,11 @@ import {
   CardHeader,
   CircularProgress,
   TextField,
+  InputAdornment,
   Typography,
   useTheme,
-  Select,
-  MenuItem,
-  FormControl,
-  InputLabel,
 } from '@mui/material';
-import { SmartToy as AIIcon } from '@mui/icons-material';
+import { SmartToy as AIIcon, Search as SearchIcon } from '@mui/icons-material';
 import { useInvoices } from '../invoiceQueries';
 import InvoiceTable from './InvoiceTable';
 import InvoiceDetails from './InvoiceDetails';
@@ -32,8 +29,7 @@ const InvoiceManagementPage: React.FC = () => {
   const [selectedInvoiceId, setSelectedInvoiceId] = useState<string | null>(null);
   const [highlightedInvoiceId, setHighlightedInvoiceId] = useState<string | null>(null);
   const [isChatDrawerOpen, setIsChatDrawerOpen] = useState(false);
-  const [statusFilter, setStatusFilter] = useState('');
-  const [dateFilter, setDateFilter] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
   const theme = useTheme();
@@ -52,7 +48,7 @@ const InvoiceManagementPage: React.FC = () => {
       totalPages: 1,
     } as PaginatedResponseDto<Invoice>,
     isLoading: isInvoicesLoading,
-  } = useInvoices('', page, limit, statusFilter, dateFilter);
+  } = useInvoices(searchTerm, page, limit);
 
   // Fetch selected invoice details
   const { data: selectedInvoice, isLoading: isInvoiceLoading } = useInvoice(
@@ -190,34 +186,23 @@ const InvoiceManagementPage: React.FC = () => {
           }
         />
         <CardContent sx={{ p: 0, '&:last-child': { pb: 0 } }}>
-          {/* Filter fields */}
+          {/* Search field */}
           <Box sx={{ p: 2, pb: 0 }}>
-            <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
-              <TextField
-                label="Filter by Issue Date"
-                type="date"
-                value={dateFilter}
-                onChange={(e) => setDateFilter(e.target.value)}
-                variant="outlined"
-                size="small"
-                sx={{ minWidth: 200 }}
-                InputLabelProps={{
-                  shrink: true,
-                }}
-              />
-              <FormControl size="small" sx={{ minWidth: 150 }}>
-                <InputLabel>Status</InputLabel>
-                <Select
-                  value={statusFilter}
-                  onChange={(e) => setStatusFilter(e.target.value)}
-                  label="Status"
-                >
-                  <MenuItem value="">All</MenuItem>
-                  <MenuItem value="Active">Active</MenuItem>
-                  <MenuItem value="Overdue">Overdue</MenuItem>
-                </Select>
-              </FormControl>
-            </Box>
+            <TextField
+              fullWidth
+              placeholder="Search invoices by number, vendor or customer name..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              variant="outlined"
+              size="small"
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <SearchIcon color="action" />
+                  </InputAdornment>
+                ),
+              }}
+            />
           </Box>
 
           {isInvoicesLoading && (
