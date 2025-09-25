@@ -98,8 +98,8 @@ const UserManagementPage: React.FC<UserManagementPageProps> = () => {
     name: filterName || undefined,
     status: filterStatus !== 'all' ? filterStatus : undefined,
     role: filterRole !== 'all' ? filterRole : undefined,
-    createdFrom: filterCreatedFrom ? filterCreatedFrom.toISOString() : undefined,
-    createdTo: filterCreatedTo ? filterCreatedTo.toISOString() : undefined,
+    createdFrom: filterCreatedFrom ? filterCreatedFrom.startOf('day').toISOString() : undefined,
+    createdTo: filterCreatedTo ? filterCreatedTo.endOf('day').toISOString() : undefined,
   }), [filterEmail, filterName, filterStatus, filterRole, filterCreatedFrom, filterCreatedTo]);
 
   const {
@@ -130,6 +130,8 @@ const UserManagementPage: React.FC<UserManagementPageProps> = () => {
   const [filterName, setFilterName] = useState<string>('');
   const [filterStatus, setFilterStatus] = useState<string>('all');
   const [filterRole, setFilterRole] = useState<string>('all');
+  const [filterCreatedFrom, setFilterCreatedFrom] = useState<Dayjs | null>(null);
+  const [filterCreatedTo, setFilterCreatedTo] = useState<Dayjs | null>(null);
   const [filterCreatedFrom, setFilterCreatedFrom] = useState<Dayjs | null>(null);
   const [filterCreatedTo, setFilterCreatedTo] = useState<Dayjs | null>(null);
 
