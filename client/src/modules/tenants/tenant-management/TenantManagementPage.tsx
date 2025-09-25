@@ -11,6 +11,9 @@ import {
   Dialog,
   DialogContent,
   DialogTitle,
+  List,
+  ListItem,
+  ListItemText,
   Table,
   TableBody,
   TableCell,
@@ -169,6 +172,48 @@ const TenantManagementPage: React.FC<TenantManagementPageProps> = () => {
   const isAllSelected = sortedTenants.length > 0 &&
     sortedTenants.every(tenant => selectedTenantIds.has(tenant.id));
   const isIndeterminate = sortedTenants.some(tenant => selectedTenantIds.has(tenant.id)) && !isAllSelected;
+
+  const getBulkDeleteMessage = (): React.ReactNode => {
+    const selectedTenants = sortedTenants.filter(tenant => selectedTenantIds.has(tenant.id));
+    const tenantCount = selectedTenants.length;
+
+    if (tenantCount === 0) return null;
+
+    const displayLimit = 10;
+    const tenantsToShow = selectedTenants.slice(0, displayLimit);
+    const hasMore = tenantCount > displayLimit;
+
+    return (
+      <Box>
+        <Typography variant="body1" gutterBottom>
+          Are you sure you want to delete {tenantCount} tenant{tenantCount === 1 ? '' : 's'}? This action cannot be undone.
+        </Typography>
+        <Typography variant="body2" color="text.secondary" sx={{ mt: 2, mb: 1 }}>
+          Tenants to be deleted:
+        </Typography>
+        <List dense sx={{ maxHeight: 200, overflow: 'auto' }}>
+          {tenantsToShow.map((tenant) => (
+            <ListItem key={tenant.id} sx={{ py: 0 }}>
+              <ListItemText
+                primary={tenant.name}
+                secondary={`Alias: ${tenant.alias}`}
+                primaryTypographyProps={{ variant: 'body2' }}
+                secondaryTypographyProps={{ variant: 'caption' }}
+              />
+            </ListItem>
+          ))}
+          {hasMore && (
+            <ListItem sx={{ py: 0 }}>
+              <ListItemText
+                primary={`...and ${tenantCount - displayLimit} more`}
+                primaryTypographyProps={{ variant: 'body2', fontStyle: 'italic', color: 'text.secondary' }}
+              />
+            </ListItem>
+          )}
+        </List>
+      </Box>
+    );
+  };
 
   return (
     <Box sx={{ backgroundColor: theme.palette.background.default }}>
@@ -361,7 +406,7 @@ const TenantManagementPage: React.FC<TenantManagementPageProps> = () => {
         onClose={closeConfirmBulkDeleteDialog}
         onConfirm={handleConfirmBulkDelete}
         title="Confirm Bulk Deletion"
-        message={`Are you sure you want to delete ${selectedTenantIds.size} tenants? This action cannot be undone.`}
+        message={getBulkDeleteMessage()}
         confirmText="Delete"
         cancelText="Cancel"
       />
