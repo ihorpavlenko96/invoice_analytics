@@ -11,6 +11,7 @@ import {
     HttpStatus,
     Inject,
     ForbiddenException,
+    Query,
 } from '@nestjs/common';
 
 import {
@@ -27,6 +28,7 @@ import {
 } from '../../application/users/dto/create-user.dto';
 import { UpdateUserDto } from '../../application/users/dto/update-user.dto';
 import { UserDto } from '../../application/users/dto/user.dto';
+import { FilterUserDto } from '../../application/users/dto/filter-user.dto';
 import { RoleName } from '../../domain/enums/role-name.enum';
 import { Authorize } from '../../infrastructure/auth/decorators/authorize.decorator';
 import { RequestWithTenant } from 'src/infrastructure/middleware/request-with-tenant.interface';
@@ -114,7 +116,7 @@ export class UserController {
     @Get()
     @ApiOperation({
         summary: 'Get all users',
-        description: 'Retrieves all users based on role permissions',
+        description: 'Retrieves all users based on role permissions with optional filtering',
     })
     @ApiResponse({
         status: HttpStatus.OK,
@@ -123,16 +125,22 @@ export class UserController {
     })
     @ApiUnauthorizedResponse({ description: 'Unauthorized' })
     @ApiForbiddenResponse({ description: 'Forbidden - missing tenant information' })
-    async findAll(@Req() req: RequestWithTenant): Promise<UserDto[]> {
+    async findAll(
+        @Req() req: RequestWithTenant,
+        @Query() filters: FilterUserDto
+    ): Promise<UserDto[]> {
         const { tenantId, isSuperAdmin }: RequestingUserContext =
             this._getRequestingUserContext(req);
 
+        const hasFilters = Object.keys(filters).some(key => filters[key as keyof FilterUserDto] !== undefined);
+        const filterParams = hasFilters ? filters : undefined;
+
         if (isSuperAdmin) {
-            return this.userQueries.findAllUsers();
+            return this.userQueries.findAllUsers(filterParams);
         }
 
         if (tenantId !== undefined) {
-            return this.userQueries.findAllUsersByTenant(tenantId);
+            return this.userQueries.findAllUsersByTenant(tenantId, filterParams);
         }
 
         throw new ForbiddenException('User tenant information is missing.');

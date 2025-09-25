@@ -1,6 +1,6 @@
 import { Injectable, Inject, BadRequestException, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, SelectQueryBuilder } from 'typeorm';
 import { User } from '../../../domain/entities/user.entity';
 import { IUserRepository } from '../../../application/repositories/user.repository.interface';
 import {
@@ -12,6 +12,7 @@ import {
     CreateUserBySuperAdminDto,
 } from '../../../application/users/dto/create-user.dto';
 import { UpdateUserDto } from '../../../application/users/dto/update-user.dto';
+import { FilterUserDto } from '../../../application/users/dto/filter-user.dto';
 
 @Injectable()
 export class UserRepository implements IUserRepository {
@@ -42,6 +43,66 @@ export class UserRepository implements IUserRepository {
 
     async findAll(): Promise<User[]> {
         return this.ormRepository.find({ relations: ['tenant', 'roles'] });
+    }
+
+    private applyFilters(queryBuilder: SelectQueryBuilder<User>, filters: FilterUserDto): void {
+        if (filters.email) {
+            queryBuilder.andWhere('LOWER(user.email) LIKE LOWER(:email)', {
+                email: `%${filters.email}%`,
+            });
+        }
+
+        if (filters.name) {
+            queryBuilder.andWhere(
+                '(LOWER(CONCAT(user.firstName, \' \', user.lastName)) LIKE LOWER(:name) OR LOWER(user.firstName) LIKE LOWER(:name) OR LOWER(user.lastName) LIKE LOWER(:name))',
+                { name: `%${filters.name}%` }
+            );
+        }
+
+        if (filters.status === 'active') {
+            queryBuilder.andWhere('user.isActive = :isActive', { isActive: true });
+        } else if (filters.status === 'inactive') {
+            queryBuilder.andWhere('user.isActive = :isActive', { isActive: false });
+        }
+
+        if (filters.role) {
+            queryBuilder.andWhere('roles.name = :roleName', { roleName: filters.role });
+        }
+
+        if (filters.createdFrom) {
+            queryBuilder.andWhere('user.createdAt >= :createdFrom', {
+                createdFrom: new Date(filters.createdFrom),
+            });
+        }
+
+        if (filters.createdTo) {
+            queryBuilder.andWhere('user.createdAt <= :createdTo', {
+                createdTo: new Date(filters.createdTo),
+            });
+        }
+    }
+
+    async findAllWithFilters(filters: FilterUserDto): Promise<User[]> {
+        const queryBuilder = this.ormRepository
+            .createQueryBuilder('user')
+            .leftJoinAndSelect('user.tenant', 'tenant')
+            .leftJoinAndSelect('user.roles', 'roles');
+
+        this.applyFilters(queryBuilder, filters);
+
+        return queryBuilder.getMany();
+    }
+
+    async findAllByTenantIdWithFilters(tenantId: string, filters: FilterUserDto): Promise<User[]> {
+        const queryBuilder = this.ormRepository
+            .createQueryBuilder('user')
+            .leftJoinAndSelect('user.tenant', 'tenant')
+            .leftJoinAndSelect('user.roles', 'roles')
+            .where('user.tenantId = :tenantId', { tenantId });
+
+        this.applyFilters(queryBuilder, filters);
+
+        return queryBuilder.getMany();
     }
 
     async create(

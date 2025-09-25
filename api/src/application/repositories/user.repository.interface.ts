@@ -4,6 +4,7 @@ import {
     CreateUserBySuperAdminDto,
 } from '../../application/users/dto/create-user.dto';
 import { UpdateUserDto } from '../../application/users/dto/update-user.dto';
+import { FilterUserDto } from '../users/dto/filter-user.dto';
 
 export interface IUserRepository {
     findById(id: string): Promise<User | null>;
@@ -11,6 +12,8 @@ export interface IUserRepository {
     findBySubId(subId: string): Promise<User | null>;
     findAllByTenantId(tenantId: string): Promise<User[]>;
     findAll(): Promise<User[]>;
+    findAllByTenantIdWithFilters(tenantId: string, filters: FilterUserDto): Promise<User[]>;
+    findAllWithFilters(filters: FilterUserDto): Promise<User[]>;
     create(
         dto: CreateUserDto | CreateUserBySuperAdminDto,
         tenantId?: string,
