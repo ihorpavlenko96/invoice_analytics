@@ -10,6 +10,7 @@ import { User } from '../../domain/entities/user.entity';
 import { IUserQueries } from './interfaces/user-queries.interface';
 import { UserDto } from './dto/user.dto';
 import { RoleDto } from '../roles/dto/role.dto';
+import { FilterUserDto } from './dto/filter-user.dto';
 
 @Injectable()
 export class UserQueries implements IUserQueries {
@@ -50,14 +51,18 @@ export class UserQueries implements IUserQueries {
         return dto;
     }
 
-    async findAllUsersByTenant(tenantId: string): Promise<UserDto[]> {
-        const users = await this.userRepository.findAllByTenantId(tenantId);
+    async findAllUsersByTenant(tenantId: string, filters?: FilterUserDto): Promise<UserDto[]> {
+        const users = filters
+            ? await this.userRepository.findAllByTenantIdWithFilters(tenantId, filters)
+            : await this.userRepository.findAllByTenantId(tenantId);
 
         return users.map((user) => this.mapToDto(user)).filter(Boolean) as UserDto[];
     }
 
-    async findAllUsers(): Promise<UserDto[]> {
-        const users = await this.userRepository.findAll();
+    async findAllUsers(filters?: FilterUserDto): Promise<UserDto[]> {
+        const users = filters
+            ? await this.userRepository.findAllWithFilters(filters)
+            : await this.userRepository.findAll();
 
         return users.map((user) => this.mapToDto(user)).filter(Boolean) as UserDto[];
     }

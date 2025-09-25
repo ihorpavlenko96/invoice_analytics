@@ -27,6 +27,10 @@ import {
   FormControl,
   InputLabel,
 } from '@mui/material';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { Dayjs } from 'dayjs';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
@@ -89,13 +93,22 @@ const UserManagementPage: React.FC<UserManagementPageProps> = () => {
     loadColumnOrder,
   } = useUserManagementStore();
 
+  const filters = useMemo(() => ({
+    email: filterEmail || undefined,
+    name: filterName || undefined,
+    status: filterStatus !== 'all' ? filterStatus : undefined,
+    role: filterRole !== 'all' ? filterRole : undefined,
+    createdFrom: filterCreatedFrom ? filterCreatedFrom.toISOString() : undefined,
+    createdTo: filterCreatedTo ? filterCreatedTo.toISOString() : undefined,
+  }), [filterEmail, filterName, filterStatus, filterRole, filterCreatedFrom, filterCreatedTo]);
+
   const {
     data: usersData,
     isLoading,
     error: usersError,
   } = useQuery({
-    queryKey: [USER_QUERY_KEYS.GET_USERS],
-    queryFn: getUsers,
+    queryKey: [USER_QUERY_KEYS.GET_USERS, filters],
+    queryFn: () => getUsers(filters),
     staleTime: CACHE_TIMES.DEFAULT,
   });
 
@@ -117,6 +130,8 @@ const UserManagementPage: React.FC<UserManagementPageProps> = () => {
   const [filterName, setFilterName] = useState<string>('');
   const [filterStatus, setFilterStatus] = useState<string>('all');
   const [filterRole, setFilterRole] = useState<string>('all');
+  const [filterCreatedFrom, setFilterCreatedFrom] = useState<Dayjs | null>(null);
+  const [filterCreatedTo, setFilterCreatedTo] = useState<Dayjs | null>(null);
 
   const users: User[] = usersData?.data ?? [];
 
@@ -148,42 +163,10 @@ const UserManagementPage: React.FC<UserManagementPageProps> = () => {
   }, [columns, columnOrder.length, setColumnOrder]);
 
   const sortedUsers = useMemo(() => {
-    // First apply filters
-    const filteredUsers = users.filter((user) => {
-      // Email filter
-      if (filterEmail && !user.email?.toLowerCase().includes(filterEmail.toLowerCase())) {
-        return false;
-      }
+    // Filtering is now done on the backend, so we only need frontend sorting
+    if (!sortBy) return users;
 
-      // Name filter
-      const fullName = `${user.firstName || ''} ${user.lastName || ''}`.trim().toLowerCase();
-      if (filterName && !fullName.includes(filterName.toLowerCase())) {
-        return false;
-      }
-
-      // Status filter
-      if (filterStatus !== 'all') {
-        const isActive = filterStatus === 'active';
-        if (user.isActive !== isActive) {
-          return false;
-        }
-      }
-
-      // Role filter
-      if (filterRole !== 'all' && user.roles) {
-        const hasRole = user.roles.some((role) => role.name === filterRole);
-        if (!hasRole) {
-          return false;
-        }
-      }
-
-      return true;
-    });
-
-    // Then apply sorting
-    if (!sortBy) return filteredUsers;
-
-    return [...filteredUsers].sort((a, b) => {
+    return [...users].sort((a, b) => {
       let aValue: string;
       let bValue: string;
 
@@ -224,7 +207,7 @@ const UserManagementPage: React.FC<UserManagementPageProps> = () => {
         return bValue.localeCompare(aValue);
       }
     });
-  }, [users, sortBy, sortOrder, filterEmail, filterName, filterStatus, filterRole]);
+  }, [users, sortBy, sortOrder]);
 
   const handleSort = (column: string) => {
     if (sortBy === column) {
@@ -240,6 +223,8 @@ const UserManagementPage: React.FC<UserManagementPageProps> = () => {
     setFilterName('');
     setFilterStatus('all');
     setFilterRole('all');
+    setFilterCreatedFrom(null);
+    setFilterCreatedTo(null);
   };
 
   // Get unique roles for filter dropdown
@@ -330,7 +315,7 @@ const UserManagementPage: React.FC<UserManagementPageProps> = () => {
         <CardContent sx={{ p: 0, '&:last-child': { pb: 0 } }}>
           {/* Filter Section */}
           <Box sx={{ p: 2, borderBottom: `1px solid ${theme.palette.divider}` }}>
-            <Stack direction="row" spacing={2} alignItems="center" flexWrap="wrap">
+            <Stack direction="row" spacing={2} alignItems="center" flexWrap="wrap" sx={{ mb: 2 }}>
               <TextField
                 label="Filter by Email"
                 variant="outlined"
@@ -372,11 +357,39 @@ const UserManagementPage: React.FC<UserManagementPageProps> = () => {
                   ))}
                 </Select>
               </FormControl>
+            </Stack>
+            <Stack direction="row" spacing={2} alignItems="center" flexWrap="wrap">
+              <LocalizationProvider dateAdapter={AdapterDayjs}>
+                <DatePicker
+                  label="Created From"
+                  value={filterCreatedFrom}
+                  onChange={setFilterCreatedFrom}
+                  slotProps={{
+                    textField: {
+                      size: 'small',
+                      variant: 'outlined',
+                      sx: { minWidth: 180 },
+                    },
+                  }}
+                />
+                <DatePicker
+                  label="Created To"
+                  value={filterCreatedTo}
+                  onChange={setFilterCreatedTo}
+                  slotProps={{
+                    textField: {
+                      size: 'small',
+                      variant: 'outlined',
+                      sx: { minWidth: 180 },
+                    },
+                  }}
+                />
+              </LocalizationProvider>
               <Button
                 variant="outlined"
                 startIcon={<ClearIcon />}
                 onClick={handleClearFilters}
-                disabled={filterEmail === '' && filterName === '' && filterStatus === 'all' && filterRole === 'all'}
+                disabled={filterEmail === '' && filterName === '' && filterStatus === 'all' && filterRole === 'all' && filterCreatedFrom === null && filterCreatedTo === null}
                 sx={{
                   minWidth: 120,
                   borderColor: theme.palette.divider,
