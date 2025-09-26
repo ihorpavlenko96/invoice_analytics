@@ -11,12 +11,6 @@ import {
   TablePagination,
   Typography,
   Box,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogContentText,
-  DialogTitle,
-  Button,
   Chip,
   Skeleton,
   keyframes,
@@ -30,6 +24,7 @@ import { useDeleteInvoice } from '../invoiceMutations';
 import { format } from 'date-fns';
 import { useSnackbar } from 'notistack';
 import { PaginatedResponseDto } from '../services/invoiceService';
+import ConfirmationDialog from '../../../common/components/ConfirmationDialog';
 
 // Define the pulse animation
 const pulseAnimation = keyframes`
@@ -65,7 +60,7 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({
   onRowsPerPageChange,
 }) => {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [invoiceToDelete, setInvoiceToDelete] = useState<string | null>(null);
+  const [invoiceToDelete, setInvoiceToDelete] = useState<Invoice | null>(null);
   const { enqueueSnackbar } = useSnackbar();
 
   const deleteInvoiceMutation = useDeleteInvoice();
@@ -85,15 +80,15 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({
     onPageChange(1); // Reset to first page
   };
 
-  const handleDeleteClick = (id: string) => {
-    setInvoiceToDelete(id);
+  const handleDeleteClick = (invoice: Invoice) => {
+    setInvoiceToDelete(invoice);
     setDeleteDialogOpen(true);
   };
 
   const handleDeleteConfirm = () => {
     if (!invoiceToDelete) return;
 
-    deleteInvoiceMutation.mutate(invoiceToDelete, {
+    deleteInvoiceMutation.mutate(invoiceToDelete.id, {
       onSuccess: () => {
         enqueueSnackbar('Invoice deleted successfully', { variant: 'success' });
         setDeleteDialogOpen(false);
@@ -241,7 +236,7 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({
                         <IconButton
                           onClick={(e) => {
                             e.stopPropagation();
-                            handleDeleteClick(invoice.id);
+                            handleDeleteClick(invoice);
                           }}
                           size="small"
                           color="error">
@@ -300,26 +295,15 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({
       />
 
       {/* Confirmation Dialog for Delete */}
-      <Dialog open={deleteDialogOpen} onClose={handleDeleteCancel}>
-        <DialogTitle>Delete Invoice</DialogTitle>
-        <DialogContent>
-          <DialogContentText>
-            Are you sure you want to delete this invoice? This action cannot be undone.
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleDeleteCancel} color="primary">
-            Cancel
-          </Button>
-          <Button
-            onClick={handleDeleteConfirm}
-            color="error"
-            variant="contained"
-            disabled={deleteInvoiceMutation.isPending}>
-            {deleteInvoiceMutation.isPending ? 'Deleting...' : 'Delete'}
-          </Button>
-        </DialogActions>
-      </Dialog>
+      <ConfirmationDialog
+        open={deleteDialogOpen}
+        onClose={handleDeleteCancel}
+        onConfirm={handleDeleteConfirm}
+        title="Delete Invoice"
+        message={`Are you sure you want to delete invoice #${invoiceToDelete?.invoiceNumber} from ${invoiceToDelete?.vendorName}? This action cannot be undone.`}
+        confirmText={deleteInvoiceMutation.isPending ? 'Deleting...' : 'Delete'}
+        confirmButtonProps={{ color: 'error', disabled: deleteInvoiceMutation.isPending }}
+      />
     </>
   );
 };
