@@ -112,10 +112,10 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({
   };
 
   // Format currency
-  const formatCurrency = (amount: number): string => {
+  const formatCurrency = (amount: number, currency: string = 'USD'): string => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
-      currency: 'USD',
+      currency: currency,
     }).format(amount);
   };
 
@@ -126,6 +126,33 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({
     } catch {
       return dateString;
     }
+  };
+
+  // Format days overdue
+  const formatDaysOverdue = (daysOverdue: number) => {
+    if (daysOverdue === 0) {
+      return (
+        <Typography color="text.secondary">
+          –
+        </Typography>
+      );
+    }
+
+    return (
+      <Typography
+        color="error"
+        fontWeight="medium"
+        sx={{
+          backgroundColor: theme => theme.palette.error.light + '20',
+          px: 1,
+          py: 0.5,
+          borderRadius: 1,
+          display: 'inline-block',
+        }}
+      >
+        {daysOverdue} days
+      </Typography>
+    );
   };
 
   // Calculate and display the status of an invoice
@@ -173,6 +200,8 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({
               <TableCell>Issue Date</TableCell>
               <TableCell>Due Date</TableCell>
               <TableCell>Total Amount</TableCell>
+              <TableCell>Currency</TableCell>
+              <TableCell>Days Overdue</TableCell>
               <TableCell>Status</TableCell>
               <TableCell align="right">Actions</TableCell>
             </TableRow>
@@ -195,7 +224,7 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({
               // Loading skeletons
               Array.from(new Array(5)).map((_, index) => (
                 <TableRow key={`skeleton-${index}`}>
-                  {Array.from(new Array(8)).map((_, cellIndex) => (
+                  {Array.from(new Array(10)).map((_, cellIndex) => (
                     <TableCell key={`cell-${index}-${cellIndex}`}>
                       <Skeleton animation="wave" />
                     </TableCell>
@@ -223,7 +252,9 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({
                   <TableCell>{invoice.customerName}</TableCell>
                   <TableCell>{formatDate(invoice.issueDate)}</TableCell>
                   <TableCell>{formatDate(invoice.dueDate)}</TableCell>
-                  <TableCell>{formatCurrency(invoice.totalAmount)}</TableCell>
+                  <TableCell>{formatCurrency(invoice.totalAmount, invoice.currency)}</TableCell>
+                  <TableCell>{invoice.currency}</TableCell>
+                  <TableCell>{formatDaysOverdue(invoice.daysOverdue)}</TableCell>
                   <TableCell>{getInvoiceStatus(invoice)}</TableCell>
                   <TableCell align="right">
                     <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
@@ -254,7 +285,7 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={8} align="center" sx={{ py: 3 }}>
+                <TableCell colSpan={10} align="center" sx={{ py: 3 }}>
                   No invoices found.
                 </TableCell>
               </TableRow>
@@ -279,7 +310,7 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({
                     {formatCurrency(calculatePageTotal())}
                   </Typography>
                 </TableCell>
-                <TableCell colSpan={2}></TableCell>
+                <TableCell colSpan={4}></TableCell>
               </TableRow>
             )}
           </TableBody>

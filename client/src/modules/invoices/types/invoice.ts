@@ -25,6 +25,8 @@ export interface Invoice {
   taxRate: number;
   taxAmount: number;
   totalAmount: number;
+  currency: string;
+  daysOverdue: number;
   status: 'PAID' | 'UNPAID' | 'OVERDUE';
   terms?: string;
   items: InvoiceItem[];

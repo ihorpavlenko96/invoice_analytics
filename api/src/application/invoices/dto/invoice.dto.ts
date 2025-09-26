@@ -105,6 +105,18 @@ export class InvoiceDto {
     totalAmount!: number;
 
     @ApiProperty({
+        description: 'Currency of the invoice',
+        example: 'USD',
+    })
+    currency!: string;
+
+    @ApiProperty({
+        description: 'Number of days the invoice is overdue (0 or negative if not overdue)',
+        example: 5,
+    })
+    daysOverdue!: number;
+
+    @ApiProperty({
         description: 'Status of the invoice',
         example: 'UNPAID',
         enum: ['PAID', 'UNPAID', 'OVERDUE'],

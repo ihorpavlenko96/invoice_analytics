@@ -55,6 +55,9 @@ export class Invoice {
     @Column({ type: 'decimal', precision: 12, scale: 2 })
     totalAmount!: number;
 
+    @Column({ length: 3, default: 'USD' })
+    currency!: string;
+
     @Column({ length: 50, default: 'UNPAID' })
     status!: string;
 

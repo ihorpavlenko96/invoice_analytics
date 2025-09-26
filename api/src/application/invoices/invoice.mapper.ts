@@ -26,6 +26,10 @@ export class InvoiceMapper {
         dto.taxRate = entity.taxRate;
         dto.taxAmount = entity.taxAmount;
         dto.totalAmount = entity.totalAmount;
+        dto.currency = entity.currency;
+        dto.daysOverdue = this.calculateDaysOverdue(entity.dueDate);
+        dto.status = entity.status;
+        dto.terms = entity.terms;
         dto.tenantId = entity.tenantId;
         dto.items = entity.items ? entity.items.map((item) => this.toItemDto(item)) : [];
 
@@ -50,6 +54,14 @@ export class InvoiceMapper {
         response.totalPages = Math.ceil(total / limit);
 
         return response;
+    }
+
+    private calculateDaysOverdue(dueDate: string): number {
+        const today = new Date();
+        const due = new Date(dueDate);
+        const timeDiff = today.getTime() - due.getTime();
+        const daysDiff = Math.floor(timeDiff / (1000 * 3600 * 24));
+        return Math.max(0, daysDiff);
     }
 
     private toItemDto(entity: InvoiceItem): InvoiceItemDto {
