@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Box,
   Typography,
@@ -34,19 +34,20 @@ import {
   Cell,
   Legend,
 } from 'recharts';
-import { useAnalytics } from '../analyticsQueries';
-import { AnalyticsFilters } from '../types/analytics';
+import { analyticsService } from '../services/analyticsService';
+import { AnalyticsData, AnalyticsFilters } from '../types/analytics';
 import useUserRoles from '../../../common/hooks/useUserRoles';
 import { ROLES } from '../../../common/constants/roles';
 
 const AnalyticsPage: React.FC = () => {
   const theme = useTheme();
   const userRoles = useUserRoles();
+  const [data, setData] = useState<AnalyticsData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [filters, setFilters] = useState<AnalyticsFilters>({});
 
   const isSuperAdmin = userRoles.includes(ROLES.SUPER_ADMIN);
-
-  const { data, isLoading, error } = useAnalytics(filters);
 
   // Chart colors that work with both light and dark themes
   const chartColors = [
@@ -57,6 +58,23 @@ const AnalyticsPage: React.FC = () => {
     theme.palette.info.main,
   ];
 
+  const loadAnalytics = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const analyticsData = await analyticsService.getAnalytics(filters);
+      setData(analyticsData);
+    } catch (err) {
+      setError('Failed to load analytics data');
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadAnalytics();
+  }, [filters]);
 
   const handleFilterChange = (field: keyof AnalyticsFilters, value: string) => {
     setFilters(prev => ({ ...prev, [field]: value }));
@@ -69,7 +87,7 @@ const AnalyticsPage: React.FC = () => {
     }).format(amount);
   };
 
-  if (isLoading) {
+  if (loading) {
     return (
       <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
         <CircularProgress />
@@ -80,7 +98,7 @@ const AnalyticsPage: React.FC = () => {
   if (error) {
     return (
       <Alert severity="error" sx={{ mt: 2 }}>
-        Failed to load analytics data
+        {error}
       </Alert>
     );
   }
