@@ -1,186 +1,74 @@
-import axios from 'axios';
-import { AnalyticsData, AnalyticsFilters, MonthlyData, StatusDistribution, TopVendor, TopCustomer } from '../types/analytics';
+// import axios from 'axios';
+import { AnalyticsData, AnalyticsFilters } from '../types/analytics';
 
-// Backend DTO interfaces
-interface SummaryAnalyticsDto {
-  totalInvoices: number;
-  totalInvoicedAmount: number;
-  totalOverdueAmount: number;
-  totalPaidAmount: number;
-  overdueCount: number;
-  paidCount: number;
-}
+// Mock data for development until backend endpoints are ready
+const generateMockData = (): AnalyticsData => {
+  const currentDate = new Date();
+  const monthlyData = [];
 
-interface StatusDistributionItemDto {
-  status: string;
-  count: number;
-  totalAmount: number;
-}
+  // Generate last 12 months of data
+  for (let i = 11; i >= 0; i--) {
+    const date = new Date(currentDate.getFullYear(), currentDate.getMonth() - i, 1);
+    monthlyData.push({
+      month: date.toLocaleDateString('en-US', { month: 'short' }),
+      year: date.getFullYear(),
+      amount: Math.floor(Math.random() * 100000) + 50000,
+      count: Math.floor(Math.random() * 50) + 10,
+    });
+  }
 
-interface StatusDistributionDto {
-  distribution: StatusDistributionItemDto[];
-}
+  const totalInvoices = 1247;
+  const activeInvoices = 342;
+  const overdueInvoices = 89;
+  const totalAmount = 2847392.50;
 
-interface MonthlyTrendItemDto {
-  year: number;
-  month: number;
-  totalAmount: number;
-  invoiceCount: number;
-}
-
-interface MonthlyTrendsDto {
-  trends: MonthlyTrendItemDto[];
-}
-
-interface TopEntityItemDto {
-  name: string;
-  totalAmount: number;
-  invoiceCount: number;
-}
-
-interface TopVendorsDto {
-  topVendors: TopEntityItemDto[];
-}
-
-interface TopCustomersDto {
-  topCustomers: TopEntityItemDto[];
-}
-
-// Data transformation utilities
-const transformSummaryData = (summaryDto: SummaryAnalyticsDto) => {
-  const activeInvoices = summaryDto.totalInvoices - summaryDto.paidCount - summaryDto.overdueCount;
   return {
-    totalInvoices: summaryDto.totalInvoices,
-    totalAmount: summaryDto.totalInvoicedAmount,
-    activeInvoices,
-    overdueInvoices: summaryDto.overdueCount,
+    summary: {
+      totalInvoices,
+      totalAmount,
+      activeInvoices,
+      overdueInvoices,
+    },
+    monthlyData,
+    statusDistribution: [
+      { status: 'PAID', count: 816, percentage: 65.4, amount: 1856743.20 },
+      { status: 'UNPAID', count: 342, percentage: 27.4, amount: 867294.30 },
+      { status: 'OVERDUE', count: 89, percentage: 7.2, amount: 123355.00 },
+    ],
+    topVendors: [
+      { vendorName: 'TechCorp Solutions', totalAmount: 485293.50, invoiceCount: 127 },
+      { vendorName: 'Global Services Inc', totalAmount: 342857.25, invoiceCount: 89 },
+      { vendorName: 'Digital Systems Ltd', totalAmount: 298476.80, invoiceCount: 76 },
+      { vendorName: 'Innovation Partners', totalAmount: 267843.15, invoiceCount: 63 },
+      { vendorName: 'Future Technologies', totalAmount: 234567.90, invoiceCount: 54 },
+    ],
+    topCustomers: [
+      { customerName: 'Enterprise Corp', totalAmount: 623847.30, invoiceCount: 156 },
+      { customerName: 'MegaBusiness Ltd', totalAmount: 498273.45, invoiceCount: 134 },
+      { customerName: 'Corporate Solutions', totalAmount: 387659.20, invoiceCount: 98 },
+      { customerName: 'Business Dynamics', totalAmount: 334829.65, invoiceCount: 87 },
+      { customerName: 'Global Enterprises', totalAmount: 298574.80, invoiceCount: 72 },
+    ],
   };
-};
-
-const transformStatusDistribution = (statusDto: StatusDistributionDto): StatusDistribution[] => {
-  const totalCount = statusDto.distribution.reduce((sum, item) => sum + item.count, 0);
-
-  return statusDto.distribution.map(item => ({
-    status: item.status as 'PAID' | 'UNPAID' | 'OVERDUE',
-    count: item.count,
-    percentage: totalCount > 0 ? (item.count / totalCount) * 100 : 0,
-    amount: item.totalAmount,
-  }));
-};
-
-const transformMonthlyTrends = (trendsDto: MonthlyTrendsDto): MonthlyData[] => {
-  const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-
-  return trendsDto.trends.map(trend => ({
-    month: monthNames[trend.month - 1] || 'Unknown',
-    year: trend.year,
-    amount: trend.totalAmount,
-    count: trend.invoiceCount,
-  }));
-};
-
-const transformTopVendors = (vendorsDto: TopVendorsDto): TopVendor[] => {
-  return vendorsDto.topVendors.map(vendor => ({
-    vendorName: vendor.name,
-    totalAmount: vendor.totalAmount,
-    invoiceCount: vendor.invoiceCount,
-  }));
-};
-
-const transformTopCustomers = (customersDto: TopCustomersDto): TopCustomer[] => {
-  return customersDto.topCustomers.map(customer => ({
-    customerName: customer.name,
-    totalAmount: customer.totalAmount,
-    invoiceCount: customer.invoiceCount,
-  }));
 };
 
 export const analyticsService = {
   /**
-   * Get summary analytics
-   * @param filters - Optional filters for date range and tenant
-   * @returns Promise<SummaryAnalyticsDto>
-   */
-  getSummaryAnalytics: async (filters?: AnalyticsFilters): Promise<SummaryAnalyticsDto> => {
-    const response = await axios.get<SummaryAnalyticsDto>('/analytics/summary', {
-      params: filters,
-    });
-    return response.data;
-  },
-
-  /**
-   * Get status distribution analytics
-   * @param filters - Optional filters for date range and tenant
-   * @returns Promise<StatusDistributionDto>
-   */
-  getStatusDistribution: async (filters?: AnalyticsFilters): Promise<StatusDistributionDto> => {
-    const response = await axios.get<StatusDistributionDto>('/analytics/status-distribution', {
-      params: filters,
-    });
-    return response.data;
-  },
-
-  /**
-   * Get monthly trends analytics
-   * @param filters - Optional filters for date range and tenant
-   * @returns Promise<MonthlyTrendsDto>
-   */
-  getMonthlyTrends: async (filters?: AnalyticsFilters): Promise<MonthlyTrendsDto> => {
-    const response = await axios.get<MonthlyTrendsDto>('/analytics/monthly-trends', {
-      params: filters,
-    });
-    return response.data;
-  },
-
-  /**
-   * Get top vendors analytics
-   * @param filters - Optional filters for date range and tenant
-   * @returns Promise<TopVendorsDto>
-   */
-  getTopVendors: async (filters?: AnalyticsFilters): Promise<TopVendorsDto> => {
-    const response = await axios.get<TopVendorsDto>('/analytics/top-vendors', {
-      params: filters,
-    });
-    return response.data;
-  },
-
-  /**
-   * Get top customers analytics
-   * @param filters - Optional filters for date range and tenant
-   * @returns Promise<TopCustomersDto>
-   */
-  getTopCustomers: async (filters?: AnalyticsFilters): Promise<TopCustomersDto> => {
-    const response = await axios.get<TopCustomersDto>('/analytics/top-customers', {
-      params: filters,
-    });
-    return response.data;
-  },
-
-  /**
-   * Get all analytics data combined
+   * Get analytics data with optional filters
    * @param filters - Optional filters for date range and tenant
    * @returns Promise<AnalyticsData>
    */
   getAnalytics: async (filters?: AnalyticsFilters): Promise<AnalyticsData> => {
-    try {
-      const [summaryData, statusData, trendsData, vendorsData, customersData] = await Promise.all([
-        analyticsService.getSummaryAnalytics(filters),
-        analyticsService.getStatusDistribution(filters),
-        analyticsService.getMonthlyTrends(filters),
-        analyticsService.getTopVendors(filters),
-        analyticsService.getTopCustomers(filters),
-      ]);
+    // TODO: Replace with actual API call when backend is ready
+    // const response = await axios.get<AnalyticsData>('/analytics', {
+    //   params: filters,
+    // });
+    // return response.data;
 
-      return {
-        summary: transformSummaryData(summaryData),
-        monthlyData: transformMonthlyTrends(trendsData),
-        statusDistribution: transformStatusDistribution(statusData),
-        topVendors: transformTopVendors(vendorsData),
-        topCustomers: transformTopCustomers(customersData),
-      };
-    } catch (error) {
-      console.error('Error fetching analytics data:', error);
-      throw error;
-    }
+    // For now, return mock data with a delay to simulate API call
+    // TODO: Use filters parameter when implementing real API call
+    console.log('Analytics filters:', filters);
+    await new Promise(resolve => setTimeout(resolve, 500));
+    return generateMockData();
   },
 };
