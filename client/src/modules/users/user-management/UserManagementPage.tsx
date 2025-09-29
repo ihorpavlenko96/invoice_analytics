@@ -330,7 +330,7 @@ const UserManagementPage: React.FC<UserManagementPageProps> = () => {
         <CardContent sx={{ p: 0, '&:last-child': { pb: 0 } }}>
           {/* Filter Section */}
           <Box sx={{ p: 2, borderBottom: `1px solid ${theme.palette.divider}` }}>
-            <Stack direction="row" spacing={2} alignItems="center" flexWrap="wrap">
+            <Stack direction="row" spacing={2} alignItems="stretch" flexWrap="wrap">
               <TextField
                 label="Filter by Email"
                 variant="outlined"
@@ -347,7 +347,16 @@ const UserManagementPage: React.FC<UserManagementPageProps> = () => {
                 onChange={(e) => setFilterName(e.target.value)}
                 sx={{ minWidth: 200 }}
               />
-              <FormControl variant="outlined" size="small" sx={{ minWidth: 150 }}>
+              <FormControl
+                variant="outlined"
+                size="small"
+                sx={{
+                  minWidth: 150,
+                  '& .MuiInputBase-root': {
+                    height: '40px',
+                  },
+                }}
+              >
                 <InputLabel>Status</InputLabel>
                 <Select
                   value={filterStatus}
@@ -358,7 +367,16 @@ const UserManagementPage: React.FC<UserManagementPageProps> = () => {
                   <MenuItem value="inactive">Inactive</MenuItem>
                 </Select>
               </FormControl>
-              <FormControl variant="outlined" size="small" sx={{ minWidth: 150 }}>
+              <FormControl
+                variant="outlined"
+                size="small"
+                sx={{
+                  minWidth: 150,
+                  '& .MuiInputBase-root': {
+                    height: '40px',
+                  },
+                }}
+              >
                 <InputLabel>Role</InputLabel>
                 <Select
                   value={filterRole}
@@ -379,6 +397,7 @@ const UserManagementPage: React.FC<UserManagementPageProps> = () => {
                 disabled={filterEmail === '' && filterName === '' && filterStatus === 'all' && filterRole === 'all'}
                 sx={{
                   minWidth: 120,
+                  height: '40px',
                   borderColor: theme.palette.divider,
                   color: theme.palette.text.secondary,
                   '&:hover': {
