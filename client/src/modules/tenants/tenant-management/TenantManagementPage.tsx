@@ -11,6 +11,7 @@ import {
   Dialog,
   DialogContent,
   DialogTitle,
+  Stack,
   Table,
   TableBody,
   TableCell,
@@ -18,11 +19,13 @@ import {
   TableHead,
   TableRow,
   TableSortLabel,
+  TextField,
   Typography,
   useTheme,
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
+import ClearIcon from '@mui/icons-material/Clear';
 import TenantForm from '../components/TenantForm.tsx';
 import ConfirmationDialog from '../../../common/components/ConfirmationDialog.tsx';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -65,6 +68,10 @@ const TenantManagementPage: React.FC<TenantManagementPageProps> = () => {
   const [sortBy, setSortBy] = useState<SortableColumns | null>(null);
   const [sortOrder, setSortOrder] = useState<SortOrder>('asc');
 
+  // Filter states
+  const [filterName, setFilterName] = useState<string>('');
+  const [filterAlias, setFilterAlias] = useState<string>('');
+
   const {
     data: tenantsData,
     isLoading: isLoading,
@@ -105,11 +112,27 @@ const TenantManagementPage: React.FC<TenantManagementPageProps> = () => {
 
   const tenants = tenantsData?.data ?? [];
 
-  // Sorting logic
+  // Filtering and sorting logic
   const sortedTenants = useMemo(() => {
-    if (!sortBy) return tenants;
+    // First apply filters
+    const filteredTenants = tenants.filter((tenant) => {
+      // Name filter
+      if (filterName && !tenant.name?.toLowerCase().includes(filterName.toLowerCase())) {
+        return false;
+      }
 
-    return [...tenants].sort((a, b) => {
+      // Alias filter
+      if (filterAlias && !tenant.alias?.toLowerCase().includes(filterAlias.toLowerCase())) {
+        return false;
+      }
+
+      return true;
+    });
+
+    // Then apply sorting
+    if (!sortBy) return filteredTenants;
+
+    return [...filteredTenants].sort((a, b) => {
       let aValue: string;
       let bValue: string;
 
@@ -132,7 +155,7 @@ const TenantManagementPage: React.FC<TenantManagementPageProps> = () => {
         return bValue.localeCompare(aValue);
       }
     });
-  }, [tenants, sortBy, sortOrder]);
+  }, [tenants, sortBy, sortOrder, filterName, filterAlias]);
 
   const handleSort = (column: SortableColumns) => {
     if (sortBy === column) {
@@ -141,6 +164,11 @@ const TenantManagementPage: React.FC<TenantManagementPageProps> = () => {
       setSortBy(column);
       setSortOrder('asc');
     }
+  };
+
+  const handleClearFilters = (): void => {
+    setFilterName('');
+    setFilterAlias('');
   };
 
   useEffect(() => {
@@ -210,6 +238,43 @@ const TenantManagementPage: React.FC<TenantManagementPageProps> = () => {
           }
         />
         <CardContent sx={{ p: 0, '&:last-child': { pb: 0 } }}>
+          {/* Filter Section */}
+          <Box sx={{ p: 2, borderBottom: `1px solid ${theme.palette.divider}` }}>
+            <Stack direction="row" spacing={2} alignItems="center" flexWrap="wrap">
+              <TextField
+                label="Filter by Name"
+                variant="outlined"
+                size="small"
+                value={filterName}
+                onChange={(e) => setFilterName(e.target.value)}
+                sx={{ minWidth: 200 }}
+              />
+              <TextField
+                label="Filter by Alias"
+                variant="outlined"
+                size="small"
+                value={filterAlias}
+                onChange={(e) => setFilterAlias(e.target.value)}
+                sx={{ minWidth: 200 }}
+              />
+              <Button
+                variant="outlined"
+                startIcon={<ClearIcon />}
+                onClick={handleClearFilters}
+                disabled={filterName === '' && filterAlias === ''}
+                sx={{
+                  minWidth: 120,
+                  borderColor: theme.palette.divider,
+                  color: theme.palette.text.secondary,
+                  '&:hover': {
+                    borderColor: theme.palette.primary.main,
+                    backgroundColor: theme.palette.action.hover,
+                  },
+                }}>
+                Clear Filters
+              </Button>
+            </Stack>
+          </Box>
           {isLoading && (
             <Box sx={{ display: 'flex', justifyContent: 'center', my: 5 }}>
               <CircularProgress />
