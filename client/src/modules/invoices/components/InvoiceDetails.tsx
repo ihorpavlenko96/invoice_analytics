@@ -80,12 +80,13 @@ const InvoiceDetails: React.FC<InvoiceDetailsProps> = ({
     setTabValue(newValue);
   };
 
-  // Format currency
+  // Format currency with NaN protection
   const formatCurrency = (amount: number): string => {
+    const safeAmount = isNaN(amount) || !isFinite(amount) ? 0 : amount;
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: 'USD',
-    }).format(amount);
+    }).format(safeAmount);
   };
 
   // Format date
