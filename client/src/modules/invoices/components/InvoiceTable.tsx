@@ -111,12 +111,13 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({
     setInvoiceToDelete(null);
   };
 
-  // Format currency
+  // Format currency with NaN protection
   const formatCurrency = (amount: number, currency: string = 'USD'): string => {
+    const safeAmount = isNaN(amount) || !isFinite(amount) ? 0 : amount;
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: currency,
-    }).format(amount);
+    }).format(safeAmount);
   };
 
   // Format date
@@ -175,9 +176,13 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({
     );
   };
 
-  // Calculate total amount for current page
+  // Calculate total amount for current page using backend-calculated values
   const calculatePageTotal = (): number => {
-    return invoices.reduce((sum, invoice) => sum + invoice.totalAmount, 0);
+    return invoices.reduce((sum, invoice) => {
+      // Use the totalAmount calculated by the backend, ensuring it's a valid number
+      const total = Number(invoice.totalAmount);
+      return sum + (isNaN(total) ? 0 : total);
+    }, 0);
   };
 
   return (
