@@ -5,9 +5,9 @@ export const darkTheme = createTheme({
   palette: {
     mode: 'dark',
     primary: {
-      main: '#FF69B4',
-      light: '#FF94D0',
-      dark: '#FF1493',
+      main: '#90CAF9',
+      light: '#B3E5FC',
+      dark: '#42A5F5',
       contrastText: '#000000',
     },
     secondary: {
@@ -80,18 +80,18 @@ export const darkTheme = createTheme({
           },
         },
         contained: {
-          backgroundColor: '#FF69B4',
+          backgroundColor: '#90CAF9',
           color: '#000000',
           '&:hover': {
-            backgroundColor: '#FF1493',
+            backgroundColor: '#42A5F5',
           },
         },
         outlined: {
           borderColor: 'rgba(255, 255, 255, 0.23)',
-          color: '#FF69B4',
+          color: '#90CAF9',
           '&:hover': {
-            borderColor: '#FF69B4',
-            backgroundColor: 'rgba(255, 105, 180, 0.08)',
+            borderColor: '#90CAF9',
+            backgroundColor: 'rgba(144, 202, 249, 0.08)',
           },
         },
       },
@@ -100,7 +100,7 @@ export const darkTheme = createTheme({
       styleOverrides: {
         root: {
           '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-            borderColor: '#FF69B4',
+            borderColor: '#90CAF9',
           },
           '&:hover .MuiOutlinedInput-notchedOutline': {
             borderColor: 'rgba(255, 255, 255, 0.23)',
@@ -112,10 +112,10 @@ export const darkTheme = createTheme({
       styleOverrides: {
         root: {
           '&.Mui-selected': {
-            backgroundColor: 'rgba(255, 105, 180, 0.16)',
+            backgroundColor: 'rgba(144, 202, 249, 0.16)',
           },
           '&.Mui-selected:hover': {
-            backgroundColor: 'rgba(255, 105, 180, 0.24)',
+            backgroundColor: 'rgba(144, 202, 249, 0.24)',
           },
           '&:hover': {
             backgroundColor: 'rgba(255, 255, 255, 0.08)',
@@ -174,7 +174,7 @@ export const darkTheme = createTheme({
               borderColor: 'rgba(255, 255, 255, 0.4)',
             },
             '&.Mui-focused fieldset': {
-              borderColor: '#FF69B4',
+              borderColor: '#90CAF9',
             },
           },
         },
