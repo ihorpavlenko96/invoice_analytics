@@ -347,23 +347,25 @@ const UserManagementPage: React.FC<UserManagementPageProps> = () => {
                 onChange={(e) => setFilterName(e.target.value)}
                 sx={{ minWidth: 200 }}
               />
-              <FormControl variant="outlined" size="small" sx={{ minWidth: 150 }}>
+              <FormControl variant="outlined" size="small" sx={{ minWidth: 150, height: '40px' }}>
                 <InputLabel>Status</InputLabel>
                 <Select
                   value={filterStatus}
                   onChange={(e) => setFilterStatus(e.target.value)}
-                  label="Status">
+                  label="Status"
+                  sx={{ height: '40px' }}>
                   <MenuItem value="all">All</MenuItem>
                   <MenuItem value="active">Active</MenuItem>
                   <MenuItem value="inactive">Inactive</MenuItem>
                 </Select>
               </FormControl>
-              <FormControl variant="outlined" size="small" sx={{ minWidth: 150 }}>
+              <FormControl variant="outlined" size="small" sx={{ minWidth: 150, height: '40px' }}>
                 <InputLabel>Role</InputLabel>
                 <Select
                   value={filterRole}
                   onChange={(e) => setFilterRole(e.target.value)}
-                  label="Role">
+                  label="Role"
+                  sx={{ height: '40px' }}>
                   <MenuItem value="all">All Roles</MenuItem>
                   {uniqueRoles.map((role) => (
                     <MenuItem key={role} value={role}>
