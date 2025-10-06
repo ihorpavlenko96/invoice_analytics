@@ -11,6 +11,10 @@ import {
   Typography,
   useTheme,
   Grid,
+  MenuItem,
+  Select,
+  FormControl,
+  InputLabel,
 } from '@mui/material';
 import { SmartToy as AIIcon, Search as SearchIcon } from '@mui/icons-material';
 import { useInvoices } from '../invoiceQueries';
@@ -32,6 +36,7 @@ const InvoiceManagementPage: React.FC = () => {
   const [isChatDrawerOpen, setIsChatDrawerOpen] = useState(false);
   const [vendorSearch, setVendorSearch] = useState('');
   const [customerSearch, setCustomerSearch] = useState('');
+  const [statusFilter, setStatusFilter] = useState('');
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
   const theme = useTheme();
@@ -50,7 +55,7 @@ const InvoiceManagementPage: React.FC = () => {
       totalPages: 1,
     } as PaginatedResponseDto<Invoice>,
     isLoading: isInvoicesLoading,
-  } = useInvoices(vendorSearch, customerSearch, '', page, limit);
+  } = useInvoices(vendorSearch, customerSearch, statusFilter, page, limit);
 
   // Fetch selected invoice details
   const { data: selectedInvoice, isLoading: isInvoiceLoading } = useInvoice(
@@ -192,7 +197,7 @@ const InvoiceManagementPage: React.FC = () => {
           {/* Filter controls */}
           <Box sx={{ p: 2, pb: 0, mb: 2 }}>
             <Grid container spacing={2}>
-              <Grid item xs={12} md={6}>
+              <Grid item xs={12} md={4}>
                 <TextField
                   fullWidth
                   placeholder="Search by vendor name..."
@@ -209,7 +214,7 @@ const InvoiceManagementPage: React.FC = () => {
                   }}
                 />
               </Grid>
-              <Grid item xs={12} md={6}>
+              <Grid item xs={12} md={4}>
                 <TextField
                   fullWidth
                   placeholder="Search by customer name..."
@@ -225,6 +230,23 @@ const InvoiceManagementPage: React.FC = () => {
                     ),
                   }}
                 />
+              </Grid>
+              <Grid item xs={12} md={4}>
+                <FormControl fullWidth size="small">
+                  <InputLabel id="status-filter-label">Status</InputLabel>
+                  <Select
+                    labelId="status-filter-label"
+                    id="status-filter"
+                    value={statusFilter}
+                    label="Status"
+                    onChange={(e) => setStatusFilter(e.target.value)}
+                  >
+                    <MenuItem value="">All</MenuItem>
+                    <MenuItem value="PAID">Paid</MenuItem>
+                    <MenuItem value="UNPAID">Unpaid</MenuItem>
+                    <MenuItem value="OVERDUE">Overdue</MenuItem>
+                  </Select>
+                </FormControl>
               </Grid>
             </Grid>
           </Box>
