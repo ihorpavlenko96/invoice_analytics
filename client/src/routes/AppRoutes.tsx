@@ -8,6 +8,7 @@ import ProtectedRoute from '../common/components/ProtectedRoute';
 import { ROLES } from '../common/constants/roles';
 import InvoiceManagementPage from '../modules/invoices/components/InvoiceManagementPage';
 import HomePage from '../modules/home/components/HomePage';
+import AccountPage from '../modules/account/components/AccountPage';
 
 const AppRoutes: React.FC = () => {
   return (
@@ -15,6 +16,7 @@ const AppRoutes: React.FC = () => {
       <Routes>
         <Route element={<MainLayout />}>
           <Route path="/" element={<HomePage />} />
+          <Route path="/account" element={<AccountPage />} />
           <Route element={<ProtectedRoute requiredRoles={[ROLES.SUPER_ADMIN]} />}>
             <Route path="/tenant-management" element={<TenantManagementPage />} />
             <Route path="/invoice-management" element={<InvoiceManagementPage />} />
