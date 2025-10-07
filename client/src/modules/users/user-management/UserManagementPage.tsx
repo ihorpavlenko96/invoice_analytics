@@ -21,17 +21,11 @@ import {
   Tooltip,
   Typography,
   useTheme,
-  TextField,
-  Select,
-  MenuItem,
-  FormControl,
-  InputLabel,
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import HighlightOffIcon from '@mui/icons-material/HighlightOff';
-import ClearIcon from '@mui/icons-material/Clear';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { User } from '../types/user.ts';
 import UserForm from '../components/UserForm.tsx';
@@ -112,12 +106,6 @@ const UserManagementPage: React.FC<UserManagementPageProps> = () => {
   const [sortBy, setSortBy] = useState<string | null>(null);
   const [sortOrder, setSortOrder] = useState<SortOrder>('asc');
 
-  // Filter states
-  const [filterEmail, setFilterEmail] = useState<string>('');
-  const [filterName, setFilterName] = useState<string>('');
-  const [filterStatus, setFilterStatus] = useState<string>('all');
-  const [filterRole, setFilterRole] = useState<string>('all');
-
   const users: User[] = usersData?.data ?? [];
 
   useEffect(() => {
@@ -148,42 +136,9 @@ const UserManagementPage: React.FC<UserManagementPageProps> = () => {
   }, [columns, columnOrder.length, setColumnOrder]);
 
   const sortedUsers = useMemo(() => {
-    // First apply filters
-    const filteredUsers = users.filter((user) => {
-      // Email filter
-      if (filterEmail && !user.email?.toLowerCase().includes(filterEmail.toLowerCase())) {
-        return false;
-      }
+    if (!sortBy) return users;
 
-      // Name filter
-      const fullName = `${user.firstName || ''} ${user.lastName || ''}`.trim().toLowerCase();
-      if (filterName && !fullName.includes(filterName.toLowerCase())) {
-        return false;
-      }
-
-      // Status filter
-      if (filterStatus !== 'all') {
-        const isActive = filterStatus === 'active';
-        if (user.isActive !== isActive) {
-          return false;
-        }
-      }
-
-      // Role filter
-      if (filterRole !== 'all' && user.roles) {
-        const hasRole = user.roles.some((role) => role.name === filterRole);
-        if (!hasRole) {
-          return false;
-        }
-      }
-
-      return true;
-    });
-
-    // Then apply sorting
-    if (!sortBy) return filteredUsers;
-
-    return [...filteredUsers].sort((a, b) => {
+    return [...users].sort((a, b) => {
       let aValue: string;
       let bValue: string;
 
@@ -224,7 +179,7 @@ const UserManagementPage: React.FC<UserManagementPageProps> = () => {
         return bValue.localeCompare(aValue);
       }
     });
-  }, [users, sortBy, sortOrder, filterEmail, filterName, filterStatus, filterRole]);
+  }, [users, sortBy, sortOrder]);
 
   const handleSort = (column: string) => {
     if (sortBy === column) {
@@ -234,22 +189,6 @@ const UserManagementPage: React.FC<UserManagementPageProps> = () => {
       setSortOrder('asc');
     }
   };
-
-  const handleClearFilters = () => {
-    setFilterEmail('');
-    setFilterName('');
-    setFilterStatus('all');
-    setFilterRole('all');
-  };
-
-  // Get unique roles for filter dropdown
-  const uniqueRoles = useMemo(() => {
-    const rolesSet = new Set<string>();
-    users.forEach((user) => {
-      user.roles?.forEach((role) => rolesSet.add(role.name));
-    });
-    return Array.from(rolesSet).sort();
-  }, [users]);
 
   const { mutateAsync: removeUserMutate, isPending: isDeleting } = useMutation({
     mutationFn: deleteUser,
@@ -328,68 +267,6 @@ const UserManagementPage: React.FC<UserManagementPageProps> = () => {
           }
         />
         <CardContent sx={{ p: 0, '&:last-child': { pb: 0 } }}>
-          {/* Filter Section */}
-          <Box sx={{ p: 2, borderBottom: `1px solid ${theme.palette.divider}` }}>
-            <Stack direction="row" spacing={2} alignItems="center" flexWrap="wrap">
-              <TextField
-                label="Filter by Email"
-                variant="outlined"
-                size="small"
-                value={filterEmail}
-                onChange={(e) => setFilterEmail(e.target.value)}
-                sx={{ minWidth: 200 }}
-              />
-              <TextField
-                label="Filter by Name"
-                variant="outlined"
-                size="small"
-                value={filterName}
-                onChange={(e) => setFilterName(e.target.value)}
-                sx={{ minWidth: 200 }}
-              />
-              <FormControl variant="outlined" size="small" sx={{ minWidth: 150 }}>
-                <InputLabel>Status</InputLabel>
-                <Select
-                  value={filterStatus}
-                  onChange={(e) => setFilterStatus(e.target.value)}
-                  label="Status">
-                  <MenuItem value="all">All</MenuItem>
-                  <MenuItem value="active">Active</MenuItem>
-                  <MenuItem value="inactive">Inactive</MenuItem>
-                </Select>
-              </FormControl>
-              <FormControl variant="outlined" size="small" sx={{ minWidth: 150 }}>
-                <InputLabel>Role</InputLabel>
-                <Select
-                  value={filterRole}
-                  onChange={(e) => setFilterRole(e.target.value)}
-                  label="Role">
-                  <MenuItem value="all">All Roles</MenuItem>
-                  {uniqueRoles.map((role) => (
-                    <MenuItem key={role} value={role}>
-                      {role}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-              <Button
-                variant="outlined"
-                startIcon={<ClearIcon />}
-                onClick={handleClearFilters}
-                disabled={filterEmail === '' && filterName === '' && filterStatus === 'all' && filterRole === 'all'}
-                sx={{
-                  minWidth: 120,
-                  borderColor: theme.palette.divider,
-                  color: theme.palette.text.secondary,
-                  '&:hover': {
-                    borderColor: theme.palette.primary.main,
-                    backgroundColor: theme.palette.action.hover,
-                  },
-                }}>
-                Clear Filters
-              </Button>
-            </Stack>
-          </Box>
           {isLoading && (
             <Box sx={{ display: 'flex', justifyContent: 'center', my: 5 }}>
               <CircularProgress />
