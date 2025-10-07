@@ -16,7 +16,6 @@ import {
 import SettingsIcon from '@mui/icons-material/Settings';
 import LogoutIcon from '@mui/icons-material/Logout';
 import { useClerk, useUser } from '@clerk/clerk-react';
-import { useNavigate } from 'react-router-dom';
 
 type CustomUserButtonProps = {
   afterSignOutUrl: string;
@@ -28,7 +27,6 @@ const CustomUserButton: React.FC<CustomUserButtonProps> = ({ afterSignOutUrl }) 
   const { signOut } = useClerk();
   const { user } = useUser();
   const theme = useTheme();
-  const navigate = useNavigate();
 
   const handleClick = (): void => {
     setAnchorEl(buttonRef.current);
@@ -47,7 +45,6 @@ const CustomUserButton: React.FC<CustomUserButtonProps> = ({ afterSignOutUrl }) 
 
   const handleManageAccount = (): void => {
     handleClose();
-    navigate('/account');
   };
 
   const open = Boolean(anchorEl);
