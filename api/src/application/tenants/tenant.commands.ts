@@ -5,7 +5,6 @@ import { ITenantCommands } from './interfaces/tenant-commands.interface';
 import { CreateTenantDto } from './dto/create-tenant.dto';
 import { UpdateTenantDto } from './dto/update-tenant.dto';
 import { TenantDto } from './dto/tenant.dto';
-import { BulkDeleteTenantsDto } from './dto/bulk-delete-tenants.dto';
 
 @Injectable()
 export class TenantCommands implements ITenantCommands {
@@ -61,21 +60,6 @@ export class TenantCommands implements ITenantCommands {
 
         if (!deleted) {
             throw new NotFoundException(`Tenant with ID ${id} not found`);
-        }
-    }
-
-    async bulkDeleteTenants(dto: BulkDeleteTenantsDto): Promise<void> {
-        if (!dto.ids || dto.ids.length === 0) {
-            throw new BadRequestException('No tenant IDs provided for deletion');
-        }
-
-        try {
-            await this.tenantRepository.bulkDelete(dto.ids);
-        } catch (error) {
-            if (error.message && error.message.includes('Failed to delete tenant with ID')) {
-                throw new BadRequestException(error.message);
-            }
-            throw error;
         }
     }
 }

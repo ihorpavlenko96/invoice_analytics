@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, DataSource } from 'typeorm';
+import { Repository } from 'typeorm';
 import { Tenant } from '../../../domain/entities/tenant.entity';
 import { ITenantRepository } from '../../../application/repositories/tenant.repository.interface';
 import { CreateTenantDto } from '../../../application/tenants/dto/create-tenant.dto';
@@ -11,7 +11,6 @@ export class TenantRepository implements ITenantRepository {
     constructor(
         @InjectRepository(Tenant)
         private readonly ormRepository: Repository<Tenant>,
-        private readonly dataSource: DataSource,
     ) {}
 
     async create(dto: CreateTenantDto): Promise<Tenant> {
@@ -56,28 +55,5 @@ export class TenantRepository implements ITenantRepository {
         const result = await this.ormRepository.delete(id);
 
         return !!result?.affected && result.affected > 0;
-    }
-
-    async bulkDelete(ids: string[]): Promise<void> {
-        const queryRunner = this.dataSource.createQueryRunner();
-        await queryRunner.connect();
-        await queryRunner.startTransaction();
-
-        try {
-            for (const id of ids) {
-                const result = await queryRunner.manager.delete(Tenant, id);
-
-                if (!result.affected || result.affected === 0) {
-                    throw new Error(`Failed to delete tenant with ID ${id}`);
-                }
-            }
-
-            await queryRunner.commitTransaction();
-        } catch (error) {
-            await queryRunner.rollbackTransaction();
-            throw error;
-        } finally {
-            await queryRunner.release();
-        }
     }
 }
