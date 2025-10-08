@@ -179,11 +179,7 @@ const InvoiceManagementPage: React.FC = () => {
             <Button
               variant="contained"
               startIcon={<AIIcon />}
-              onClick={handleToggleChatDrawer}
-              sx={{
-                backgroundColor: theme.palette.primary.main,
-                '&:hover': { backgroundColor: theme.palette.primary.dark },
-              }}>
+              onClick={handleToggleChatDrawer}>
               AI Assistant
             </Button>
           }
