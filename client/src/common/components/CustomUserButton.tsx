@@ -98,7 +98,6 @@ const CustomUserButton: React.FC<CustomUserButtonProps> = ({ afterSignOutUrl }) 
             pb: 1,
             border: '1px solid',
             borderColor: theme.palette.divider,
-            boxShadow: '0 4px 20px rgba(0, 0, 0, 0.15)',
             backgroundImage: 'none',
           },
         }}>
