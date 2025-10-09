@@ -23,8 +23,8 @@ export class User {
     @Column({ length: 255, unique: true, name: 'sub_id', nullable: true })
     subId?: string;
 
-    @Column({ length: 100, nullable: true })
-    firstName?: string;
+    @Column({ length: 100, nullable: false })
+    firstName: string;
 
     @Column({ length: 100, nullable: true })
     lastName?: string;

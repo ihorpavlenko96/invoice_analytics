@@ -55,7 +55,7 @@ type UserFormValues = {
 
 const generateUserSchema = (allRoles: Role[]) =>
   Yup.object().shape({
-    firstName: Yup.string().max(100, 'Too Long!').optional(),
+    firstName: Yup.string().max(100, 'Too Long!').required('First name is required'),
     lastName: Yup.string().max(100, 'Too Long!').optional(),
     middleName: Yup.string().max(50, 'Too Long!').required('Middle name is required'),
     email: Yup.string()
@@ -173,7 +173,7 @@ const UserForm: React.FC<UserFormProps> = ({ user, onClose }) => {
     if (isEditing && user) {
       const updateData: UpdateUserInput = {
         email: values.email,
-        firstName: values.firstName || undefined,
+        firstName: values.firstName,
         lastName: values.lastName || undefined,
         middleName: values.middleName,
         roleIds: values.roleIds,
@@ -191,7 +191,7 @@ const UserForm: React.FC<UserFormProps> = ({ user, onClose }) => {
 
         const createPayload: CreateUserSuperAdminInput = {
           email: values.email,
-          firstName: values.firstName || undefined,
+          firstName: values.firstName,
           lastName: values.lastName || undefined,
           middleName: values.middleName,
           roleIds: values.roleIds,
@@ -202,7 +202,7 @@ const UserForm: React.FC<UserFormProps> = ({ user, onClose }) => {
       } else {
         const createPayload: CreateUserInput = {
           email: values.email,
-          firstName: values.firstName || undefined,
+          firstName: values.firstName,
           lastName: values.lastName || undefined,
           middleName: values.middleName,
           roleIds: values.roleIds,
@@ -236,8 +236,9 @@ const UserForm: React.FC<UserFormProps> = ({ user, onClose }) => {
               <Field
                 as={TextField}
                 name="firstName"
-                label="First Name (Optional)"
+                label="First Name"
                 fullWidth
+                required
                 error={touched.firstName && !!errors.firstName}
                 helperText={touched.firstName && errors.firstName}
               />

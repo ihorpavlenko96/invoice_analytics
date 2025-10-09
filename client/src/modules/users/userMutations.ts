@@ -5,7 +5,7 @@ export type CreateUserInput = {
   email: string;
   roleIds: string[];
   subId?: string;
-  firstName?: string;
+  firstName: string;
   lastName?: string;
   middleName: string;
 };
