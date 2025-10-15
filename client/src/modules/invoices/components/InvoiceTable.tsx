@@ -280,7 +280,7 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({
                             handleDeleteClick(invoice.id);
                           }}
                           size="small"
-                          color="error">
+                          sx={{ color: '#F87171', '&:hover': { color: '#DC2626' } }}>
                           <DeleteIcon />
                         </IconButton>
                       </Tooltip>
@@ -349,9 +349,13 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({
           </Button>
           <Button
             onClick={handleDeleteConfirm}
-            color="error"
             variant="contained"
-            disabled={deleteInvoiceMutation.isPending}>
+            disabled={deleteInvoiceMutation.isPending}
+            sx={{
+              backgroundColor: '#F87171',
+              color: '#000000',
+              '&:hover': { backgroundColor: '#DC2626' },
+            }}>
             {deleteInvoiceMutation.isPending ? 'Deleting...' : 'Delete'}
           </Button>
         </DialogActions>

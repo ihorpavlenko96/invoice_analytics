@@ -245,9 +245,10 @@ const TenantManagementPage: React.FC<TenantManagementPageProps> = () => {
                           aria-label="delete"
                           size="small"
                           sx={{
-                            color: theme.palette.error.main,
+                            color: '#F87171',
                             textTransform: 'none',
                             '& .MuiButton-startIcon': { mr: 0.5 },
+                            '&:hover': { color: '#DC2626' },
                           }}>
                           Delete
                         </Button>
@@ -276,6 +277,14 @@ const TenantManagementPage: React.FC<TenantManagementPageProps> = () => {
         message={`Are you sure you want to delete tenant ID: ${tenantToDeleteId}? This action cannot be undone.`}
         confirmText="Delete"
         cancelText="Cancel"
+        confirmButtonProps={{
+          variant: 'contained',
+          sx: {
+            backgroundColor: '#F87171',
+            color: '#000000',
+            '&:hover': { backgroundColor: '#DC2626' },
+          },
+        }}
       />
     </Box>
   );
