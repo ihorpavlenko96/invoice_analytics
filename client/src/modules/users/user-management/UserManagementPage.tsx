@@ -383,8 +383,8 @@ const UserManagementPage: React.FC<UserManagementPageProps> = () => {
                                     <IconButton
                                       onClick={() => openConfirmDeleteDialog(user.id)}
                                       size="small"
-                                      color="error"
-                                      disabled={isDeleting && userToDeleteId === user.id}>
+                                      disabled={isDeleting && userToDeleteId === user.id}
+                                      sx={{ color: '#F87171', '&:hover': { color: '#DC2626' } }}>
                                       <DeleteIcon />
                                     </IconButton>
                                   </Tooltip>
@@ -430,7 +430,15 @@ const UserManagementPage: React.FC<UserManagementPageProps> = () => {
         title="Delete User"
         message={`Are you sure you want to delete user #${userToDeleteId}? This action cannot be undone.`}
         confirmText="Delete"
-        confirmButtonProps={{ color: 'error', disabled: isDeleting }}
+        confirmButtonProps={{
+          variant: 'contained',
+          disabled: isDeleting,
+          sx: {
+            backgroundColor: '#F87171',
+            color: '#000000',
+            '&:hover': { backgroundColor: '#DC2626' },
+          },
+        }}
       />
 
       <ConfirmationDialog
