@@ -5,10 +5,10 @@ export const darkTheme = createTheme({
   palette: {
     mode: 'dark',
     primary: {
-      main: '#90CAF9',
-      light: '#B3E5FC',
-      dark: '#42A5F5',
-      contrastText: '#000000',
+      main: '#1976D2',
+      light: '#42A5F5',
+      dark: '#1565C0',
+      contrastText: '#FFFFFF',
     },
     secondary: {
       main: '#9CA3AF',
@@ -80,18 +80,26 @@ export const darkTheme = createTheme({
           },
         },
         contained: {
-          backgroundColor: '#90CAF9',
-          color: '#000000',
+          backgroundColor: '#1976D2',
+          color: '#FFFFFF',
           '&:hover': {
-            backgroundColor: '#42A5F5',
+            backgroundColor: '#1565C0',
           },
         },
         outlined: {
-          borderColor: 'rgba(255, 255, 255, 0.23)',
-          color: '#90CAF9',
+          borderColor: '#1976D2',
+          color: '#1976D2',
           '&:hover': {
-            borderColor: '#90CAF9',
-            backgroundColor: 'rgba(144, 202, 249, 0.08)',
+            borderColor: '#1565C0',
+            backgroundColor: 'rgba(25, 118, 210, 0.08)',
+            color: '#1565C0',
+          },
+        },
+        text: {
+          color: '#1976D2',
+          '&:hover': {
+            backgroundColor: 'rgba(25, 118, 210, 0.08)',
+            color: '#1565C0',
           },
         },
       },
