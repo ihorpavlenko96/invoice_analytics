@@ -104,6 +104,76 @@ export class InvoiceService implements IInvoiceService {
         await this.invoiceRepository.remove(id, tenantId);
     }
 
+    async exportToExcel(
+        tenantId: string,
+        paginationParams: PaginationParamsDto,
+    ): Promise<Buffer> {
+        const [invoices] = await this.invoiceRepository.findAll(tenantId, paginationParams);
+
+        const workbook = new ExcelJS.Workbook();
+        const worksheet = workbook.addWorksheet('Invoices');
+
+        // Define columns
+        worksheet.columns = [
+            { header: 'Invoice Number', key: 'invoiceNumber', width: 20 },
+            { header: 'Issue Date', key: 'issueDate', width: 15 },
+            { header: 'Due Date', key: 'dueDate', width: 15 },
+            { header: 'Vendor Name', key: 'vendorName', width: 25 },
+            { header: 'Vendor Address', key: 'vendorAddress', width: 30 },
+            { header: 'Vendor Phone', key: 'vendorPhone', width: 15 },
+            { header: 'Vendor Email', key: 'vendorEmail', width: 25 },
+            { header: 'Customer Name', key: 'customerName', width: 25 },
+            { header: 'Customer Address', key: 'customerAddress', width: 30 },
+            { header: 'Customer Phone', key: 'customerPhone', width: 15 },
+            { header: 'Customer Email', key: 'customerEmail', width: 25 },
+            { header: 'Status', key: 'status', width: 12 },
+            { header: 'Currency', key: 'currency', width: 10 },
+            { header: 'Subtotal', key: 'subtotal', width: 12 },
+            { header: 'Discount', key: 'discount', width: 12 },
+            { header: 'Tax Rate', key: 'taxRate', width: 12 },
+            { header: 'Tax Amount', key: 'taxAmount', width: 12 },
+            { header: 'Total Amount', key: 'totalAmount', width: 15 },
+            { header: 'Terms', key: 'terms', width: 30 },
+        ];
+
+        // Style header row
+        worksheet.getRow(1).font = { bold: true };
+        worksheet.getRow(1).fill = {
+            type: 'pattern',
+            pattern: 'solid',
+            fgColor: { argb: 'FFE0E0E0' },
+        };
+
+        // Add data rows
+        invoices.forEach((invoice) => {
+            worksheet.addRow({
+                invoiceNumber: invoice.invoiceNumber,
+                issueDate: invoice.issueDate,
+                dueDate: invoice.dueDate,
+                vendorName: invoice.vendorName,
+                vendorAddress: invoice.vendorAddress,
+                vendorPhone: invoice.vendorPhone,
+                vendorEmail: invoice.vendorEmail,
+                customerName: invoice.customerName,
+                customerAddress: invoice.customerAddress,
+                customerPhone: invoice.customerPhone,
+                customerEmail: invoice.customerEmail,
+                status: invoice.status || 'N/A',
+                currency: invoice.currency || 'USD',
+                subtotal: invoice.subtotal,
+                discount: invoice.discount,
+                taxRate: invoice.taxRate,
+                taxAmount: invoice.taxAmount,
+                totalAmount: invoice.totalAmount,
+                terms: invoice.terms || '',
+            });
+        });
+
+        // Generate buffer
+        const buffer = await workbook.xlsx.writeBuffer();
+        return Buffer.from(buffer);
+    }
+
     private formatDateValue(dateValue: ExcelJS.CellValue): string {
         if (!dateValue) return '';
 

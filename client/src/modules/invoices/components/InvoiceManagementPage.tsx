@@ -12,14 +12,14 @@ import {
   useTheme,
   Grid,
 } from '@mui/material';
-import { SmartToy as AIIcon, Search as SearchIcon } from '@mui/icons-material';
+import { SmartToy as AIIcon, Search as SearchIcon, Download as DownloadIcon } from '@mui/icons-material';
 import { useInvoices } from '../invoiceQueries';
 import InvoiceTable from './InvoiceTable';
 import InvoiceDetails from './InvoiceDetails';
 import ChatDrawer from './ChatDrawer';
 import { useInvoice } from '../invoiceQueries';
 import { useUser } from '@clerk/clerk-react';
-import { PaginatedResponseDto } from '../services/invoiceService';
+import { PaginatedResponseDto, invoiceService } from '../services/invoiceService';
 import { Invoice } from '../types/invoice';
 
 /**
@@ -34,6 +34,7 @@ const InvoiceManagementPage: React.FC = () => {
   const [customerSearch, setCustomerSearch] = useState('');
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
+  const [isExporting, setIsExporting] = useState(false);
   const theme = useTheme();
 
   const { user } = useUser();
@@ -101,6 +102,29 @@ const InvoiceManagementPage: React.FC = () => {
     setPage(1); // Reset to first page when changing limit
   };
 
+  // Handle export to Excel
+  const handleExportToExcel = async () => {
+    setIsExporting(true);
+    try {
+      const blob = await invoiceService.exportInvoices(page, limit, vendorSearch, customerSearch);
+
+      // Create download link
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `invoices-${Date.now()}.xlsx`);
+      document.body.appendChild(link);
+      link.click();
+
+      // Cleanup
+      link.parentNode?.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Error exporting invoices:', error);
+    } finally {
+      setIsExporting(false);
+    }
+  };
 
   // Apply custom styles to fix pagination alignment
   useEffect(() => {
@@ -176,16 +200,29 @@ const InvoiceManagementPage: React.FC = () => {
             </Typography>
           }
           action={
-            <Button
-              variant="contained"
-              startIcon={<AIIcon />}
-              onClick={handleToggleChatDrawer}
-              sx={{
-                backgroundColor: theme.palette.primary.main,
-                '&:hover': { backgroundColor: theme.palette.primary.dark },
-              }}>
-              AI Assistant
-            </Button>
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+              <Button
+                variant="contained"
+                startIcon={<AIIcon />}
+                onClick={handleToggleChatDrawer}
+                sx={{
+                  backgroundColor: theme.palette.primary.main,
+                  '&:hover': { backgroundColor: theme.palette.primary.dark },
+                }}>
+                AI Assistant
+              </Button>
+              <Button
+                variant="contained"
+                startIcon={<DownloadIcon />}
+                onClick={handleExportToExcel}
+                disabled={isExporting}
+                sx={{
+                  backgroundColor: theme.palette.primary.main,
+                  '&:hover': { backgroundColor: theme.palette.primary.dark },
+                }}>
+                {isExporting ? 'Exporting...' : 'Export to Excel'}
+              </Button>
+            </Box>
           }
         />
         <CardContent sx={{ p: 0, '&:last-child': { pb: 0 } }}>
