@@ -15,4 +15,6 @@ export interface IInvoiceService {
     importFromBuffer(buffer: Buffer, tenantId: string): Promise<InvoiceDto>;
 
     remove(id: string, tenantId: string): Promise<void>;
+
+    exportToExcel(tenantId: string, paginationParams: PaginationParamsDto): Promise<Buffer>;
 }

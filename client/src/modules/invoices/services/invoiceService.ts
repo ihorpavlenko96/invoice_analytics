@@ -63,4 +63,30 @@ export const invoiceService = {
       },
     });
   },
+
+  /**
+   * Export invoices to Excel file
+   * @param page - Page number (starts at 1)
+   * @param limit - Number of items per page
+   * @param vendorSearch - Optional vendor name search filter
+   * @param customerSearch - Optional customer name search filter
+   * @returns Promise<Blob>
+   */
+  exportInvoices: async (
+    page: number = 1,
+    limit: number = 10,
+    vendorSearch: string = '',
+    customerSearch: string = '',
+  ): Promise<Blob> => {
+    const response = await axios.get('/invoices/export/excel', {
+      params: {
+        page,
+        limit,
+        vendorName: vendorSearch,
+        customerName: customerSearch,
+      },
+      responseType: 'blob',
+    });
+    return response.data;
+  },
 };
