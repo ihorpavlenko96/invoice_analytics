@@ -11,8 +11,18 @@ import {
   Typography,
   useTheme,
   Grid,
+  Fab,
+  Tooltip,
+  Alert,
+  Collapse,
+  IconButton,
 } from '@mui/material';
-import { SmartToy as AIIcon, Search as SearchIcon, Download as DownloadIcon } from '@mui/icons-material';
+import {
+  SmartToy as AIIcon,
+  Search as SearchIcon,
+  Download as DownloadIcon,
+  Close as CloseIcon,
+} from '@mui/icons-material';
 import { useInvoices } from '../invoiceQueries';
 import InvoiceTable from './InvoiceTable';
 import InvoiceDetails from './InvoiceDetails';
@@ -35,6 +45,7 @@ const InvoiceManagementPage: React.FC = () => {
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
   const [isExporting, setIsExporting] = useState(false);
+  const [showAiHint, setShowAiHint] = useState(true);
   const theme = useTheme();
 
   const { user } = useUser();
@@ -266,6 +277,29 @@ const InvoiceManagementPage: React.FC = () => {
             </Grid>
           </Box>
 
+          {/* AI Hint Alert */}
+          <Box sx={{ px: 2, pb: 2 }}>
+            <Collapse in={showAiHint}>
+              <Alert
+                severity="info"
+                icon={<AIIcon />}
+                action={
+                  <IconButton
+                    aria-label="close"
+                    color="inherit"
+                    size="small"
+                    onClick={() => setShowAiHint(false)}>
+                    <CloseIcon fontSize="inherit" />
+                  </IconButton>
+                }>
+                <Typography variant="body2">
+                  <strong>Try the AI Assistant!</strong> Ask questions about your invoices in natural
+                  language, like "Show me overdue invoices" or "Which vendor has the highest total?"
+                </Typography>
+              </Alert>
+            </Collapse>
+          </Box>
+
           {isInvoicesLoading && (
             <Box sx={{ display: 'flex', justifyContent: 'center', my: 5 }}>
               <CircularProgress />
@@ -283,6 +317,26 @@ const InvoiceManagementPage: React.FC = () => {
           )}
         </CardContent>
       </Card>
+
+      {/* Floating AI Assistant Button */}
+      <Tooltip title="Ask AI Assistant" placement="left">
+        <Fab
+          color="primary"
+          aria-label="ai assistant"
+          onClick={handleToggleChatDrawer}
+          sx={{
+            position: 'fixed',
+            bottom: 24,
+            right: 24,
+            boxShadow: 4,
+            '&:hover': {
+              transform: 'scale(1.1)',
+              transition: 'transform 0.2s',
+            },
+          }}>
+          <AIIcon />
+        </Fab>
+      </Tooltip>
 
       {/* Chat Drawer */}
       <ChatDrawer

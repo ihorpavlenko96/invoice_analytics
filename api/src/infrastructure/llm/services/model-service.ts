@@ -70,6 +70,7 @@ export class ModelService implements OnModuleInit {
     public async generateSql(
         question: string,
         schemaInfo: Record<string, TableSchema>,
+        conversationContext?: Array<{ query: string; sql: string }>,
     ): Promise<SqlGenerationResult> {
         this.logger.log(`Using model provider: ${this.selectedStrategy}`);
 
@@ -78,6 +79,7 @@ export class ModelService implements OnModuleInit {
         const params: SqlGenerationParams = {
             question: question,
             schemaInfo: schemaInfo,
+            conversationContext: conversationContext,
         };
 
         return strategy.generateSql(params);

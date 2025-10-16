@@ -34,6 +34,7 @@ export interface Invoice {
 
 export interface AskAboutDataDto {
   query: string;
+  conversationContext?: Array<{ query: string; sql: string }>;
 }
 
 export interface AskAboutDataResponseDto {

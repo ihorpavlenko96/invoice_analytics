@@ -310,7 +310,7 @@ export function formatSchemaForPrompt(schemas: Record<string, TableSchema>): str
             hasRelationships = true;
             for (const column of relatedColumns) {
                 if (column.foreignKey) {
-                    schemaText += `- JOIN ${tableName} and ${column.foreignKey.table} using ${tableName}.${column.name} = ${column.foreignKey.table}.${column.foreignKey.column}\n`;
+                    schemaText += `- JOIN ${tableName} and ${column.foreignKey.table} using ${tableName}."${column.name}" = ${column.foreignKey.table}."${column.foreignKey.column}"\n`;
                 }
             }
         }
@@ -319,6 +319,14 @@ export function formatSchemaForPrompt(schemas: Record<string, TableSchema>): str
     if (!hasRelationships) {
         schemaText += '- No explicit foreign key relationships detected\n';
     }
+
+    // Add common query patterns and examples
+    schemaText += '\nCOMMON QUERY PATTERNS:\n';
+    schemaText += '- For single table queries: SELECT t."column1", t."column2" FROM table_name t WHERE t."column" = value\n';
+    schemaText += '- For JOIN queries with relationships: SELECT t1."col1", t2."col2" FROM table1 t1 JOIN table2 t2 ON t1."fk_column" = t2."id"\n';
+    schemaText += '- For aggregations: SELECT t."group_column", COUNT(*) as count FROM table_name t GROUP BY t."group_column"\n';
+    schemaText += '- Always use table aliases (t, t1, t2, etc.) to prevent ambiguity\n';
+    schemaText += '- Always quote column names with double quotes: "columnName"\n';
 
     return schemaText;
 }

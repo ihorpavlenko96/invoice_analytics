@@ -44,7 +44,7 @@ export class AiController {
     })
     @ApiUnauthorizedResponse({ description: 'Unauthorized' })
     async askAboutData(@Body() body: AskAboutDataDto): Promise<AskAboutDataResponseDto> {
-        const { query } = body;
+        const { query, conversationContext } = body;
 
         if (!this.mcpService.getClient()) {
             throw new HttpException(
@@ -69,7 +69,7 @@ export class AiController {
             let result: SqlGenerationResult | undefined;
             let attempts = 0;
             while (attempts < MAX_SQL_GENERATION_ATTEMPTS) {
-                result = await this.modelService.generateSql(query, schemaInfo);
+                result = await this.modelService.generateSql(query, schemaInfo, conversationContext);
                 this.logger.debug(`SQL generation attempt ${attempts + 1} result:`, result);
 
                 if (result.sql) {
