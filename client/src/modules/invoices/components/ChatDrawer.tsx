@@ -83,6 +83,7 @@ interface Message {
   isUser: boolean;
   timestamp: Date;
   image?: string; // Optional base64 image
+  sql?: string; // SQL query generated for this message
 }
 
 interface ChatDrawerProps {
@@ -217,7 +218,25 @@ const ChatDrawer: React.FC<ChatDrawerProps> = ({ open, onClose, onHighlightInvoi
     setIsLoading(true);
 
     try {
-      const response = await aiService.askAboutData({ query: input });
+      // Build conversation context from previous messages (last 5 exchanges)
+      const conversationContext = messages
+        .filter((msg) => !msg.isUser && msg.sql)
+        .slice(-5)
+        .map((msg, idx) => {
+          const userMsg = messages.find(
+            (m) => m.isUser && m.timestamp < msg.timestamp && m.id === `user-${msg.id.split('-')[1]}`,
+          );
+          return {
+            query: userMsg?.content || '',
+            sql: msg.sql || '',
+          };
+        })
+        .filter((ctx) => ctx.query && ctx.sql);
+
+      const response = await aiService.askAboutData({
+        query: input,
+        conversationContext: conversationContext.length > 0 ? conversationContext : undefined,
+      });
 
       const aiMessage: Message = {
         id: `ai-${Date.now()}`,
@@ -225,6 +244,7 @@ const ChatDrawer: React.FC<ChatDrawerProps> = ({ open, onClose, onHighlightInvoi
         isUser: false,
         timestamp: new Date(),
         image: isValidBase64Image(response.image) ? response.image : undefined,
+        sql: response.sql,
       };
 
       setMessages((prev) => [...prev, aiMessage]);

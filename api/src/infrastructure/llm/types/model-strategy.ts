@@ -26,6 +26,7 @@ export interface FormattingResult {
 export interface SqlGenerationParams {
     readonly question: string;
     readonly schemaInfo: Record<string, TableSchema>;
+    readonly conversationContext?: Array<{ query: string; sql: string }>;
 }
 
 /**

@@ -64,11 +64,18 @@ export class OpenAIStrategy extends BaseModelStrategy {
 Follow these rules:
 - Always get id from the database. Add it to each SELECT query. ("id" - column)
 - Always add a " before and after the column name. Example: 'SELECT table1."col1" FROM table1'
-- Analyze the question and schema word by word
+- Analyze the question and schema word by word, paying special attention to relationships between tables
 - Use table aliases to prevent ambiguity. Example: 'SELECT t1."col1", t2."col1" FROM table1 t1 JOIN table2 t2 ON t1."id" = t2."id"'
+- When the question involves multiple tables, look for foreign key relationships in the schema and use JOINs
+- For complex queries involving relationships:
+  * Identify which tables need to be joined based on the question
+  * Use the relationships section to find the correct JOIN conditions
+  * Always use proper JOIN syntax with explicit ON clauses
+  * Example: To get invoice items with invoice details: SELECT i."id", i."vendorName", ii."description" FROM invoices i JOIN invoice_items ii ON i."id" = ii."invoiceId"
 - When creating a ratio, always cast the numerator as float
 - Always include the SQL in a code block
-- If user asks not existing column, try to guess the closest match
+- If user asks for a non-existing column, try to guess the closest match based on column names in the schema
+- For aggregate queries across relationships, use GROUP BY with the primary table's columns
 - Output JSON with a single field "sql" containing the query
 - If the SQL cannot be generated, DO NOT return sql object, return error object with message
 - ${STATIC_DB_RULES}
@@ -80,6 +87,17 @@ ${formattedSchemaInfo}`,
                     content: params.question,
                 },
             ];
+
+            // Add conversation context if provided
+            if (params.conversationContext && params.conversationContext.length > 0) {
+                const contextMessage = params.conversationContext
+                    .map((ctx) => `Previous query: "${ctx.query}"\nGenerated SQL: ${ctx.sql}`)
+                    .join('\n\n');
+                messages.splice(1, 0, {
+                    role: 'assistant',
+                    content: `Here's the conversation history for context:\n${contextMessage}`,
+                });
+            }
 
             console.log('OpenAI messages:', messages);
 
