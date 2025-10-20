@@ -364,8 +364,12 @@ const UserManagementPage: React.FC<UserManagementPageProps> = () => {
                                     <IconButton
                                       onClick={() => openConfirmToggleStatusDialog(user)}
                                       size="small"
-                                      color={user.isActive ? 'warning' : 'success'}
-                                      sx={{ mr: 0.5 }}
+                                      sx={{
+                                        backgroundColor: '#000000',
+                                        color: '#FFFFFF',
+                                        mr: 0.5,
+                                        '&:hover': { backgroundColor: '#1a1a1a' },
+                                      }}
                                       disabled={isTogglingStatus && userToToggleStatus?.id === user.id}>
                                       {user.isActive ? <HighlightOffIcon /> : <CheckCircleOutlineIcon />}
                                     </IconButton>
@@ -374,8 +378,12 @@ const UserManagementPage: React.FC<UserManagementPageProps> = () => {
                                     <IconButton
                                       onClick={() => openEditForm(user)}
                                       size="small"
-                                      color="primary"
-                                      sx={{ mr: 0.5 }}>
+                                      sx={{
+                                        backgroundColor: '#000000',
+                                        color: '#FFFFFF',
+                                        mr: 0.5,
+                                        '&:hover': { backgroundColor: '#1a1a1a' },
+                                      }}>
                                       <EditIcon />
                                     </IconButton>
                                   </Tooltip>
@@ -384,7 +392,11 @@ const UserManagementPage: React.FC<UserManagementPageProps> = () => {
                                       onClick={() => openConfirmDeleteDialog(user.id)}
                                       size="small"
                                       disabled={isDeleting && userToDeleteId === user.id}
-                                      sx={{ color: '#F87171', '&:hover': { color: '#DC2626' } }}>
+                                      sx={{
+                                        backgroundColor: '#2a2a2a',
+                                        color: '#FFFFFF',
+                                        '&:hover': { backgroundColor: '#3a3a3a' },
+                                      }}>
                                       <DeleteIcon />
                                     </IconButton>
                                   </Tooltip>
