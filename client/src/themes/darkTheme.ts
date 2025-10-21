@@ -168,13 +168,13 @@ export const darkTheme = createTheme({
         root: {
           '& .MuiOutlinedInput-root': {
             '& fieldset': {
-              borderColor: 'rgba(255, 255, 255, 0.23)',
+              borderColor: '#E91E63',
             },
             '&:hover fieldset': {
-              borderColor: 'rgba(255, 255, 255, 0.4)',
+              borderColor: '#E91E63',
             },
             '&.Mui-focused fieldset': {
-              borderColor: '#90CAF9',
+              borderColor: '#E91E63',
             },
           },
         },
