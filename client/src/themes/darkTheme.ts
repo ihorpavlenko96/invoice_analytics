@@ -88,10 +88,10 @@ export const darkTheme = createTheme({
         },
         outlined: {
           borderColor: 'rgba(255, 255, 255, 0.23)',
-          color: '#90CAF9',
+          color: '#FF69B4',
           '&:hover': {
-            borderColor: '#90CAF9',
-            backgroundColor: 'rgba(144, 202, 249, 0.08)',
+            borderColor: '#FF69B4',
+            backgroundColor: 'rgba(255, 105, 180, 0.08)',
           },
         },
       },
