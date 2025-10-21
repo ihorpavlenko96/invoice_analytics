@@ -78,6 +78,7 @@ async function bootstrap() {
 
         await app.listen(port);
 
+        console.log('Hello World');
         console.log(`Server is running on port ${port}`);
     } catch (error: unknown) {
         const { message, stack } = extractErrorInfo(error, 'Error starting server');
