@@ -210,4 +210,41 @@ export class InvoiceController {
         response.setHeader('Content-Disposition', `attachment; filename=invoices-${Date.now()}.xlsx`);
         response.send(buffer);
     }
+
+    @Get('export/csv')
+    @Authorize(RoleName.SUPER_ADMIN)
+    @ApiOperation({
+        summary: 'Export invoices to CSV',
+        description: 'Exports all invoices to a CSV file based on pagination and filters',
+    })
+    @ApiQuery({
+        name: 'page',
+        required: false,
+        type: Number,
+        description: 'Page number (starts from 1)',
+    })
+    @ApiQuery({
+        name: 'limit',
+        required: false,
+        type: Number,
+        description: 'Number of items per page',
+    })
+    @ApiResponse({
+        status: HttpStatus.OK,
+        description: 'CSV file generated successfully',
+    })
+    @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+    @ApiForbiddenResponse({ description: 'Forbidden - requires SUPER_ADMIN role' })
+    async exportToCsv(
+        @Req() request: RequestWithTenant,
+        @Res() response: Response,
+        @Query() paginationParams: PaginationParamsDto,
+    ): Promise<void> {
+        const tenantId = request.tenantId!;
+        const buffer = await this.invoiceService.exportToCsv(tenantId, paginationParams);
+
+        response.setHeader('Content-Type', 'text/csv');
+        response.setHeader('Content-Disposition', `attachment; filename=invoices-${Date.now()}.csv`);
+        response.send(buffer);
+    }
 }

@@ -174,6 +174,73 @@ export class InvoiceService implements IInvoiceService {
         return Buffer.from(buffer);
     }
 
+    async exportToCsv(
+        tenantId: string,
+        paginationParams: PaginationParamsDto,
+    ): Promise<Buffer> {
+        const [invoices] = await this.invoiceRepository.findAll(tenantId, paginationParams);
+
+        const headers = [
+            'Invoice Number',
+            'Issue Date',
+            'Due Date',
+            'Vendor Name',
+            'Vendor Address',
+            'Vendor Phone',
+            'Vendor Email',
+            'Customer Name',
+            'Customer Address',
+            'Customer Phone',
+            'Customer Email',
+            'Status',
+            'Currency',
+            'Subtotal',
+            'Discount',
+            'Tax Rate',
+            'Tax Amount',
+            'Total Amount',
+            'Terms',
+        ];
+
+        const rows = invoices.map((invoice) => [
+            invoice.invoiceNumber,
+            invoice.issueDate,
+            invoice.dueDate,
+            invoice.vendorName,
+            invoice.vendorAddress,
+            invoice.vendorPhone,
+            invoice.vendorEmail,
+            invoice.customerName,
+            invoice.customerAddress,
+            invoice.customerPhone,
+            invoice.customerEmail,
+            invoice.status || 'N/A',
+            invoice.currency || 'USD',
+            invoice.subtotal,
+            invoice.discount,
+            invoice.taxRate,
+            invoice.taxAmount,
+            invoice.totalAmount,
+            invoice.terms || '',
+        ]);
+
+        const csvContent = [headers, ...rows]
+            .map((row) =>
+                row
+                    .map((cell) => {
+                        const cellValue = cell?.toString() || '';
+                        if (cellValue.includes(',') || cellValue.includes('"') || cellValue.includes('\n')) {
+                            return `"${cellValue.replace(/"/g, '""')}"`;
+                        }
+                        return cellValue;
+                    })
+                    .join(','),
+            )
+            .join('\n');
+
+        return Buffer.from(csvContent, 'utf-8');
+    }
+
     private formatDateValue(dateValue: ExcelJS.CellValue): string {
         if (!dateValue) return '';
 

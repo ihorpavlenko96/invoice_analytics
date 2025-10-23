@@ -83,4 +83,24 @@ export const invoiceService = {
     });
     return response.data;
   },
+
+  /**
+   * Export invoices to CSV file
+   * @param page - Page number (starts at 1)
+   * @param limit - Number of items per page
+   * @returns Promise<Blob>
+   */
+  exportInvoicesCsv: async (
+    page: number = 1,
+    limit: number = 10,
+  ): Promise<Blob> => {
+    const response = await axios.get('/invoices/export/csv', {
+      params: {
+        page,
+        limit,
+      },
+      responseType: 'blob',
+    });
+    return response.data;
+  },
 };
