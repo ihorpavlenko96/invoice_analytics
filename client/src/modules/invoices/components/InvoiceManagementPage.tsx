@@ -11,10 +11,8 @@ import {
   Typography,
   useTheme,
   Grid,
-  Menu,
-  MenuItem,
 } from '@mui/material';
-import { SmartToy as AIIcon, Search as SearchIcon, Download as DownloadIcon, ArrowDropDown as ArrowDropDownIcon } from '@mui/icons-material';
+import { SmartToy as AIIcon, Search as SearchIcon, Download as DownloadIcon } from '@mui/icons-material';
 import { useInvoices } from '../invoiceQueries';
 import InvoiceTable from './InvoiceTable';
 import InvoiceDetails from './InvoiceDetails';
@@ -37,7 +35,6 @@ const InvoiceManagementPage: React.FC = () => {
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
   const [isExporting, setIsExporting] = useState(false);
-  const [exportAnchorEl, setExportAnchorEl] = useState<null | HTMLElement>(null);
   const theme = useTheme();
 
   const { user } = useUser();
@@ -105,19 +102,8 @@ const InvoiceManagementPage: React.FC = () => {
     setPage(1); // Reset to first page when changing limit
   };
 
-  // Handle export menu open
-  const handleExportMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
-    setExportAnchorEl(event.currentTarget);
-  };
-
-  // Handle export menu close
-  const handleExportMenuClose = () => {
-    setExportAnchorEl(null);
-  };
-
   // Handle export to Excel
   const handleExportToExcel = async () => {
-    handleExportMenuClose();
     setIsExporting(true);
     try {
       const blob = await invoiceService.exportInvoices(page, limit);
@@ -127,31 +113,6 @@ const InvoiceManagementPage: React.FC = () => {
       const link = document.createElement('a');
       link.href = url;
       link.setAttribute('download', `invoices-${Date.now()}.xlsx`);
-      document.body.appendChild(link);
-      link.click();
-
-      // Cleanup
-      link.parentNode?.removeChild(link);
-      window.URL.revokeObjectURL(url);
-    } catch (error) {
-      console.error('Error exporting invoices:', error);
-    } finally {
-      setIsExporting(false);
-    }
-  };
-
-  // Handle export to CSV
-  const handleExportToCsv = async () => {
-    handleExportMenuClose();
-    setIsExporting(true);
-    try {
-      const blob = await invoiceService.exportInvoicesCsv(page, limit);
-
-      // Create download link
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.setAttribute('download', `invoices-${Date.now()}.csv`);
       document.body.appendChild(link);
       link.click();
 
@@ -253,34 +214,14 @@ const InvoiceManagementPage: React.FC = () => {
               <Button
                 variant="contained"
                 startIcon={<DownloadIcon />}
-                endIcon={<ArrowDropDownIcon />}
-                onClick={handleExportMenuOpen}
+                onClick={handleExportToExcel}
                 disabled={isExporting}
                 sx={{
                   backgroundColor: theme.palette.primary.main,
                   '&:hover': { backgroundColor: theme.palette.primary.dark },
                 }}>
-                {isExporting ? 'Exporting...' : 'Export'}
+                {isExporting ? 'Exporting...' : 'Export to Excel'}
               </Button>
-              <Menu
-                anchorEl={exportAnchorEl}
-                open={Boolean(exportAnchorEl)}
-                onClose={handleExportMenuClose}
-                anchorOrigin={{
-                  vertical: 'bottom',
-                  horizontal: 'right',
-                }}
-                transformOrigin={{
-                  vertical: 'top',
-                  horizontal: 'right',
-                }}>
-                <MenuItem onClick={handleExportToExcel}>
-                  Export to XLSX
-                </MenuItem>
-                <MenuItem onClick={handleExportToCsv}>
-                  Export to CSV
-                </MenuItem>
-              </Menu>
             </Box>
           }
         />
