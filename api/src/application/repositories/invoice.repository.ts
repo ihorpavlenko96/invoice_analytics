@@ -37,6 +37,15 @@ export class InvoiceRepository {
         });
     }
 
+    async findAllForExport(tenantId: string): Promise<Invoice[]> {
+        return this.invoiceRepository.find({
+            where: { tenantId },
+            order: {
+                issueDate: 'DESC',
+            },
+        });
+    }
+
     async save(invoice: Invoice): Promise<Invoice> {
         return this.invoiceRepository.save(invoice);
     }
