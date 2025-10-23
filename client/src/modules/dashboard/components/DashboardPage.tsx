@@ -19,14 +19,14 @@ const DashboardPage: React.FC = () => {
 
   const vendorData = useMemo(() => {
     if (!invoicesData?.items) return [];
-    const filteredInvoices = filterInvoicesByDays(invoicesData.items, 30);
+    const filteredInvoices = filterInvoicesByDays(invoicesData.items, 365);
     return aggregateByVendor(filteredInvoices);
   }, [invoicesData]);
 
   const handleVendorClick = (vendorName: string) => {
     if (!invoicesData?.items) return;
 
-    const filteredInvoices = filterInvoicesByDays(invoicesData.items, 30);
+    const filteredInvoices = filterInvoicesByDays(invoicesData.items, 365);
     const details = getVendorMonthlyBreakdown(filteredInvoices, vendorName);
 
     setVendorDetails(details);
@@ -47,8 +47,8 @@ const DashboardPage: React.FC = () => {
         px: 2,
       }}>
       <Container maxWidth="xl">
-        <Typography variant="h4" gutterBottom sx={{ mb: 3, color: 'text.primary' }}>
-          Dashboard
+        <Typography variant="h4" gutterBottom sx={{ mb: 3, color: 'red' }}>
+          Yearly dashboard
         </Typography>
 
         {isLoading && (
