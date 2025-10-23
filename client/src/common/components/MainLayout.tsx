@@ -44,6 +44,7 @@ const MainLayout: React.FC = () => {
   };
 
   const navItems: NavItem[] = [
+    { label: 'Dashboard', path: '/dashboard', roles: [ROLES.SUPER_ADMIN] },
     { label: 'Invoices', path: '/invoice-management', roles: [ROLES.SUPER_ADMIN] },
     { label: 'Tenants', path: '/tenant-management', roles: [ROLES.SUPER_ADMIN] },
     { label: 'Users', path: '/user-management', roles: [ROLES.ADMIN, ROLES.SUPER_ADMIN] },
