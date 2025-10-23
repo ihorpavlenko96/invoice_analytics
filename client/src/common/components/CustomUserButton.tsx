@@ -15,7 +15,6 @@ import {
 } from '@mui/material';
 import SettingsIcon from '@mui/icons-material/Settings';
 import LogoutIcon from '@mui/icons-material/Logout';
-import DevicesIcon from '@mui/icons-material/Devices';
 import { useClerk, useUser } from '@clerk/clerk-react';
 
 type CustomUserButtonProps = {
@@ -45,10 +44,6 @@ const CustomUserButton: React.FC<CustomUserButtonProps> = ({ afterSignOutUrl }) 
   };
 
   const handleManageAccount = (): void => {
-    handleClose();
-  };
-
-  const handleActiveSessions = (): void => {
     handleClose();
   };
 
@@ -146,25 +141,6 @@ const CustomUserButton: React.FC<CustomUserButtonProps> = ({ afterSignOutUrl }) 
         <Divider sx={{ mb: 1 }} />
 
         <List disablePadding>
-          <ListItem disablePadding>
-            <ListItemButton
-              onClick={handleActiveSessions}
-              sx={{
-                px: 2,
-                '&:hover': {
-                  backgroundColor: theme.palette.action.hover,
-                },
-              }}>
-              <ListItemIcon sx={{ minWidth: 36, color: theme.palette.primary.main }}>
-                <DevicesIcon fontSize="small" />
-              </ListItemIcon>
-              <ListItemText
-                primary="Active sessions"
-                sx={{ color: theme.palette.primary.main }}
-              />
-            </ListItemButton>
-          </ListItem>
-
           <ListItem disablePadding>
             <ListItemButton
               onClick={handleManageAccount}
