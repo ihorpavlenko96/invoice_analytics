@@ -168,19 +168,26 @@ const SecretsPage: React.FC = () => {
                             onClick={() => toggleLocalVisibility(secret.key)}
                             aria-label={isVisible ? 'Hide value' : 'Show value'}
                             size="small"
-                            sx={{ mr: 1 }}>
+                            sx={{
+                              backgroundColor: '#000000',
+                              color: '#FFFFFF',
+                              mr: 1,
+                              '&:hover': { backgroundColor: '#1a1a1a' },
+                            }}>
                             {isVisible ? <VisibilityOffIcon /> : <VisibilityIcon />}
                           </IconButton>
                           <Button
-                            variant="text"
+                            variant="contained"
                             startIcon={<EditIcon />}
                             onClick={() => handleOpenEditForm(secret.key)}
                             aria-label="Edit secret"
                             size="small"
                             sx={{
-                              color: theme.palette.primary.main,
+                              backgroundColor: '#000000',
+                              color: '#FFFFFF',
                               textTransform: 'none',
                               '& .MuiButton-startIcon': { mr: 0.5 },
+                              '&:hover': { backgroundColor: '#1a1a1a' },
                             }}>
                             Edit
                           </Button>

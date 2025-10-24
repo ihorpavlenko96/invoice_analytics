@@ -269,7 +269,13 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({
                             e.stopPropagation();
                             onViewInvoice(invoice.id);
                           }}
-                          size="small">
+                          size="small"
+                          sx={{
+                            backgroundColor: '#000000',
+                            color: '#FFFFFF',
+                            '&:hover': { backgroundColor: '#1a1a1a' },
+                            mr: 1
+                          }}>
                           <ViewIcon />
                         </IconButton>
                       </Tooltip>
@@ -280,7 +286,11 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({
                             handleDeleteClick(invoice.id);
                           }}
                           size="small"
-                          sx={{ color: '#F87171', '&:hover': { color: '#DC2626' } }}>
+                          sx={{
+                            backgroundColor: '#2a2a2a',
+                            color: '#FFFFFF',
+                            '&:hover': { backgroundColor: '#3a3a3a' }
+                          }}>
                           <DeleteIcon />
                         </IconButton>
                       </Tooltip>

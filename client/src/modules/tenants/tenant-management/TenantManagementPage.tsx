@@ -225,30 +225,33 @@ const TenantManagementPage: React.FC<TenantManagementPageProps> = () => {
                       <TableCell>{tenant.alias}</TableCell>
                       <TableCell align="right">
                         <Button
-                          variant="text"
+                          variant="contained"
                           startIcon={<EditIcon />}
                           onClick={() => openEditForm(tenant)}
                           aria-label="edit"
                           size="small"
                           sx={{
-                            color: theme.palette.primary.main,
+                            backgroundColor: '#000000',
+                            color: '#FFFFFF',
                             textTransform: 'none',
                             mr: 1,
                             '& .MuiButton-startIcon': { mr: 0.5 },
+                            '&:hover': { backgroundColor: '#1a1a1a' },
                           }}>
                           Edit
                         </Button>
                         <Button
-                          variant="text"
+                          variant="contained"
                           startIcon={<DeleteIcon />}
                           onClick={() => openConfirmDeleteDialog(tenant.id)}
                           aria-label="delete"
                           size="small"
                           sx={{
-                            color: '#F87171',
+                            backgroundColor: '#2a2a2a',
+                            color: '#FFFFFF',
                             textTransform: 'none',
                             '& .MuiButton-startIcon': { mr: 0.5 },
-                            '&:hover': { color: '#DC2626' },
+                            '&:hover': { backgroundColor: '#3a3a3a' },
                           }}>
                           Delete
                         </Button>
