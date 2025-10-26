@@ -1,42 +1,42 @@
 import { createTheme } from '@mui/material';
 
 // Clean Black & White Theme (Light Mode)
-export const lightTheme = createTheme({
+export const darkTheme = createTheme({
   palette: {
-    mode: 'light',
+    mode: 'dark',
     primary: {
-      main: '#111827',      // Gray-900 (matches CSS --color-primary)
-      light: '#374151',     // Gray-700
-      dark: '#000000',      // Pure Black
-      contrastText: '#FFFFFF',
+      main: '#90CAF9',
+      light: '#B3E5FC',
+      dark: '#42A5F5',
+      contrastText: '#000000',
     },
     secondary: {
-      main: '#6B7280',      // Gray-500 (matches CSS --color-secondary)
-      light: '#9CA3AF',     // Gray-400
-      dark: '#4B5563',      // Gray-600
-      contrastText: '#FFFFFF',
+      main: '#9CA3AF',
+      light: '#D1D5DB',
+      dark: '#6B7280',
+      contrastText: '#000000',
     },
     background: {
-      default: '#FFFFFF',   // Pure White (matches CSS --color-background)
-      paper: '#F9FAFB',     // Gray-50 (matches CSS --color-background-secondary)
+      default: '#121212',
+      paper: '#1E1E1E',
     },
     text: {
-      primary: '#111827',   // Gray-900 (matches CSS --color-text-primary)
-      secondary: '#4B5563', // Gray-600 (matches CSS --color-text-secondary)
+      primary: '#FFFFFF',
+      secondary: '#B3B3B3',
     },
     error: {
-      main: '#DC2626',      // Red-600 (matches CSS --color-error)
+      main: '#F87171',
     },
     warning: {
-      main: '#D97706',      // Amber-600 (matches CSS --color-warning)
+      main: '#FBBF24',
     },
     info: {
-      main: '#2563EB',      // Blue-600 (matches CSS --color-info)
+      main: '#60A5FA',
     },
     success: {
-      main: '#059669',      // Emerald-600 (matches CSS --color-success)
+      main: '#34D399',
     },
-    divider: 'rgba(0, 0, 0, 0.12)',
+    divider: 'rgba(255, 255, 255, 0.12)',
   },
   typography: {
     fontFamily: 'Inter, system-ui, Avenir, Helvetica, Arial, sans-serif',
@@ -71,27 +71,27 @@ export const lightTheme = createTheme({
       styleOverrides: {
         root: {
           borderRadius: 8,
-          boxShadow: '0 1px 2px rgba(0, 0, 0, 0.05)',
+          boxShadow: '0 1px 2px rgba(0, 0, 0, 0.25)',
           padding: '8px 16px',
           transition: 'all 0.2s ease',
           '&:hover': {
-            boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+            boxShadow: '0 4px 6px rgba(0, 0, 0, 0.3)',
             transform: 'translateY(-1px)',
           },
         },
         contained: {
-          backgroundColor: '#111827',
-          color: '#FFFFFF',
+          backgroundColor: '#90CAF9',
+          color: '#000000',
           '&:hover': {
-            backgroundColor: '#000000',
+            backgroundColor: '#42A5F5',
           },
         },
         outlined: {
-          borderColor: 'rgba(0, 0, 0, 0.23)',
-          color: '#111827',
+          borderColor: 'rgba(255, 255, 255, 0.23)',
+          color: '#90CAF9',
           '&:hover': {
-            borderColor: '#111827',
-            backgroundColor: 'rgba(17, 24, 39, 0.04)',
+            borderColor: '#90CAF9',
+            backgroundColor: 'rgba(144, 202, 249, 0.08)',
           },
         },
       },
@@ -100,10 +100,10 @@ export const lightTheme = createTheme({
       styleOverrides: {
         root: {
           '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-            borderColor: '#111827',
+            borderColor: '#90CAF9',
           },
           '&:hover .MuiOutlinedInput-notchedOutline': {
-            borderColor: 'rgba(0, 0, 0, 0.23)',
+            borderColor: 'rgba(255, 255, 255, 0.23)',
           },
         },
       },
@@ -112,13 +112,13 @@ export const lightTheme = createTheme({
       styleOverrides: {
         root: {
           '&.Mui-selected': {
-            backgroundColor: 'rgba(17, 24, 39, 0.08)',
+            backgroundColor: 'rgba(144, 202, 249, 0.16)',
           },
           '&.Mui-selected:hover': {
-            backgroundColor: 'rgba(17, 24, 39, 0.12)',
+            backgroundColor: 'rgba(144, 202, 249, 0.24)',
           },
           '&:hover': {
-            backgroundColor: 'rgba(0, 0, 0, 0.04)',
+            backgroundColor: 'rgba(255, 255, 255, 0.08)',
           },
         },
       },
@@ -127,8 +127,8 @@ export const lightTheme = createTheme({
       styleOverrides: {
         root: {
           borderRadius: 12,
-          boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06)',
-          border: '1px solid #E5E7EB',
+          boxShadow: '0 1px 3px rgba(0, 0, 0, 0.5), 0 1px 2px rgba(0, 0, 0, 0.3)',
+          border: '1px solid rgba(255, 255, 255, 0.12)',
           backgroundImage: 'none',
         },
       },
@@ -137,17 +137,17 @@ export const lightTheme = createTheme({
       styleOverrides: {
         root: {
           backgroundImage: 'none',
-          boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06)',
+          boxShadow: '0 1px 3px rgba(0, 0, 0, 0.5), 0 1px 2px rgba(0, 0, 0, 0.3)',
         },
       },
     },
     MuiAppBar: {
       styleOverrides: {
         root: {
-          boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+          boxShadow: '0 1px 3px rgba(0, 0, 0, 0.5)',
           backgroundImage: 'none',
-          backgroundColor: '#FFFFFF',
-          borderBottom: '1px solid #E5E7EB',
+          backgroundColor: '#1E1E1E',
+          borderBottom: '1px solid rgba(255, 255, 255, 0.12)',
         },
       },
     },
@@ -156,9 +156,9 @@ export const lightTheme = createTheme({
         root: {
           '& .MuiTableCell-root': {
             fontWeight: 600,
-            color: '#111827',
-            backgroundColor: '#F9FAFB',
-            borderBottom: '2px solid #E5E7EB',
+            color: '#FFFFFF',
+            backgroundColor: '#2A2A2A',
+            borderBottom: '2px solid rgba(255, 255, 255, 0.12)',
           },
         },
       },
@@ -168,13 +168,13 @@ export const lightTheme = createTheme({
         root: {
           '& .MuiOutlinedInput-root': {
             '& fieldset': {
-              borderColor: '#D1D5DB',
+              borderColor: 'rgba(255, 255, 255, 0.23)',
             },
             '&:hover fieldset': {
-              borderColor: '#9CA3AF',
+              borderColor: 'rgba(255, 255, 255, 0.4)',
             },
             '&.Mui-focused fieldset': {
-              borderColor: '#111827',
+              borderColor: '#90CAF9',
             },
           },
         },
