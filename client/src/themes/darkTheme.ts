@@ -1,6 +1,8 @@
 import { createTheme } from '@mui/material';
 
-// Clean Black & White Theme (Light Mode)
+// Clean Black & White Theme (Dark Mode)
+// Button size variants: small, medium (default), large
+// For extra-large buttons, use size="large" with sx={{ padding: '16px 32px', fontSize: '1rem', borderRadius: 16 }}
 export const darkTheme = createTheme({
   palette: {
     mode: 'dark',
@@ -70,14 +72,33 @@ export const darkTheme = createTheme({
     MuiButton: {
       styleOverrides: {
         root: {
-          borderRadius: 8,
-          boxShadow: '0 1px 2px rgba(0, 0, 0, 0.25)',
+          borderRadius: 12,
+          boxShadow: '0 1px 2px rgba(0, 0, 0, 0.1)',
           padding: '8px 16px',
-          transition: 'all 0.2s ease',
+          transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
           '&:hover': {
-            boxShadow: '0 4px 6px rgba(0, 0, 0, 0.3)',
-            transform: 'translateY(-1px)',
+            boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15)',
+            transform: 'translateY(-2px)',
           },
+          '&:active': {
+            transform: 'translateY(0)',
+            boxShadow: '0 1px 2px rgba(0, 0, 0, 0.1)',
+          },
+        },
+        sizeSmall: {
+          padding: '4px 8px',
+          fontSize: '0.8125rem',
+          borderRadius: 10,
+        },
+        sizeMedium: {
+          padding: '8px 16px',
+          fontSize: '0.875rem',
+          borderRadius: 12,
+        },
+        sizeLarge: {
+          padding: '12px 24px',
+          fontSize: '0.9375rem',
+          borderRadius: 14,
         },
         contained: {
           backgroundColor: '#90CAF9',
