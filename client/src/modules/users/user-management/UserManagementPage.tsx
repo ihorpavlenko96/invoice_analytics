@@ -11,13 +11,20 @@ import {
   Dialog,
   DialogContent,
   DialogTitle,
+  FormControl,
+  Grid,
   IconButton,
+  InputAdornment,
+  InputLabel,
+  MenuItem,
+  Select,
   Stack,
   Table,
   TableBody,
   TableCell,
   TableContainer,
   TableRow,
+  TextField,
   Tooltip,
   Typography,
   useTheme,
@@ -26,6 +33,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import HighlightOffIcon from '@mui/icons-material/HighlightOff';
+import SearchIcon from '@mui/icons-material/Search';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { User } from '../types/user.ts';
 import UserForm from '../components/UserForm.tsx';
@@ -106,6 +114,12 @@ const UserManagementPage: React.FC<UserManagementPageProps> = () => {
   const [sortBy, setSortBy] = useState<string | null>(null);
   const [sortOrder, setSortOrder] = useState<SortOrder>('asc');
 
+  // Filter state
+  const [emailFilter, setEmailFilter] = useState('');
+  const [nameFilter, setNameFilter] = useState('');
+  const [roleFilter, setRoleFilter] = useState('');
+  const [statusFilter, setStatusFilter] = useState('');
+
   const users: User[] = usersData?.data ?? [];
 
   useEffect(() => {
@@ -135,10 +149,57 @@ const UserManagementPage: React.FC<UserManagementPageProps> = () => {
     }
   }, [columns, columnOrder.length, setColumnOrder]);
 
-  const sortedUsers = useMemo(() => {
-    if (!sortBy) return users;
+  // Extract unique roles for the dropdown
+  const uniqueRoles = useMemo(() => {
+    const roleSet = new Set<string>();
+    users.forEach(user => {
+      user.roles?.forEach(role => {
+        roleSet.add(role.name);
+      });
+    });
+    return Array.from(roleSet).sort();
+  }, [users]);
 
-    return [...users].sort((a, b) => {
+  // Filter users based on filter criteria
+  const filteredUsers = useMemo(() => {
+    return users.filter(user => {
+      // Email filter
+      if (emailFilter && !user.email?.toLowerCase().includes(emailFilter.toLowerCase())) {
+        return false;
+      }
+
+      // Name filter
+      if (nameFilter) {
+        const fullName = `${user.firstName || ''} ${user.lastName || ''}`.trim().toLowerCase();
+        if (!fullName.includes(nameFilter.toLowerCase())) {
+          return false;
+        }
+      }
+
+      // Role filter
+      if (roleFilter) {
+        const hasRole = user.roles?.some(role => role.name === roleFilter);
+        if (!hasRole) {
+          return false;
+        }
+      }
+
+      // Status filter
+      if (statusFilter) {
+        const isActive = statusFilter === 'active';
+        if (user.isActive !== isActive) {
+          return false;
+        }
+      }
+
+      return true;
+    });
+  }, [users, emailFilter, nameFilter, roleFilter, statusFilter]);
+
+  const sortedUsers = useMemo(() => {
+    if (!sortBy) return filteredUsers;
+
+    return [...filteredUsers].sort((a, b) => {
       let aValue: string;
       let bValue: string;
 
@@ -179,7 +240,7 @@ const UserManagementPage: React.FC<UserManagementPageProps> = () => {
         return bValue.localeCompare(aValue);
       }
     });
-  }, [users, sortBy, sortOrder]);
+  }, [filteredUsers, sortBy, sortOrder]);
 
   const handleSort = (column: string) => {
     if (sortBy === column) {
@@ -267,6 +328,79 @@ const UserManagementPage: React.FC<UserManagementPageProps> = () => {
           }
         />
         <CardContent sx={{ p: 0, '&:last-child': { pb: 0 } }}>
+          {/* Filter controls */}
+          <Box sx={{ p: 2, pb: 0, mb: 2 }}>
+            <Grid container spacing={2}>
+              <Grid item xs={12} md={6}>
+                <TextField
+                  fullWidth
+                  placeholder="Search by email..."
+                  value={emailFilter}
+                  onChange={(e) => setEmailFilter(e.target.value)}
+                  variant="outlined"
+                  size="small"
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <SearchIcon color="action" />
+                      </InputAdornment>
+                    ),
+                  }}
+                />
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <TextField
+                  fullWidth
+                  placeholder="Search by name..."
+                  value={nameFilter}
+                  onChange={(e) => setNameFilter(e.target.value)}
+                  variant="outlined"
+                  size="small"
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <SearchIcon color="action" />
+                      </InputAdornment>
+                    ),
+                  }}
+                />
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <FormControl fullWidth size="small">
+                  <InputLabel>Role</InputLabel>
+                  <Select
+                    value={roleFilter}
+                    label="Role"
+                    onChange={(e) => setRoleFilter(e.target.value)}>
+                    <MenuItem value="">
+                      <em>All Roles</em>
+                    </MenuItem>
+                    {uniqueRoles.map((role) => (
+                      <MenuItem key={role} value={role}>
+                        {role}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <FormControl fullWidth size="small">
+                  <InputLabel>Status</InputLabel>
+                  <Select
+                    value={statusFilter}
+                    label="Status"
+                    onChange={(e) => setStatusFilter(e.target.value)}>
+                    <MenuItem value="">
+                      <em>All Statuses</em>
+                    </MenuItem>
+                    <MenuItem value="active">Active</MenuItem>
+                    <MenuItem value="inactive">Inactive</MenuItem>
+                  </Select>
+                </FormControl>
+              </Grid>
+            </Grid>
+          </Box>
+
           {isLoading && (
             <Box sx={{ display: 'flex', justifyContent: 'center', my: 5 }}>
               <CircularProgress />
