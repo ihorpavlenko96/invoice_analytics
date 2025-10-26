@@ -5,10 +5,10 @@ export const darkTheme = createTheme({
   palette: {
     mode: 'dark',
     primary: {
-      main: '#FF1493',
-      light: '#FF69B4',
-      dark: '#C71585',
-      contrastText: '#FFFFFF',
+      main: '#90CAF9',
+      light: '#B3E5FC',
+      dark: '#42A5F5',
+      contrastText: '#000000',
     },
     secondary: {
       main: '#9CA3AF',
@@ -80,35 +80,18 @@ export const darkTheme = createTheme({
           },
         },
         contained: {
-          backgroundColor: '#FF1493',
-          color: '#FFFFFF',
+          backgroundColor: '#90CAF9',
+          color: '#000000',
           '&:hover': {
-            backgroundColor: '#C71585',
-          },
-          '&:disabled': {
-            backgroundColor: 'rgba(255, 20, 147, 0.3)',
-            color: 'rgba(255, 255, 255, 0.5)',
+            backgroundColor: '#42A5F5',
           },
         },
         outlined: {
-          borderColor: '#FF1493',
-          color: '#FF1493',
+          borderColor: 'rgba(255, 255, 255, 0.23)',
+          color: '#90CAF9',
           '&:hover': {
-            borderColor: '#FF69B4',
-            backgroundColor: 'rgba(255, 20, 147, 0.08)',
-          },
-          '&:disabled': {
-            borderColor: 'rgba(255, 20, 147, 0.3)',
-            color: 'rgba(255, 20, 147, 0.5)',
-          },
-        },
-        text: {
-          color: '#FF1493',
-          '&:hover': {
-            backgroundColor: 'rgba(255, 20, 147, 0.08)',
-          },
-          '&:disabled': {
-            color: 'rgba(255, 20, 147, 0.5)',
+            borderColor: '#90CAF9',
+            backgroundColor: 'rgba(144, 202, 249, 0.08)',
           },
         },
       },
@@ -117,7 +100,7 @@ export const darkTheme = createTheme({
       styleOverrides: {
         root: {
           '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-            borderColor: '#FF1493',
+            borderColor: '#90CAF9',
           },
           '&:hover .MuiOutlinedInput-notchedOutline': {
             borderColor: 'rgba(255, 255, 255, 0.23)',
@@ -129,10 +112,10 @@ export const darkTheme = createTheme({
       styleOverrides: {
         root: {
           '&.Mui-selected': {
-            backgroundColor: 'rgba(255, 20, 147, 0.16)',
+            backgroundColor: 'rgba(144, 202, 249, 0.16)',
           },
           '&.Mui-selected:hover': {
-            backgroundColor: 'rgba(255, 20, 147, 0.24)',
+            backgroundColor: 'rgba(144, 202, 249, 0.24)',
           },
           '&:hover': {
             backgroundColor: 'rgba(255, 255, 255, 0.08)',
@@ -191,7 +174,7 @@ export const darkTheme = createTheme({
               borderColor: 'rgba(255, 255, 255, 0.4)',
             },
             '&.Mui-focused fieldset': {
-              borderColor: '#FF1493',
+              borderColor: '#90CAF9',
             },
           },
         },
