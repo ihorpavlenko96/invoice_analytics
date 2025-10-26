@@ -367,7 +367,7 @@ const ChatDrawer: React.FC<ChatDrawerProps> = ({ open, onClose, onHighlightInvoi
                 alignItems: 'center',
                 justifyContent: 'center',
               }}>
-              {isLoading ? <CircularProgress size={24} /> : <SendIcon />}
+              <SendIcon />
             </Button>
           </form>
         </Box>
