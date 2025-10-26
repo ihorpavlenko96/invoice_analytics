@@ -20,6 +20,7 @@ import {
   Chip,
   Skeleton,
   keyframes,
+  CircularProgress,
 } from '@mui/material';
 import {
   Visibility as ViewIcon,
@@ -344,13 +345,14 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({
           </DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleDeleteCancel} color="primary">
+          <Button onClick={handleDeleteCancel} color="primary" disabled={deleteInvoiceMutation.isPending}>
             Cancel
           </Button>
           <Button
             onClick={handleDeleteConfirm}
             variant="contained"
             disabled={deleteInvoiceMutation.isPending}
+            startIcon={deleteInvoiceMutation.isPending ? <CircularProgress size={20} color="inherit" /> : null}
             sx={{
               backgroundColor: '#F87171',
               color: '#000000',
