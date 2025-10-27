@@ -159,9 +159,28 @@ const InvoiceDetails: React.FC<InvoiceDetailsProps> = ({
             Invoice #{invoice.invoiceNumber}
           </Typography>
           <Chip
-            label={isOverdue(invoice.dueDate) ? 'Overdue' : 'Active'}
-            color={isOverdue(invoice.dueDate) ? 'error' : 'success'}
-            sx={{ ml: 1, fontWeight: 'medium' }}
+            label={
+              invoice.status === 'PAID'
+                ? 'Paid'
+                : invoice.status === 'UNPAID'
+                  ? 'Unpaid'
+                  : invoice.status === 'OVERDUE'
+                    ? 'Overdue'
+                    : 'Unknown'
+            }
+            sx={{
+              ml: 1,
+              fontWeight: 'medium',
+              backgroundColor:
+                invoice.status === 'PAID'
+                  ? '#C71585'
+                  : invoice.status === 'UNPAID'
+                    ? '#FFC0CB'
+                    : invoice.status === 'OVERDUE'
+                      ? '#A9A9A9'
+                      : '#9E9E9E',
+              color: '#000000',
+            }}
             size="small"
           />
         </Box>

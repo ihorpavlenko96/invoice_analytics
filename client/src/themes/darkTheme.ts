@@ -36,6 +36,11 @@ export const darkTheme = createTheme({
     success: {
       main: '#34D399',
     },
+    invoiceStatus: {
+      paid: '#C71585',
+      unpaid: '#FFC0CB',
+      overdue: '#A9A9A9',
+    },
     divider: 'rgba(255, 255, 255, 0.12)',
   },
   typography: {
