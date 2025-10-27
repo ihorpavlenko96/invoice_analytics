@@ -159,19 +159,22 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({
   // Calculate and display the status of an invoice
   const getInvoiceStatus = (invoice: Invoice) => {
     const statusMap = {
-      PAID: { label: 'Paid', color: 'success' as const },
-      UNPAID: { label: 'Unpaid', color: 'warning' as const },
-      OVERDUE: { label: 'Overdue', color: 'error' as const },
+      PAID: { label: 'Paid', color: '#C71585' },
+      UNPAID: { label: 'Unpaid', color: '#FFC0CB' },
+      OVERDUE: { label: 'Overdue', color: '#A9A9A9' },
     };
 
-    const status = statusMap[invoice.status] || { label: 'Unknown', color: 'default' as const };
+    const status = statusMap[invoice.status] || { label: 'Unknown', color: '#9E9E9E' };
 
     return (
       <Chip
         label={status.label}
-        color={status.color}
         size="small"
-        sx={{ fontWeight: 'medium' }}
+        sx={{
+          fontWeight: 'medium',
+          backgroundColor: status.color,
+          color: '#000000',
+        }}
       />
     );
   };
