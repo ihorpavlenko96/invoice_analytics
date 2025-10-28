@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   Box,
   Button,
@@ -12,6 +12,10 @@ import {
   useTheme,
   Grid,
 } from '@mui/material';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import dayjs, { Dayjs } from 'dayjs';
 import { SmartToy as AIIcon, Search as SearchIcon, Download as DownloadIcon, Delete as DeleteIcon } from '@mui/icons-material';
 import { useInvoices } from '../invoiceQueries';
 import InvoiceTable from './InvoiceTable';
@@ -35,6 +39,8 @@ const InvoiceManagementPage: React.FC = () => {
   const [isChatDrawerOpen, setIsChatDrawerOpen] = useState(false);
   const [vendorSearch, setVendorSearch] = useState('');
   const [customerSearch, setCustomerSearch] = useState('');
+  const [dateRangeFrom, setDateRangeFrom] = useState<Dayjs | null>(null);
+  const [dateRangeTo, setDateRangeTo] = useState<Dayjs | null>(null);
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
   const [isExporting, setIsExporting] = useState(false);
@@ -65,6 +71,36 @@ const InvoiceManagementPage: React.FC = () => {
     selectedInvoiceId || '',
   );
 
+  // Apply client-side date filtering
+  const filteredInvoices = useMemo(() => {
+    let filtered = paginatedInvoices.items;
+
+    // Filter by date range if both dates are set
+    if (dateRangeFrom || dateRangeTo) {
+      filtered = filtered.filter((invoice) => {
+        const issueDate = dayjs(invoice.issueDate);
+        const dueDate = dayjs(invoice.dueDate);
+
+        // Check if either issueDate or dueDate falls within the range
+        const isIssueDateInRange =
+          (!dateRangeFrom || issueDate.isAfter(dateRangeFrom.subtract(1, 'day'))) &&
+          (!dateRangeTo || issueDate.isBefore(dateRangeTo.add(1, 'day')));
+
+        const isDueDateInRange =
+          (!dateRangeFrom || dueDate.isAfter(dateRangeFrom.subtract(1, 'day'))) &&
+          (!dateRangeTo || dueDate.isBefore(dateRangeTo.add(1, 'day')));
+
+        return isIssueDateInRange || isDueDateInRange;
+      });
+    }
+
+    return {
+      ...paginatedInvoices,
+      items: filtered,
+      total: filtered.length,
+    };
+  }, [paginatedInvoices, dateRangeFrom, dateRangeTo]);
+
   // Reset highlighted invoice after animation
   useEffect(() => {
     if (highlightedInvoiceId) {
@@ -79,7 +115,7 @@ const InvoiceManagementPage: React.FC = () => {
   // Handle select all click
   const handleSelectAllClick = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.checked) {
-      const newSelecteds = paginatedInvoices.items.map((invoice) => invoice.id);
+      const newSelecteds = filteredInvoices.items.map((invoice) => invoice.id);
       setSelectedInvoiceIds(newSelecteds);
       return;
     }
@@ -331,6 +367,123 @@ const InvoiceManagementPage: React.FC = () => {
                   }}
                 />
               </Grid>
+              {/* Date Range Filters */}
+              <Grid item xs={12} md={6}>
+                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                  <DatePicker
+                    label="Date Range From"
+                    value={dateRangeFrom}
+                    onChange={(newValue) => setDateRangeFrom(newValue)}
+                    slotProps={{
+                      textField: {
+                        fullWidth: true,
+                        size: 'small',
+                        placeholder: 'Select start date...',
+                      },
+                      day: {
+                        sx: {
+                          '&.Mui-selected': {
+                            backgroundColor: '#E91E63 !important',
+                            '&:hover': {
+                              backgroundColor: '#C2185B !important',
+                            },
+                          },
+                          '&:hover': {
+                            backgroundColor: '#FFC0CB',
+                          },
+                        },
+                      },
+                      calendarHeader: {
+                        sx: {
+                          '& .MuiPickersCalendarHeader-switchViewButton': {
+                            color: '#E91E63',
+                          },
+                          '& .MuiPickersArrowSwitcher-button': {
+                            color: '#E91E63',
+                          },
+                        },
+                      },
+                    }}
+                    sx={{
+                      '& .MuiOutlinedInput-root': {
+                        '&.Mui-focused fieldset': {
+                          borderColor: '#E91E63',
+                        },
+                        '&:hover fieldset': {
+                          borderColor: '#FFC0CB',
+                        },
+                      },
+                      '& .MuiInputLabel-root.Mui-focused': {
+                        color: '#E91E63',
+                      },
+                      '& .MuiIconButton-root': {
+                        color: '#E91E63',
+                      },
+                      '& .MuiPickersDay-root.Mui-selected': {
+                        backgroundColor: '#E91E63',
+                      },
+                    }}
+                  />
+                </LocalizationProvider>
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                  <DatePicker
+                    label="Date Range To"
+                    value={dateRangeTo}
+                    onChange={(newValue) => setDateRangeTo(newValue)}
+                    slotProps={{
+                      textField: {
+                        fullWidth: true,
+                        size: 'small',
+                        placeholder: 'Select end date...',
+                      },
+                      day: {
+                        sx: {
+                          '&.Mui-selected': {
+                            backgroundColor: '#E91E63 !important',
+                            '&:hover': {
+                              backgroundColor: '#C2185B !important',
+                            },
+                          },
+                          '&:hover': {
+                            backgroundColor: '#FFC0CB',
+                          },
+                        },
+                      },
+                      calendarHeader: {
+                        sx: {
+                          '& .MuiPickersCalendarHeader-switchViewButton': {
+                            color: '#E91E63',
+                          },
+                          '& .MuiPickersArrowSwitcher-button': {
+                            color: '#E91E63',
+                          },
+                        },
+                      },
+                    }}
+                    sx={{
+                      '& .MuiOutlinedInput-root': {
+                        '&.Mui-focused fieldset': {
+                          borderColor: '#E91E63',
+                        },
+                        '&:hover fieldset': {
+                          borderColor: '#FFC0CB',
+                        },
+                      },
+                      '& .MuiInputLabel-root.Mui-focused': {
+                        color: '#E91E63',
+                      },
+                      '& .MuiIconButton-root': {
+                        color: '#E91E63',
+                      },
+                      '& .MuiPickersDay-root.Mui-selected': {
+                        backgroundColor: '#E91E63',
+                      },
+                    }}
+                  />
+                </LocalizationProvider>
+              </Grid>
             </Grid>
           </Box>
 
@@ -341,7 +494,7 @@ const InvoiceManagementPage: React.FC = () => {
           )}
           {!isInvoicesLoading && (
             <InvoiceTable
-              paginatedData={paginatedInvoices}
+              paginatedData={filteredInvoices}
               isLoading={isInvoicesLoading}
               onViewInvoice={handleViewInvoice}
               highlightedInvoiceId={highlightedInvoiceId}
