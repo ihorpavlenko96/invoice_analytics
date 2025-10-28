@@ -206,8 +206,8 @@ const InvoiceManagementPage: React.FC = () => {
                 startIcon={<AIIcon />}
                 onClick={handleToggleChatDrawer}
                 sx={{
-                  backgroundColor: theme.palette.primary.main,
-                  '&:hover': { backgroundColor: theme.palette.primary.dark },
+                  backgroundColor: '#E91E63',
+                  '&:hover': { backgroundColor: '#C2185B' },
                 }}>
                 AI Assistant
               </Button>
@@ -217,8 +217,8 @@ const InvoiceManagementPage: React.FC = () => {
                 onClick={handleExportToExcel}
                 disabled={isExporting}
                 sx={{
-                  backgroundColor: theme.palette.primary.main,
-                  '&:hover': { backgroundColor: theme.palette.primary.dark },
+                  backgroundColor: '#E91E63',
+                  '&:hover': { backgroundColor: '#C2185B' },
                 }}>
                 {isExporting ? 'Exporting...' : 'Export to Excel'}
               </Button>
