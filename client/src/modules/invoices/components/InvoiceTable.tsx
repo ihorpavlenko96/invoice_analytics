@@ -272,7 +272,11 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({
                 <TableSortLabel
                   active={sortBy === 'invoiceNumber'}
                   direction={sortBy === 'invoiceNumber' ? sortOrder : 'asc'}
-                  onClick={() => handleSort('invoiceNumber')}>
+                  onClick={() => handleSort('invoiceNumber')}
+                  sx={{
+                    '& .MuiTableSortLabel-icon': { color: '#EC4899 !important' },
+                    '&.Mui-active .MuiTableSortLabel-icon': { color: '#EC4899 !important' },
+                  }}>
                   Invoice #
                 </TableSortLabel>
               </TableCell>
@@ -280,7 +284,11 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({
                 <TableSortLabel
                   active={sortBy === 'vendorName'}
                   direction={sortBy === 'vendorName' ? sortOrder : 'asc'}
-                  onClick={() => handleSort('vendorName')}>
+                  onClick={() => handleSort('vendorName')}
+                  sx={{
+                    '& .MuiTableSortLabel-icon': { color: '#EC4899 !important' },
+                    '&.Mui-active .MuiTableSortLabel-icon': { color: '#EC4899 !important' },
+                  }}>
                   Vendor
                 </TableSortLabel>
               </TableCell>
@@ -288,7 +296,11 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({
                 <TableSortLabel
                   active={sortBy === 'customerName'}
                   direction={sortBy === 'customerName' ? sortOrder : 'asc'}
-                  onClick={() => handleSort('customerName')}>
+                  onClick={() => handleSort('customerName')}
+                  sx={{
+                    '& .MuiTableSortLabel-icon': { color: '#EC4899 !important' },
+                    '&.Mui-active .MuiTableSortLabel-icon': { color: '#EC4899 !important' },
+                  }}>
                   Customer
                 </TableSortLabel>
               </TableCell>
@@ -296,7 +308,11 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({
                 <TableSortLabel
                   active={sortBy === 'issueDate'}
                   direction={sortBy === 'issueDate' ? sortOrder : 'asc'}
-                  onClick={() => handleSort('issueDate')}>
+                  onClick={() => handleSort('issueDate')}
+                  sx={{
+                    '& .MuiTableSortLabel-icon': { color: '#EC4899 !important' },
+                    '&.Mui-active .MuiTableSortLabel-icon': { color: '#EC4899 !important' },
+                  }}>
                   Issue Date
                 </TableSortLabel>
               </TableCell>
@@ -304,7 +320,11 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({
                 <TableSortLabel
                   active={sortBy === 'dueDate'}
                   direction={sortBy === 'dueDate' ? sortOrder : 'asc'}
-                  onClick={() => handleSort('dueDate')}>
+                  onClick={() => handleSort('dueDate')}
+                  sx={{
+                    '& .MuiTableSortLabel-icon': { color: '#EC4899 !important' },
+                    '&.Mui-active .MuiTableSortLabel-icon': { color: '#EC4899 !important' },
+                  }}>
                   Due Date
                 </TableSortLabel>
               </TableCell>
@@ -312,7 +332,11 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({
                 <TableSortLabel
                   active={sortBy === 'totalAmount'}
                   direction={sortBy === 'totalAmount' ? sortOrder : 'asc'}
-                  onClick={() => handleSort('totalAmount')}>
+                  onClick={() => handleSort('totalAmount')}
+                  sx={{
+                    '& .MuiTableSortLabel-icon': { color: '#EC4899 !important' },
+                    '&.Mui-active .MuiTableSortLabel-icon': { color: '#EC4899 !important' },
+                  }}>
                   Total Amount
                 </TableSortLabel>
               </TableCell>
@@ -320,7 +344,11 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({
                 <TableSortLabel
                   active={sortBy === 'currency'}
                   direction={sortBy === 'currency' ? sortOrder : 'asc'}
-                  onClick={() => handleSort('currency')}>
+                  onClick={() => handleSort('currency')}
+                  sx={{
+                    '& .MuiTableSortLabel-icon': { color: '#EC4899 !important' },
+                    '&.Mui-active .MuiTableSortLabel-icon': { color: '#EC4899 !important' },
+                  }}>
                   Currency
                 </TableSortLabel>
               </TableCell>
@@ -328,7 +356,11 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({
                 <TableSortLabel
                   active={sortBy === 'daysOverdue'}
                   direction={sortBy === 'daysOverdue' ? sortOrder : 'asc'}
-                  onClick={() => handleSort('daysOverdue')}>
+                  onClick={() => handleSort('daysOverdue')}
+                  sx={{
+                    '& .MuiTableSortLabel-icon': { color: '#EC4899 !important' },
+                    '&.Mui-active .MuiTableSortLabel-icon': { color: '#EC4899 !important' },
+                  }}>
                   Days Overdue
                 </TableSortLabel>
               </TableCell>
@@ -336,7 +368,11 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({
                 <TableSortLabel
                   active={sortBy === 'status'}
                   direction={sortBy === 'status' ? sortOrder : 'asc'}
-                  onClick={() => handleSort('status')}>
+                  onClick={() => handleSort('status')}
+                  sx={{
+                    '& .MuiTableSortLabel-icon': { color: '#EC4899 !important' },
+                    '&.Mui-active .MuiTableSortLabel-icon': { color: '#EC4899 !important' },
+                  }}>
                   Status
                 </TableSortLabel>
               </TableCell>
