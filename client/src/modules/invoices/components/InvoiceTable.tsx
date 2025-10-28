@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
   Table,
   TableBody,
@@ -6,6 +6,7 @@ import {
   TableContainer,
   TableHead,
   TableRow,
+  TableSortLabel,
   IconButton,
   Tooltip,
   TablePagination,
@@ -74,6 +75,86 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({
   const totalCount = paginatedData?.total || 0;
   const page = paginatedData?.page ? paginatedData.page - 1 : 0; // Convert to 0-based for MUI
   const rowsPerPage = paginatedData?.limit || 10;
+
+  type SortOrder = 'asc' | 'desc';
+  type ColumnKey =
+    | 'invoiceNumber'
+    | 'vendorName'
+    | 'customerName'
+    | 'issueDate'
+    | 'dueDate'
+    | 'totalAmount'
+    | 'currency'
+    | 'daysOverdue'
+    | 'status';
+
+  const [sortBy, setSortBy] = useState<ColumnKey | null>(null);
+  const [sortOrder, setSortOrder] = useState<SortOrder>('asc');
+
+  const getComparableValue = (inv: Invoice, key: ColumnKey): number | string | null => {
+    switch (key) {
+      case 'invoiceNumber':
+        return inv.invoiceNumber?.toString().toLowerCase() ?? '';
+      case 'vendorName':
+        return inv.vendorName?.toLowerCase() ?? '';
+      case 'customerName':
+        return inv.customerName?.toLowerCase() ?? '';
+      case 'issueDate':
+        return inv.issueDate ? new Date(inv.issueDate).getTime() : null;
+      case 'dueDate':
+        return inv.dueDate ? new Date(inv.dueDate).getTime() : null;
+      case 'totalAmount': {
+        const n = Number(inv.totalAmount);
+        return isNaN(n) ? 0 : n;
+      }
+      case 'currency':
+        return inv.currency?.toUpperCase() ?? '';
+      case 'daysOverdue': {
+        const n = Number(inv.daysOverdue);
+        return isNaN(n) ? 0 : n;
+      }
+      case 'status':
+        return inv.status?.toString().toUpperCase() ?? '';
+      default:
+        return '';
+    }
+  };
+
+  const sortedInvoices = useMemo(() => {
+    if (!sortBy) return invoices;
+    const copy = [...invoices];
+    copy.sort((a, b) => {
+      const aVal = getComparableValue(a, sortBy);
+      const bVal = getComparableValue(b, sortBy);
+
+      if (aVal == null && bVal == null) return 0;
+      if (aVal == null) return 1;
+      if (bVal == null) return -1;
+
+      let cmp: number;
+      if (typeof aVal === 'number' && typeof bVal === 'number') {
+        cmp = aVal - bVal;
+      } else {
+        cmp = String(aVal).localeCompare(String(bVal));
+      }
+
+      return sortOrder === 'asc' ? cmp : -cmp;
+    });
+    return copy;
+  }, [invoices, sortBy, sortOrder]);
+
+  const handleSort = (column: ColumnKey) => {
+    if (sortBy === column) {
+      setSortOrder(prev => (prev === 'asc' ? 'desc' : 'asc'));
+    } else {
+      setSortBy(column);
+      if (column === 'issueDate' || column === 'dueDate') {
+        setSortOrder('desc');
+      } else {
+        setSortOrder('asc');
+      }
+    }
+  };
 
   const handleChangePage = (_: unknown, newPage: number) => {
     onPageChange(newPage + 1); // Convert back to 1-based for API
@@ -202,15 +283,87 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({
                   borderBottom: theme => `1px solid ${theme.palette.divider}`,
                 },
               }}>
-              <TableCell>Invoice #</TableCell>
-              <TableCell>Vendor</TableCell>
-              <TableCell>Customer</TableCell>
-              <TableCell>Issue Date</TableCell>
-              <TableCell>Due Date</TableCell>
-              <TableCell>Total Amount</TableCell>
-              <TableCell>Currency</TableCell>
-              <TableCell>Days Overdue</TableCell>
-              <TableCell>Status</TableCell>
+              <TableCell sortDirection={sortBy === 'invoiceNumber' ? sortOrder : false}>
+                <TableSortLabel
+                  active={sortBy === 'invoiceNumber'}
+                  direction={sortBy === 'invoiceNumber' ? sortOrder : 'asc'}
+                  onClick={() => handleSort('invoiceNumber')}
+                >
+                  Invoice #
+                </TableSortLabel>
+              </TableCell>
+              <TableCell sortDirection={sortBy === 'vendorName' ? sortOrder : false}>
+                <TableSortLabel
+                  active={sortBy === 'vendorName'}
+                  direction={sortBy === 'vendorName' ? sortOrder : 'asc'}
+                  onClick={() => handleSort('vendorName')}
+                >
+                  Vendor
+                </TableSortLabel>
+              </TableCell>
+              <TableCell sortDirection={sortBy === 'customerName' ? sortOrder : false}>
+                <TableSortLabel
+                  active={sortBy === 'customerName'}
+                  direction={sortBy === 'customerName' ? sortOrder : 'asc'}
+                  onClick={() => handleSort('customerName')}
+                >
+                  Customer
+                </TableSortLabel>
+              </TableCell>
+              <TableCell sortDirection={sortBy === 'issueDate' ? sortOrder : false}>
+                <TableSortLabel
+                  active={sortBy === 'issueDate'}
+                  direction={sortBy === 'issueDate' ? sortOrder : 'desc'}
+                  onClick={() => handleSort('issueDate')}
+                >
+                  Issue Date
+                </TableSortLabel>
+              </TableCell>
+              <TableCell sortDirection={sortBy === 'dueDate' ? sortOrder : false}>
+                <TableSortLabel
+                  active={sortBy === 'dueDate'}
+                  direction={sortBy === 'dueDate' ? sortOrder : 'desc'}
+                  onClick={() => handleSort('dueDate')}
+                >
+                  Due Date
+                </TableSortLabel>
+              </TableCell>
+              <TableCell sortDirection={sortBy === 'totalAmount' ? sortOrder : false}>
+                <TableSortLabel
+                  active={sortBy === 'totalAmount'}
+                  direction={sortBy === 'totalAmount' ? sortOrder : 'asc'}
+                  onClick={() => handleSort('totalAmount')}
+                >
+                  Total Amount
+                </TableSortLabel>
+              </TableCell>
+              <TableCell sortDirection={sortBy === 'currency' ? sortOrder : false}>
+                <TableSortLabel
+                  active={sortBy === 'currency'}
+                  direction={sortBy === 'currency' ? sortOrder : 'asc'}
+                  onClick={() => handleSort('currency')}
+                >
+                  Currency
+                </TableSortLabel>
+              </TableCell>
+              <TableCell sortDirection={sortBy === 'daysOverdue' ? sortOrder : false}>
+                <TableSortLabel
+                  active={sortBy === 'daysOverdue'}
+                  direction={sortBy === 'daysOverdue' ? sortOrder : 'asc'}
+                  onClick={() => handleSort('daysOverdue')}
+                >
+                  Days Overdue
+                </TableSortLabel>
+              </TableCell>
+              <TableCell sortDirection={sortBy === 'status' ? sortOrder : false}>
+                <TableSortLabel
+                  active={sortBy === 'status'}
+                  direction={sortBy === 'status' ? sortOrder : 'asc'}
+                  onClick={() => handleSort('status')}
+                >
+                  Status
+                </TableSortLabel>
+              </TableCell>
               <TableCell align="right">Actions</TableCell>
             </TableRow>
           </TableHead>
@@ -240,7 +393,7 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({
                 </TableRow>
               ))
             ) : invoices.length > 0 ? (
-              invoices.map((invoice) => (
+              sortedInvoices.map((invoice) => (
                 <TableRow
                   key={invoice.id}
                   sx={{
