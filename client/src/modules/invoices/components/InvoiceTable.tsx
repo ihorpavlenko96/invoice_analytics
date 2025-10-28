@@ -21,6 +21,7 @@ import {
   TableSortLabel,
   Skeleton,
   keyframes,
+  Checkbox,
 } from '@mui/material';
 import {
   Visibility as ViewIcon,
@@ -52,6 +53,9 @@ interface InvoiceTableProps {
   highlightedInvoiceId: string | null;
   onPageChange: (page: number) => void;
   onRowsPerPageChange: (rowsPerPage: number) => void;
+  selectedInvoices: string[];
+  onSelectAllClick: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  onSelectOneClick: (event: React.ChangeEvent<HTMLInputElement>, id: string) => void;
 }
 
 /**
@@ -64,6 +68,9 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({
   highlightedInvoiceId,
   onPageChange,
   onRowsPerPageChange,
+  selectedInvoices,
+  onSelectAllClick,
+  onSelectOneClick,
 }) => {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [invoiceToDelete, setInvoiceToDelete] = useState<string | null>(null);
@@ -284,6 +291,17 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({
                   borderBottom: theme => `1px solid ${theme.palette.divider}`,
                 },
               }}>
+              <TableCell padding="checkbox">
+                <Checkbox
+                  color="primary"
+                  indeterminate={
+                    selectedInvoices.length > 0 && selectedInvoices.length < invoices.length
+                  }
+                  checked={invoices.length > 0 && selectedInvoices.length === invoices.length}
+                  onChange={onSelectAllClick}
+                  inputProps={{ 'aria-label': 'select all invoices' }}
+                />
+              </TableCell>
               <TableCell sortDirection={sortBy === 'invoiceNumber' ? sortOrder : false}>
                 <TableSortLabel
                   active={sortBy === 'invoiceNumber'}
@@ -416,6 +434,17 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({
                     }),
                   }}
                   onClick={() => onViewInvoice(invoice.id)}>
+                  <TableCell padding="checkbox">
+                    <Checkbox
+                      color="primary"
+                      checked={selectedInvoices.includes(invoice.id)}
+                      onChange={(event) => {
+                        event.stopPropagation();
+                        onSelectOneClick(event, invoice.id);
+                      }}
+                      onClick={(event) => event.stopPropagation()}
+                    />
+                  </TableCell>
                   <TableCell>
                     <Typography fontWeight="medium">{invoice.invoiceNumber}</Typography>
                   </TableCell>
@@ -456,7 +485,7 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={10} align="center" sx={{ py: 3 }}>
+                <TableCell colSpan={11} align="center" sx={{ py: 3 }}>
                   No invoices found.
                 </TableCell>
               </TableRow>
@@ -471,7 +500,7 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({
                     borderTop: theme => `2px solid ${theme.palette.divider}`,
                   },
                 }}>
-                <TableCell colSpan={5}>
+                <TableCell colSpan={6}>
                   <Typography variant="body1" fontWeight="bold">
                     Page Total ({invoices.length} invoices)
                   </Typography>

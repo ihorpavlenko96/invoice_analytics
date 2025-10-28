@@ -12,13 +12,20 @@ import {
   useTheme,
   Grid,
 } from '@mui/material';
-import { SmartToy as AIIcon, Search as SearchIcon, Download as DownloadIcon } from '@mui/icons-material';
-import { useInvoices } from '../invoiceQueries';
+import {
+  SmartToy as AIIcon,
+  Search as SearchIcon,
+  Download as DownloadIcon,
+  Delete as DeleteIcon,
+} from '@mui/icons-material';
+import { useInvoices, useInvoice } from '../invoiceQueries';
 import InvoiceTable from './InvoiceTable';
 import InvoiceDetails from './InvoiceDetails';
 import ChatDrawer from './ChatDrawer';
-import { useInvoice } from '../invoiceQueries';
 import { useUser } from '@clerk/clerk-react';
+import { useDeleteMultipleInvoices } from '../invoiceMutations';
+import ConfirmationDialog from '../../../common/components/ConfirmationDialog';
+import { useSnackbar } from 'notistack';
 import { PaginatedResponseDto, invoiceService } from '../services/invoiceService';
 import { Invoice } from '../types/invoice';
 
@@ -28,6 +35,8 @@ import { Invoice } from '../types/invoice';
  */
 const InvoiceManagementPage: React.FC = () => {
   const [selectedInvoiceId, setSelectedInvoiceId] = useState<string | null>(null);
+  const [selectedInvoiceIds, setSelectedInvoiceIds] = useState<string[]>([]);
+  const [isConfirmBulkDeleteDialogOpen, setConfirmBulkDeleteDialogOpen] = useState(false);
   const [highlightedInvoiceId, setHighlightedInvoiceId] = useState<string | null>(null);
   const [isChatDrawerOpen, setIsChatDrawerOpen] = useState(false);
   const [vendorSearch, setVendorSearch] = useState('');
@@ -40,6 +49,8 @@ const InvoiceManagementPage: React.FC = () => {
   const { user } = useUser();
   const userRoles = (user?.publicMetadata?.roles as string[]) || [];
   const isSuperAdmin = userRoles.includes('Super Admin');
+  const { enqueueSnackbar } = useSnackbar();
+  const deleteMultipleInvoicesMutation = useDeleteMultipleInvoices();
 
   // Fetch all invoices with pagination
   const {
@@ -94,12 +105,59 @@ const InvoiceManagementPage: React.FC = () => {
   // Handle page change
   const handlePageChange = (newPage: number) => {
     setPage(newPage);
+    setSelectedInvoiceIds([]);
   };
 
   // Handle rows per page change
   const handleRowsPerPageChange = (newLimit: number) => {
     setLimit(newLimit);
     setPage(1); // Reset to first page when changing limit
+    setSelectedInvoiceIds([]);
+  };
+
+  const handleSelectAllClick = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.checked) {
+      const newSelecteds = paginatedInvoices.items.map((invoice) => invoice.id);
+      setSelectedInvoiceIds(newSelecteds);
+      return;
+    }
+    setSelectedInvoiceIds([]);
+  };
+
+  const handleSelectOneClick = (_event: React.ChangeEvent<HTMLInputElement>, id: string) => {
+    const selectedIndex = selectedInvoiceIds.indexOf(id);
+    let newSelected: string[] = [];
+
+    if (selectedIndex === -1) {
+      newSelected = newSelected.concat(selectedInvoiceIds, id);
+    } else if (selectedIndex === 0) {
+      newSelected = newSelected.concat(selectedInvoiceIds.slice(1));
+    } else if (selectedIndex === selectedInvoiceIds.length - 1) {
+      newSelected = newSelected.concat(selectedInvoiceIds.slice(0, -1));
+    } else if (selectedIndex > 0) {
+      newSelected = newSelected.concat(
+        selectedInvoiceIds.slice(0, selectedIndex),
+        selectedInvoiceIds.slice(selectedIndex + 1),
+      );
+    }
+    setSelectedInvoiceIds(newSelected);
+  };
+
+  const handleBulkDelete = () => {
+    deleteMultipleInvoicesMutation.mutate(selectedInvoiceIds, {
+      onSuccess: () => {
+        enqueueSnackbar(`${selectedInvoiceIds.length} invoices deleted successfully`, {
+          variant: 'success',
+        });
+        setSelectedInvoiceIds([]);
+        setConfirmBulkDeleteDialogOpen(false);
+      },
+      onError: (error) => {
+        console.error('Error deleting invoices:', error);
+        enqueueSnackbar('Failed to delete invoices', { variant: 'error' });
+        setConfirmBulkDeleteDialogOpen(false);
+      },
+    });
   };
 
   // Handle export to Excel
@@ -201,6 +259,19 @@ const InvoiceManagementPage: React.FC = () => {
           }
           action={
             <Box sx={{ display: 'flex', flexDirection: 'row', gap: 2 }}>
+              {selectedInvoiceIds.length > 0 && (
+                <Button
+                  variant="contained"
+                  color="error"
+                  startIcon={<DeleteIcon />}
+                  onClick={() => setConfirmBulkDeleteDialogOpen(true)}
+                  sx={{
+                    backgroundColor: theme.palette.error.main,
+                    '&:hover': { backgroundColor: theme.palette.error.dark },
+                  }}>
+                  Delete Selected ({selectedInvoiceIds.length})
+                </Button>
+              )}
               <Button
                 variant="contained"
                 startIcon={<AIIcon />}
@@ -279,6 +350,9 @@ const InvoiceManagementPage: React.FC = () => {
               highlightedInvoiceId={highlightedInvoiceId}
               onPageChange={handlePageChange}
               onRowsPerPageChange={handleRowsPerPageChange}
+              selectedInvoices={selectedInvoiceIds}
+              onSelectAllClick={handleSelectAllClick}
+              onSelectOneClick={handleSelectOneClick}
             />
           )}
         </CardContent>
@@ -289,6 +363,18 @@ const InvoiceManagementPage: React.FC = () => {
         open={isChatDrawerOpen}
         onClose={() => setIsChatDrawerOpen(false)}
         onHighlightInvoice={handleHighlightInvoice}
+      />
+      <ConfirmationDialog
+        open={isConfirmBulkDeleteDialogOpen}
+        onClose={() => setConfirmBulkDeleteDialogOpen(false)}
+        onConfirm={handleBulkDelete}
+        title="Confirm Bulk Delete"
+        message={`Are you sure you want to delete ${selectedInvoiceIds.length} selected invoices? This action cannot be undone.`}
+        confirmText={deleteMultipleInvoicesMutation.isPending ? 'Deleting...' : 'Delete'}
+        confirmButtonProps={{
+          color: 'error',
+          disabled: deleteMultipleInvoicesMutation.isPending,
+        }}
       />
     </Box>
   );

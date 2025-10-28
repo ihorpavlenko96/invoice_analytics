@@ -20,6 +20,23 @@ export const useDeleteInvoice = () => {
 };
 
 /**
+ * Hook to bulk delete invoices
+ */
+export const useDeleteMultipleInvoices = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (ids: string[]) => invoiceService.deleteMultipleInvoices(ids),
+    onSuccess: () => {
+      // Invalidate and refetch invoices list
+      queryClient.invalidateQueries({
+        queryKey: invoiceKeys.lists(),
+      });
+    },
+  });
+};
+
+/**
  * Hook to import an invoice from a file
  */
 export const useImportInvoice = () => {
