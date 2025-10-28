@@ -263,9 +263,8 @@ const InvoiceManagementPage: React.FC = () => {
                   startIcon={<DeleteIcon />}
                   onClick={() => setIsConfirmBulkDeleteDialogOpen(true)}
                   sx={{
-                    backgroundColor: '#F87171',
-                    color: '#000000',
-                    '&:hover': { backgroundColor: '#DC2626' },
+                    backgroundColor: '#E91E63',
+                    '&:hover': { backgroundColor: '#C2185B' },
                   }}>
                   Delete ({selectedInvoiceIds.length})
                 </Button>
@@ -375,9 +374,8 @@ const InvoiceManagementPage: React.FC = () => {
           variant: 'contained',
           disabled: deleteMultipleInvoicesMutation.isPending,
           sx: {
-            backgroundColor: '#F87171',
-            color: '#000000',
-            '&:hover': { backgroundColor: '#DC2626' },
+            backgroundColor: '#E91E63',
+            '&:hover': { backgroundColor: '#C2185B' },
           },
         }}
       />
