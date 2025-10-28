@@ -35,3 +35,20 @@ export const useImportInvoice = () => {
     },
   });
 };
+
+/**
+ * Hook to delete multiple invoices
+ */
+export const useDeleteMultipleInvoices = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (ids: string[]) => invoiceService.deleteMultipleInvoices(ids),
+    onSuccess: () => {
+      // Invalidate and refetch invoices list
+      queryClient.invalidateQueries({
+        queryKey: invoiceKeys.lists(),
+      });
+    },
+  });
+};

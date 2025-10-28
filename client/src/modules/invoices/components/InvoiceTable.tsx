@@ -21,6 +21,7 @@ import {
   TableSortLabel,
   Skeleton,
   keyframes,
+  Checkbox,
 } from '@mui/material';
 import {
   Visibility as ViewIcon,
@@ -52,6 +53,9 @@ interface InvoiceTableProps {
   highlightedInvoiceId: string | null;
   onPageChange: (page: number) => void;
   onRowsPerPageChange: (rowsPerPage: number) => void;
+  selectedInvoices: string[];
+  onSelectAllClick: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  onSelectOneClick: (id: string) => void;
 }
 
 /**
@@ -64,6 +68,9 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({
   highlightedInvoiceId,
   onPageChange,
   onRowsPerPageChange,
+  selectedInvoices,
+  onSelectAllClick,
+  onSelectOneClick,
 }) => {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [invoiceToDelete, setInvoiceToDelete] = useState<string | null>(null);
@@ -284,6 +291,19 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({
                   borderBottom: theme => `1px solid ${theme.palette.divider}`,
                 },
               }}>
+              <TableCell padding="checkbox">
+                <Checkbox
+                  color="primary"
+                  indeterminate={
+                    selectedInvoices.length > 0 && selectedInvoices.length < invoices.length
+                  }
+                  checked={invoices.length > 0 && selectedInvoices.length === invoices.length}
+                  onChange={onSelectAllClick}
+                  inputProps={{
+                    'aria-label': 'select all invoices on this page',
+                  }}
+                />
+              </TableCell>
               <TableCell sortDirection={sortBy === 'invoiceNumber' ? sortOrder : false}>
                 <TableSortLabel
                   active={sortBy === 'invoiceNumber'}
@@ -395,6 +415,9 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({
               // Loading skeletons
               Array.from(new Array(5)).map((_, index) => (
                 <TableRow key={`skeleton-${index}`}>
+                  <TableCell padding="checkbox">
+                    <Skeleton animation="wave" variant="rectangular" width={18} height={18} />
+                  </TableCell>
                   {Array.from(new Array(10)).map((_, cellIndex) => (
                     <TableCell key={`cell-${index}-${cellIndex}`}>
                       <Skeleton animation="wave" />
@@ -403,23 +426,36 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({
                 </TableRow>
               ))
             ) : invoices.length > 0 ? (
-              sortedInvoices.map((invoice) => (
-                <TableRow
-                  key={invoice.id}
-                  sx={{
-                    cursor: 'pointer',
-                    '&:hover': {
-                      backgroundColor: 'action.hover',
-                    },
-                    ...(highlightedInvoiceId === invoice.id && {
-                      animation: `${pulseAnimation} 2s ease-in-out`,
-                    }),
-                  }}
-                  onClick={() => onViewInvoice(invoice.id)}>
-                  <TableCell>
-                    <Typography fontWeight="medium">{invoice.invoiceNumber}</Typography>
-                  </TableCell>
-                  <TableCell>{invoice.vendorName}</TableCell>
+              sortedInvoices.map((invoice) => {
+                const isItemSelected = selectedInvoices.indexOf(invoice.id) !== -1;
+                return (
+                  <TableRow
+                    hover
+                    onClick={() => onSelectOneClick(invoice.id)}
+                    role="checkbox"
+                    aria-checked={isItemSelected}
+                    tabIndex={-1}
+                    key={invoice.id}
+                    selected={isItemSelected}
+                    sx={{
+                      cursor: 'pointer',
+                      ...(highlightedInvoiceId === invoice.id && {
+                        animation: `${pulseAnimation} 2s ease-in-out`,
+                      }),
+                    }}>
+                    <TableCell padding="checkbox">
+                      <Checkbox
+                        color="primary"
+                        checked={isItemSelected}
+                        inputProps={{
+                          'aria-labelledby': `invoice-table-checkbox-${invoice.id}`,
+                        }}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <Typography fontWeight="medium">{invoice.invoiceNumber}</Typography>
+                    </TableCell>
+                    <TableCell>{invoice.vendorName}</TableCell>
                   <TableCell>{invoice.customerName}</TableCell>
                   <TableCell>{formatDate(invoice.issueDate)}</TableCell>
                   <TableCell>{formatDate(invoice.dueDate)}</TableCell>
@@ -452,11 +488,12 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({
                       </Tooltip>
                     </Box>
                   </TableCell>
-                </TableRow>
-              ))
+                  </TableRow>
+                );
+              })
             ) : (
               <TableRow>
-                <TableCell colSpan={10} align="center" sx={{ py: 3 }}>
+                <TableCell colSpan={11} align="center" sx={{ py: 3 }}>
                   No invoices found.
                 </TableCell>
               </TableRow>
@@ -471,7 +508,7 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({
                     borderTop: theme => `2px solid ${theme.palette.divider}`,
                   },
                 }}>
-                <TableCell colSpan={5}>
+                <TableCell colSpan={6}>
                   <Typography variant="body1" fontWeight="bold">
                     Page Total ({invoices.length} invoices)
                   </Typography>

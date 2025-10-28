@@ -12,7 +12,7 @@ import {
   useTheme,
   Grid,
 } from '@mui/material';
-import { SmartToy as AIIcon, Search as SearchIcon, Download as DownloadIcon } from '@mui/icons-material';
+import { SmartToy as AIIcon, Search as SearchIcon, Download as DownloadIcon, Delete as DeleteIcon } from '@mui/icons-material';
 import { useInvoices } from '../invoiceQueries';
 import InvoiceTable from './InvoiceTable';
 import InvoiceDetails from './InvoiceDetails';
@@ -21,6 +21,9 @@ import { useInvoice } from '../invoiceQueries';
 import { useUser } from '@clerk/clerk-react';
 import { PaginatedResponseDto, invoiceService } from '../services/invoiceService';
 import { Invoice } from '../types/invoice';
+import { useDeleteMultipleInvoices } from '../invoiceMutations';
+import ConfirmationDialog from '../../../common/components/ConfirmationDialog';
+import { useSnackbar } from 'notistack';
 
 /**
  * Main invoice management page
@@ -35,7 +38,11 @@ const InvoiceManagementPage: React.FC = () => {
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
   const [isExporting, setIsExporting] = useState(false);
+  const [selectedInvoiceIds, setSelectedInvoiceIds] = useState<string[]>([]);
+  const [isConfirmBulkDeleteDialogOpen, setIsConfirmBulkDeleteDialogOpen] = useState(false);
   const theme = useTheme();
+  const { enqueueSnackbar } = useSnackbar();
+  const deleteMultipleInvoicesMutation = useDeleteMultipleInvoices();
 
   const { user } = useUser();
   const userRoles = (user?.publicMetadata?.roles as string[]) || [];
@@ -68,6 +75,55 @@ const InvoiceManagementPage: React.FC = () => {
       return () => clearTimeout(timer);
     }
   }, [highlightedInvoiceId]);
+
+  // Handle select all click
+  const handleSelectAllClick = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.checked) {
+      const newSelecteds = paginatedInvoices.items.map((invoice) => invoice.id);
+      setSelectedInvoiceIds(newSelecteds);
+      return;
+    }
+    setSelectedInvoiceIds([]);
+  };
+
+  // Handle select one invoice
+  const handleSelectOneClick = (id: string) => {
+    const selectedIndex = selectedInvoiceIds.indexOf(id);
+    let newSelected: string[] = [];
+
+    if (selectedIndex === -1) {
+      newSelected = newSelected.concat(selectedInvoiceIds, id);
+    } else if (selectedIndex === 0) {
+      newSelected = newSelected.concat(selectedInvoiceIds.slice(1));
+    } else if (selectedIndex === selectedInvoiceIds.length - 1) {
+      newSelected = newSelected.concat(selectedInvoiceIds.slice(0, -1));
+    } else if (selectedIndex > 0) {
+      newSelected = newSelected.concat(
+        selectedInvoiceIds.slice(0, selectedIndex),
+        selectedInvoiceIds.slice(selectedIndex + 1),
+      );
+    }
+    setSelectedInvoiceIds(newSelected);
+  };
+
+  // Handle bulk delete
+  const handleBulkDelete = () => {
+    deleteMultipleInvoicesMutation.mutate(selectedInvoiceIds, {
+      onSuccess: () => {
+        enqueueSnackbar(`${selectedInvoiceIds.length} invoices deleted successfully.`, {
+          variant: 'success',
+        });
+        setSelectedInvoiceIds([]);
+      },
+      onError: (error) => {
+        console.error('Error deleting invoices:', error);
+        enqueueSnackbar('Failed to delete invoices.', { variant: 'error' });
+      },
+      onSettled: () => {
+        setIsConfirmBulkDeleteDialogOpen(false);
+      },
+    });
+  };
 
   // Handle view invoice
   const handleViewInvoice = (id: string) => {
@@ -201,6 +257,18 @@ const InvoiceManagementPage: React.FC = () => {
           }
           action={
             <Box sx={{ display: 'flex', flexDirection: 'row', gap: 2 }}>
+              {selectedInvoiceIds.length > 0 && (
+                <Button
+                  variant="contained"
+                  startIcon={<DeleteIcon />}
+                  onClick={() => setIsConfirmBulkDeleteDialogOpen(true)}
+                  sx={{
+                    backgroundColor: '#E91E63',
+                    '&:hover': { backgroundColor: '#C2185B' },
+                  }}>
+                  Delete ({selectedInvoiceIds.length})
+                </Button>
+              )}
               <Button
                 variant="contained"
                 startIcon={<AIIcon />}
@@ -279,6 +347,9 @@ const InvoiceManagementPage: React.FC = () => {
               highlightedInvoiceId={highlightedInvoiceId}
               onPageChange={handlePageChange}
               onRowsPerPageChange={handleRowsPerPageChange}
+              selectedInvoices={selectedInvoiceIds}
+              onSelectAllClick={handleSelectAllClick}
+              onSelectOneClick={handleSelectOneClick}
             />
           )}
         </CardContent>
@@ -289,6 +360,24 @@ const InvoiceManagementPage: React.FC = () => {
         open={isChatDrawerOpen}
         onClose={() => setIsChatDrawerOpen(false)}
         onHighlightInvoice={handleHighlightInvoice}
+      />
+
+      {/* Confirmation Dialog for Bulk Delete */}
+      <ConfirmationDialog
+        open={isConfirmBulkDeleteDialogOpen}
+        onClose={() => setIsConfirmBulkDeleteDialogOpen(false)}
+        onConfirm={handleBulkDelete}
+        title="Confirm Bulk Deletion"
+        message={`Are you sure you want to delete ${selectedInvoiceIds.length} selected invoice(s)? This action cannot be undone.`}
+        confirmText={deleteMultipleInvoicesMutation.isPending ? 'Deleting...' : 'Delete'}
+        confirmButtonProps={{
+          variant: 'contained',
+          disabled: deleteMultipleInvoicesMutation.isPending,
+          sx: {
+            backgroundColor: '#E91E63',
+            '&:hover': { backgroundColor: '#C2185B' },
+          },
+        }}
       />
     </Box>
   );

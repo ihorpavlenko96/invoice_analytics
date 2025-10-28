@@ -49,6 +49,15 @@ export const invoiceService = {
   },
 
   /**
+   * Delete multiple invoices by their IDs
+   * @param ids - Array of invoice IDs
+   * @returns Promise<void>
+   */
+  deleteMultipleInvoices: async (ids: string[]): Promise<void> => {
+    await axios.delete('/invoices/bulk', { data: { ids } });
+  },
+
+  /**
    * Import an invoice from a file
    * @param file - Invoice file (XLSX)
    * @returns Promise<void>
