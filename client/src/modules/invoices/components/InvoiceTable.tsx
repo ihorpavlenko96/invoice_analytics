@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
   Table,
   TableBody,
@@ -18,6 +18,7 @@ import {
   DialogTitle,
   Button,
   Chip,
+  TableSortLabel,
   Skeleton,
   keyframes,
 } from '@mui/material';
@@ -75,6 +76,26 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({
   const page = paginatedData?.page ? paginatedData.page - 1 : 0; // Convert to 0-based for MUI
   const rowsPerPage = paginatedData?.limit || 10;
 
+  type SortableColumn =
+    | 'invoiceNumber'
+    | 'vendorName'
+    | 'customerName'
+    | 'issueDate'
+    | 'dueDate'
+    | 'totalAmount'
+    | 'currency'
+    | 'daysOverdue'
+    | 'status';
+
+  const [sortBy, setSortBy] = useState<SortableColumn | null>(null);
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
+
+  const sortLabelSx = {
+    '& .MuiTableSortLabel-icon': {
+      color: '#FFC0CB !important',
+    },
+  };
+
   const handleChangePage = (_: unknown, newPage: number) => {
     onPageChange(newPage + 1); // Convert back to 1-based for API
   };
@@ -110,6 +131,67 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({
     setDeleteDialogOpen(false);
     setInvoiceToDelete(null);
   };
+
+  const handleSort = (column: SortableColumn) => {
+    if (sortBy === column) {
+      setSortOrder((prev) => (prev === 'asc' ? 'desc' : 'asc'));
+    } else {
+      setSortBy(column);
+      setSortOrder('asc');
+    }
+  };
+
+  const sortedInvoices = useMemo(() => {
+    if (!sortBy) return invoices;
+
+    const compareStrings = (aVal: string | null | undefined, bVal: string | null | undefined) => {
+      const a = (aVal ?? '').toString();
+      const b = (bVal ?? '').toString();
+      return a.localeCompare(b, undefined, { sensitivity: 'base' });
+    };
+
+    const compareNumbers = (aVal: number | null | undefined, bVal: number | null | undefined) => {
+      const a = Number.isFinite(aVal as number) ? (aVal as number) : 0;
+      const b = Number.isFinite(bVal as number) ? (bVal as number) : 0;
+      return a - b;
+    };
+
+    const compareDates = (aVal: string | null | undefined, bVal: string | null | undefined) => {
+      const a = aVal ? new Date(aVal).getTime() : 0;
+      const b = bVal ? new Date(bVal).getTime() : 0;
+      return a - b;
+    };
+
+    const sorted = [...invoices].sort((a, b) => {
+      let result = 0;
+
+      switch (sortBy) {
+        case 'issueDate':
+        case 'dueDate':
+          result = compareDates(a[sortBy], b[sortBy]);
+          break;
+        case 'totalAmount':
+        case 'daysOverdue':
+          result = compareNumbers(
+            Number(a[sortBy] as number | string),
+            Number(b[sortBy] as number | string),
+          );
+          break;
+        case 'invoiceNumber':
+        case 'vendorName':
+        case 'customerName':
+        case 'currency':
+        case 'status':
+        default:
+          result = compareStrings(a[sortBy] as string, b[sortBy] as string);
+          break;
+      }
+
+      return sortOrder === 'asc' ? result : -result;
+    });
+
+    return sorted;
+  }, [invoices, sortBy, sortOrder]);
 
   // Format currency with NaN protection
   const formatCurrency = (amount: number, currency: string = 'USD'): string => {
@@ -202,15 +284,96 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({
                   borderBottom: theme => `1px solid ${theme.palette.divider}`,
                 },
               }}>
-              <TableCell>Invoice #</TableCell>
-              <TableCell>Vendor</TableCell>
-              <TableCell>Customer</TableCell>
-              <TableCell>Issue Date</TableCell>
-              <TableCell>Due Date</TableCell>
-              <TableCell>Total Amount</TableCell>
-              <TableCell>Currency</TableCell>
-              <TableCell>Days Overdue</TableCell>
-              <TableCell>Status</TableCell>
+              <TableCell sortDirection={sortBy === 'invoiceNumber' ? sortOrder : false}>
+                <TableSortLabel
+                  active={sortBy === 'invoiceNumber'}
+                  direction={sortBy === 'invoiceNumber' ? sortOrder : 'asc'}
+                  onClick={() => handleSort('invoiceNumber')}
+                  sx={sortLabelSx}
+                >
+                  Invoice #
+                </TableSortLabel>
+              </TableCell>
+              <TableCell sortDirection={sortBy === 'vendorName' ? sortOrder : false}>
+                <TableSortLabel
+                  active={sortBy === 'vendorName'}
+                  direction={sortBy === 'vendorName' ? sortOrder : 'asc'}
+                  onClick={() => handleSort('vendorName')}
+                  sx={sortLabelSx}
+                >
+                  Vendor
+                </TableSortLabel>
+              </TableCell>
+              <TableCell sortDirection={sortBy === 'customerName' ? sortOrder : false}>
+                <TableSortLabel
+                  active={sortBy === 'customerName'}
+                  direction={sortBy === 'customerName' ? sortOrder : 'asc'}
+                  onClick={() => handleSort('customerName')}
+                  sx={sortLabelSx}
+                >
+                  Customer
+                </TableSortLabel>
+              </TableCell>
+              <TableCell sortDirection={sortBy === 'issueDate' ? sortOrder : false}>
+                <TableSortLabel
+                  active={sortBy === 'issueDate'}
+                  direction={sortBy === 'issueDate' ? sortOrder : 'asc'}
+                  onClick={() => handleSort('issueDate')}
+                  sx={sortLabelSx}
+                >
+                  Issue Date
+                </TableSortLabel>
+              </TableCell>
+              <TableCell sortDirection={sortBy === 'dueDate' ? sortOrder : false}>
+                <TableSortLabel
+                  active={sortBy === 'dueDate'}
+                  direction={sortBy === 'dueDate' ? sortOrder : 'asc'}
+                  onClick={() => handleSort('dueDate')}
+                  sx={sortLabelSx}
+                >
+                  Due Date
+                </TableSortLabel>
+              </TableCell>
+              <TableCell sortDirection={sortBy === 'totalAmount' ? sortOrder : false}>
+                <TableSortLabel
+                  active={sortBy === 'totalAmount'}
+                  direction={sortBy === 'totalAmount' ? sortOrder : 'asc'}
+                  onClick={() => handleSort('totalAmount')}
+                  sx={sortLabelSx}
+                >
+                  Total Amount
+                </TableSortLabel>
+              </TableCell>
+              <TableCell sortDirection={sortBy === 'currency' ? sortOrder : false}>
+                <TableSortLabel
+                  active={sortBy === 'currency'}
+                  direction={sortBy === 'currency' ? sortOrder : 'asc'}
+                  onClick={() => handleSort('currency')}
+                  sx={sortLabelSx}
+                >
+                  Currency
+                </TableSortLabel>
+              </TableCell>
+              <TableCell sortDirection={sortBy === 'daysOverdue' ? sortOrder : false}>
+                <TableSortLabel
+                  active={sortBy === 'daysOverdue'}
+                  direction={sortBy === 'daysOverdue' ? sortOrder : 'asc'}
+                  onClick={() => handleSort('daysOverdue')}
+                  sx={sortLabelSx}
+                >
+                  Days Overdue
+                </TableSortLabel>
+              </TableCell>
+              <TableCell sortDirection={sortBy === 'status' ? sortOrder : false}>
+                <TableSortLabel
+                  active={sortBy === 'status'}
+                  direction={sortBy === 'status' ? sortOrder : 'asc'}
+                  onClick={() => handleSort('status')}
+                  sx={sortLabelSx}
+                >
+                  Status
+                </TableSortLabel>
+              </TableCell>
               <TableCell align="right">Actions</TableCell>
             </TableRow>
           </TableHead>
@@ -240,7 +403,7 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({
                 </TableRow>
               ))
             ) : invoices.length > 0 ? (
-              invoices.map((invoice) => (
+              sortedInvoices.map((invoice) => (
                 <TableRow
                   key={invoice.id}
                   sx={{
