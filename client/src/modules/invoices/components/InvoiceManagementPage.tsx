@@ -200,7 +200,7 @@ const InvoiceManagementPage: React.FC = () => {
             </Typography>
           }
           action={
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+            <Box sx={{ display: 'flex', flexDirection: 'row', gap: 2 }}>
               <Button
                 variant="contained"
                 startIcon={<AIIcon />}
