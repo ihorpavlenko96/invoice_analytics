@@ -380,15 +380,47 @@ const InvoiceManagementPage: React.FC = () => {
                         size: 'small',
                         placeholder: 'Select start date...',
                       },
+                      day: {
+                        sx: {
+                          '&.Mui-selected': {
+                            backgroundColor: '#E91E63 !important',
+                            '&:hover': {
+                              backgroundColor: '#C2185B !important',
+                            },
+                          },
+                          '&:hover': {
+                            backgroundColor: '#FFC0CB',
+                          },
+                        },
+                      },
+                      calendarHeader: {
+                        sx: {
+                          '& .MuiPickersCalendarHeader-switchViewButton': {
+                            color: '#E91E63',
+                          },
+                          '& .MuiPickersArrowSwitcher-button': {
+                            color: '#E91E63',
+                          },
+                        },
+                      },
                     }}
                     sx={{
                       '& .MuiOutlinedInput-root': {
                         '&.Mui-focused fieldset': {
                           borderColor: '#E91E63',
                         },
+                        '&:hover fieldset': {
+                          borderColor: '#FFC0CB',
+                        },
                       },
                       '& .MuiInputLabel-root.Mui-focused': {
                         color: '#E91E63',
+                      },
+                      '& .MuiIconButton-root': {
+                        color: '#E91E63',
+                      },
+                      '& .MuiPickersDay-root.Mui-selected': {
+                        backgroundColor: '#E91E63',
                       },
                     }}
                   />
@@ -406,15 +438,47 @@ const InvoiceManagementPage: React.FC = () => {
                         size: 'small',
                         placeholder: 'Select end date...',
                       },
+                      day: {
+                        sx: {
+                          '&.Mui-selected': {
+                            backgroundColor: '#E91E63 !important',
+                            '&:hover': {
+                              backgroundColor: '#C2185B !important',
+                            },
+                          },
+                          '&:hover': {
+                            backgroundColor: '#FFC0CB',
+                          },
+                        },
+                      },
+                      calendarHeader: {
+                        sx: {
+                          '& .MuiPickersCalendarHeader-switchViewButton': {
+                            color: '#E91E63',
+                          },
+                          '& .MuiPickersArrowSwitcher-button': {
+                            color: '#E91E63',
+                          },
+                        },
+                      },
                     }}
                     sx={{
                       '& .MuiOutlinedInput-root': {
                         '&.Mui-focused fieldset': {
                           borderColor: '#E91E63',
                         },
+                        '&:hover fieldset': {
+                          borderColor: '#FFC0CB',
+                        },
                       },
                       '& .MuiInputLabel-root.Mui-focused': {
                         color: '#E91E63',
+                      },
+                      '& .MuiIconButton-root': {
+                        color: '#E91E63',
+                      },
+                      '& .MuiPickersDay-root.Mui-selected': {
+                        backgroundColor: '#E91E63',
                       },
                     }}
                   />
