@@ -90,6 +90,12 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({
   const [sortBy, setSortBy] = useState<SortableColumn | null>(null);
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
 
+  const sortLabelSx = {
+    '& .MuiTableSortLabel-icon': {
+      color: '#FFC0CB !important',
+    },
+  };
+
   const handleChangePage = (_: unknown, newPage: number) => {
     onPageChange(newPage + 1); // Convert back to 1-based for API
   };
@@ -283,6 +289,7 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({
                   active={sortBy === 'invoiceNumber'}
                   direction={sortBy === 'invoiceNumber' ? sortOrder : 'asc'}
                   onClick={() => handleSort('invoiceNumber')}
+                  sx={sortLabelSx}
                 >
                   Invoice #
                 </TableSortLabel>
@@ -292,6 +299,7 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({
                   active={sortBy === 'vendorName'}
                   direction={sortBy === 'vendorName' ? sortOrder : 'asc'}
                   onClick={() => handleSort('vendorName')}
+                  sx={sortLabelSx}
                 >
                   Vendor
                 </TableSortLabel>
@@ -301,6 +309,7 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({
                   active={sortBy === 'customerName'}
                   direction={sortBy === 'customerName' ? sortOrder : 'asc'}
                   onClick={() => handleSort('customerName')}
+                  sx={sortLabelSx}
                 >
                   Customer
                 </TableSortLabel>
@@ -310,6 +319,7 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({
                   active={sortBy === 'issueDate'}
                   direction={sortBy === 'issueDate' ? sortOrder : 'asc'}
                   onClick={() => handleSort('issueDate')}
+                  sx={sortLabelSx}
                 >
                   Issue Date
                 </TableSortLabel>
@@ -319,6 +329,7 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({
                   active={sortBy === 'dueDate'}
                   direction={sortBy === 'dueDate' ? sortOrder : 'asc'}
                   onClick={() => handleSort('dueDate')}
+                  sx={sortLabelSx}
                 >
                   Due Date
                 </TableSortLabel>
@@ -328,6 +339,7 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({
                   active={sortBy === 'totalAmount'}
                   direction={sortBy === 'totalAmount' ? sortOrder : 'asc'}
                   onClick={() => handleSort('totalAmount')}
+                  sx={sortLabelSx}
                 >
                   Total Amount
                 </TableSortLabel>
@@ -337,6 +349,7 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({
                   active={sortBy === 'currency'}
                   direction={sortBy === 'currency' ? sortOrder : 'asc'}
                   onClick={() => handleSort('currency')}
+                  sx={sortLabelSx}
                 >
                   Currency
                 </TableSortLabel>
@@ -346,6 +359,7 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({
                   active={sortBy === 'daysOverdue'}
                   direction={sortBy === 'daysOverdue' ? sortOrder : 'asc'}
                   onClick={() => handleSort('daysOverdue')}
+                  sx={sortLabelSx}
                 >
                   Days Overdue
                 </TableSortLabel>
@@ -355,6 +369,7 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({
                   active={sortBy === 'status'}
                   direction={sortBy === 'status' ? sortOrder : 'asc'}
                   onClick={() => handleSort('status')}
+                  sx={sortLabelSx}
                 >
                   Status
                 </TableSortLabel>
