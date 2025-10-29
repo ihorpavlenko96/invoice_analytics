@@ -328,7 +328,11 @@ const InvoiceManagementPage: React.FC = () => {
             <Grid container spacing={2} alignItems="center">
               {/* Search + Date Range in one line */}
               <Grid item xs={12} md={6}>
-                <UnifiedSearchBar onSearch={handleSearch} onAiSearch={handleAiSearch} />
+                <UnifiedSearchBar
+                  onSearch={handleSearch}
+                  onAiSearch={handleAiSearch}
+                  placeholder="Search by vendor/customer"
+                />
               </Grid>
               <Grid item xs={12} md={3}>
                 <LocalizationProvider dateAdapter={AdapterDayjs}>
