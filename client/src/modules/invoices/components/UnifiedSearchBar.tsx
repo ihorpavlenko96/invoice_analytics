@@ -52,6 +52,7 @@ const UnifiedSearchBar: React.FC<UnifiedSearchBarProps> = ({
     <TextField
       fullWidth
       variant="outlined"
+      size="small"
       placeholder={placeholder}
       value={query}
       onChange={(e) => setQuery(e.target.value)}
