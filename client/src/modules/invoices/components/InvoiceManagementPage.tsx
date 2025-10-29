@@ -300,9 +300,15 @@ const InvoiceManagementPage: React.FC = () => {
         }}>
         <CardHeader
           title={
-            <Typography variant="h5" component="h1" sx={{ fontWeight: 'bold' }}>
-              Invoice Management
-            </Typography>
+            selectedInvoiceIds.length === 0 ? (
+              <Box sx={{ maxWidth: 400 }}>
+                <UnifiedSearchBar onSearch={handleSearch} onAiSearch={handleAiSearch} />
+              </Box>
+            ) : (
+              <Typography variant="h5" component="h1" sx={{ fontWeight: 'bold' }}>
+                {`${selectedInvoiceIds.length} selected`}
+              </Typography>
+            )
           }
           action={
             <Box sx={{ display: 'flex', flexDirection: 'row', gap: 2 }}>
@@ -343,11 +349,8 @@ const InvoiceManagementPage: React.FC = () => {
           }
         />
         <CardContent sx={{ p: 0, '&:last-child': { pb: 0 } }}>
-          {/* Search and Filter controls */}
-          <Box sx={{ p: 2, pb: 1 }}>
-            <UnifiedSearchBar onSearch={handleSearch} onAiSearch={handleAiSearch} />
-          </Box>
-          <Box sx={{ p: 2, pt: 0, pb: 0, mb: 2 }}>
+          {/* Filter controls */}
+          <Box sx={{ p: 2, pb: 0, mb: 2 }}>
             <Grid container spacing={2}>
               {/* Date Filter (±7 days range) */}
               <Grid item xs={12} md={6}>
