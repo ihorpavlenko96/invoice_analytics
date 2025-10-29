@@ -11,12 +11,13 @@ import {
   Typography,
   useTheme,
   Grid,
+  IconButton,
 } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs, { Dayjs } from 'dayjs';
-import { SmartToy as AIIcon, Download as DownloadIcon, Delete as DeleteIcon } from '@mui/icons-material';
+import { SmartToy as AIIcon, Download as DownloadIcon, Delete as DeleteIcon, Clear as ClearIcon } from '@mui/icons-material';
 import { useInvoices } from '../invoiceQueries';
 import UnifiedSearchBar from './UnifiedSearchBar';
 import InvoiceTable from './InvoiceTable';
@@ -411,6 +412,18 @@ const InvoiceManagementPage: React.FC = () => {
                   />
                 </LocalizationProvider>
               </Grid>
+              {dateFilter && (
+                <Grid item xs={12} md="auto" sx={{ display: 'flex', alignItems: 'center' }}>
+                  <IconButton
+                    aria-label="Clear date filter"
+                    onClick={() => setDateFilter(null)}
+                    size="small"
+                    sx={{ color: '#E91E63' }}
+                  >
+                    <ClearIcon />
+                  </IconButton>
+                </Grid>
+              )}
             </Grid>
           </Box>
 
