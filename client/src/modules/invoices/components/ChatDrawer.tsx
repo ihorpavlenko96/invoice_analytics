@@ -89,6 +89,8 @@ interface ChatDrawerProps {
   open: boolean;
   onClose: () => void;
   onHighlightInvoice: (id: string) => void;
+  initialQuery?: string;
+  onQuerySent?: () => void;
 }
 
 /**
@@ -147,7 +149,13 @@ const ImageWithFallback: React.FC<{ src: string; alt: string; style?: React.CSSP
 /**
  * Chat drawer component for AI assistant
  */
-const ChatDrawer: React.FC<ChatDrawerProps> = ({ open, onClose, onHighlightInvoice }) => {
+const ChatDrawer: React.FC<ChatDrawerProps> = ({
+  open,
+  onClose,
+  onHighlightInvoice,
+  initialQuery,
+  onQuerySent,
+}) => {
   const theme = useTheme();
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
@@ -159,6 +167,17 @@ const ChatDrawer: React.FC<ChatDrawerProps> = ({ open, onClose, onHighlightInvoi
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
+
+  // Handle initial query
+  useEffect(() => {
+    if (initialQuery && open) {
+      handleSendMessage(initialQuery);
+      if (onQuerySent) {
+        onQuerySent();
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialQuery, open, onQuerySent]);
 
   // Add click event listeners to db-object spans
   useEffect(() => {
@@ -202,12 +221,13 @@ const ChatDrawer: React.FC<ChatDrawerProps> = ({ open, onClose, onHighlightInvoi
     return true;
   };
 
-  const handleSendMessage = async () => {
-    if (!input.trim()) return;
+  const handleSendMessage = async (queryOverride?: string) => {
+    const query = queryOverride || input;
+    if (!query.trim()) return;
 
     const userMessage: Message = {
       id: `user-${Date.now()}`,
-      content: input,
+      content: query,
       isUser: true,
       timestamp: new Date(),
     };
@@ -217,7 +237,7 @@ const ChatDrawer: React.FC<ChatDrawerProps> = ({ open, onClose, onHighlightInvoi
     setIsLoading(true);
 
     try {
-      const response = await aiService.askAboutData({ query: input });
+      const response = await aiService.askAboutData({ query: query });
 
       const aiMessage: Message = {
         id: `ai-${Date.now()}`,
