@@ -384,7 +384,7 @@ const UserManagementPage: React.FC<UserManagementPageProps> = () => {
                                       onClick={() => openConfirmDeleteDialog(user.id)}
                                       size="small"
                                       disabled={isDeleting && userToDeleteId === user.id}
-                                      sx={{ color: '#F87171', '&:hover': { color: '#DC2626' } }}>
+                                      color="primary">
                                       <DeleteIcon />
                                     </IconButton>
                                   </Tooltip>
