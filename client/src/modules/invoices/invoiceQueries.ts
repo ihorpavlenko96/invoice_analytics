@@ -7,28 +7,14 @@ import { invoiceService } from './services/invoiceService';
  * @param searchQuery - Optional search term for vendor or customer name
  * @param page - Page number (starts at 1)
  * @param limit - Number of items per page
- * @param fromDate - Optional start date (YYYY-MM-DD) for issueDate filter
- * @param toDate - Optional end date (YYYY-MM-DD) for issueDate filter
  */
-export const useInvoices = (
-  searchQuery = '',
-  page = 1,
-  limit = 10,
-  fromDate?: string,
-  toDate?: string,
-) => {
+export const useInvoices = (searchQuery = '', page = 1, limit = 10) => {
   return useQuery({
-    queryKey: invoiceKeys.list(searchQuery, page, limit, fromDate, toDate),
+    queryKey: invoiceKeys.list(searchQuery, page, limit),
     queryFn: async () => {
-      const paginatedResponse = await invoiceService.getInvoices(
-        page,
-        limit,
-        searchQuery,
-        fromDate,
-        toDate,
-      );
+      const paginatedResponse = await invoiceService.getInvoices(page, limit);
 
-      // Apply client-side filters as a fallback (keeps previous behavior)
+      // Apply filters if any are specified
       let filteredItems = paginatedResponse.items;
 
       if (searchQuery) {
@@ -38,15 +24,6 @@ export const useInvoices = (
             invoice.vendorName.toLowerCase().includes(lowerCaseSearchQuery) ||
             invoice.customerName.toLowerCase().includes(lowerCaseSearchQuery),
         );
-      }
-
-      if (fromDate || toDate) {
-        filteredItems = filteredItems.filter((invoice) => {
-          const issue = invoice.issueDate; // YYYY-MM-DD
-          if (fromDate && issue < fromDate) return false;
-          if (toDate && issue > toDate) return false;
-          return true;
-        });
       }
 
       // Return filtered items with updated counts
