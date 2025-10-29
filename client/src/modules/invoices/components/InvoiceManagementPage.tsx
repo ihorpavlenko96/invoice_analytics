@@ -6,8 +6,6 @@ import {
   CardContent,
   CardHeader,
   CircularProgress,
-  TextField,
-  InputAdornment,
   Typography,
   useTheme,
   Grid,
@@ -302,9 +300,9 @@ const InvoiceManagementPage: React.FC = () => {
         <CardHeader
           title={
             selectedInvoiceIds.length === 0 ? (
-              <Box sx={{ maxWidth: 400 }}>
-                <UnifiedSearchBar onSearch={handleSearch} onAiSearch={handleAiSearch} />
-              </Box>
+              <Typography variant="h5" component="h1" sx={{ fontWeight: 'bold' }}>
+                Invoices
+              </Typography>
             ) : (
               <Typography variant="h5" component="h1" sx={{ fontWeight: 'bold' }}>
                 {`${selectedInvoiceIds.length} selected`}
@@ -353,8 +351,11 @@ const InvoiceManagementPage: React.FC = () => {
           {/* Filter controls */}
           <Box sx={{ p: 2, pb: 0, mb: 2 }}>
             <Grid container spacing={2}>
-              {/* Date Filter (±7 days range) */}
-              <Grid item xs={12} md={6}>
+              {/* Search + Date Filter in one line */}
+              <Grid item xs={12} md={8}>
+                <UnifiedSearchBar onSearch={handleSearch} onAiSearch={handleAiSearch} />
+              </Grid>
+              <Grid item xs={12} md={4}>
                 <LocalizationProvider dateAdapter={AdapterDayjs}>
                   <DatePicker
                     label="Date Filter (±7 days)"
