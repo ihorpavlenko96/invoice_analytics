@@ -39,8 +39,7 @@ const InvoiceManagementPage: React.FC = () => {
   const [isChatDrawerOpen, setIsChatDrawerOpen] = useState(false);
   const [vendorSearch, setVendorSearch] = useState('');
   const [customerSearch, setCustomerSearch] = useState('');
-  const [dateRangeFrom, setDateRangeFrom] = useState<Dayjs | null>(null);
-  const [dateRangeTo, setDateRangeTo] = useState<Dayjs | null>(null);
+  const [dateFilter, setDateFilter] = useState<Dayjs | null>(null);
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
   const [isExporting, setIsExporting] = useState(false);
@@ -71,24 +70,28 @@ const InvoiceManagementPage: React.FC = () => {
     selectedInvoiceId || '',
   );
 
-  // Apply client-side date filtering
+  // Apply client-side date filtering with ±7 days range
   const filteredInvoices = useMemo(() => {
     let filtered = paginatedInvoices.items;
 
-    // Filter by date range if both dates are set
-    if (dateRangeFrom || dateRangeTo) {
+    // Filter by date with ±7 days range if date is set
+    if (dateFilter) {
       filtered = filtered.filter((invoice) => {
         const issueDate = dayjs(invoice.issueDate);
         const dueDate = dayjs(invoice.dueDate);
 
-        // Check if either issueDate or dueDate falls within the range
+        // Create a ±7 days range from the selected date
+        const rangeStart = dateFilter.subtract(7, 'day');
+        const rangeEnd = dateFilter.add(7, 'day');
+
+        // Check if either issueDate or dueDate falls within the ±7 days range
         const isIssueDateInRange =
-          (!dateRangeFrom || issueDate.isAfter(dateRangeFrom.subtract(1, 'day'))) &&
-          (!dateRangeTo || issueDate.isBefore(dateRangeTo.add(1, 'day')));
+          issueDate.isAfter(rangeStart.subtract(1, 'day')) &&
+          issueDate.isBefore(rangeEnd.add(1, 'day'));
 
         const isDueDateInRange =
-          (!dateRangeFrom || dueDate.isAfter(dateRangeFrom.subtract(1, 'day'))) &&
-          (!dateRangeTo || dueDate.isBefore(dateRangeTo.add(1, 'day')));
+          dueDate.isAfter(rangeStart.subtract(1, 'day')) &&
+          dueDate.isBefore(rangeEnd.add(1, 'day'));
 
         return isIssueDateInRange || isDueDateInRange;
       });
@@ -99,7 +102,7 @@ const InvoiceManagementPage: React.FC = () => {
       items: filtered,
       total: filtered.length,
     };
-  }, [paginatedInvoices, dateRangeFrom, dateRangeTo]);
+  }, [paginatedInvoices, dateFilter]);
 
   // Reset highlighted invoice after animation
   useEffect(() => {
@@ -367,76 +370,18 @@ const InvoiceManagementPage: React.FC = () => {
                   }}
                 />
               </Grid>
-              {/* Date Range Filters */}
+              {/* Date Filter (±7 days range) */}
               <Grid item xs={12} md={6}>
                 <LocalizationProvider dateAdapter={AdapterDayjs}>
                   <DatePicker
-                    label="Date Range From"
-                    value={dateRangeFrom}
-                    onChange={(newValue) => setDateRangeFrom(newValue)}
+                    label="Date Filter (±7 days)"
+                    value={dateFilter}
+                    onChange={(newValue) => setDateFilter(newValue)}
                     slotProps={{
                       textField: {
                         fullWidth: true,
                         size: 'small',
-                        placeholder: 'Select start date...',
-                      },
-                      day: {
-                        sx: {
-                          '&.Mui-selected': {
-                            backgroundColor: '#E91E63 !important',
-                            '&:hover': {
-                              backgroundColor: '#C2185B !important',
-                            },
-                          },
-                          '&:hover': {
-                            backgroundColor: '#FFC0CB',
-                          },
-                        },
-                      },
-                      calendarHeader: {
-                        sx: {
-                          '& .MuiPickersCalendarHeader-switchViewButton': {
-                            color: '#E91E63',
-                          },
-                          '& .MuiPickersArrowSwitcher-button': {
-                            color: '#E91E63',
-                          },
-                        },
-                      },
-                    }}
-                    sx={{
-                      '& .MuiOutlinedInput-root': {
-                        '&.Mui-focused fieldset': {
-                          borderColor: '#E91E63',
-                        },
-                        '&:hover fieldset': {
-                          borderColor: '#FFC0CB',
-                        },
-                      },
-                      '& .MuiInputLabel-root.Mui-focused': {
-                        color: '#E91E63',
-                      },
-                      '& .MuiIconButton-root': {
-                        color: '#E91E63',
-                      },
-                      '& .MuiPickersDay-root.Mui-selected': {
-                        backgroundColor: '#E91E63',
-                      },
-                    }}
-                  />
-                </LocalizationProvider>
-              </Grid>
-              <Grid item xs={12} md={6}>
-                <LocalizationProvider dateAdapter={AdapterDayjs}>
-                  <DatePicker
-                    label="Date Range To"
-                    value={dateRangeTo}
-                    onChange={(newValue) => setDateRangeTo(newValue)}
-                    slotProps={{
-                      textField: {
-                        fullWidth: true,
-                        size: 'small',
-                        placeholder: 'Select end date...',
+                        placeholder: 'Select date for ±7 days range...',
                       },
                       day: {
                         sx: {
