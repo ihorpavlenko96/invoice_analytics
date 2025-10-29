@@ -16,8 +16,9 @@ import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs, { Dayjs } from 'dayjs';
-import { SmartToy as AIIcon, Search as SearchIcon, Download as DownloadIcon, Delete as DeleteIcon } from '@mui/icons-material';
+import { SmartToy as AIIcon, Download as DownloadIcon, Delete as DeleteIcon } from '@mui/icons-material';
 import { useInvoices } from '../invoiceQueries';
+import UnifiedSearchBar from './UnifiedSearchBar';
 import InvoiceTable from './InvoiceTable';
 import InvoiceDetails from './InvoiceDetails';
 import ChatDrawer from './ChatDrawer';
@@ -37,8 +38,8 @@ const InvoiceManagementPage: React.FC = () => {
   const [selectedInvoiceId, setSelectedInvoiceId] = useState<string | null>(null);
   const [highlightedInvoiceId, setHighlightedInvoiceId] = useState<string | null>(null);
   const [isChatDrawerOpen, setIsChatDrawerOpen] = useState(false);
-  const [vendorSearch, setVendorSearch] = useState('');
-  const [customerSearch, setCustomerSearch] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [aiSearchQuery, setAiSearchQuery] = useState('');
   const [dateFilter, setDateFilter] = useState<Dayjs | null>(null);
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
@@ -63,7 +64,7 @@ const InvoiceManagementPage: React.FC = () => {
       totalPages: 1,
     } as PaginatedResponseDto<Invoice>,
     isLoading: isInvoicesLoading,
-  } = useInvoices(vendorSearch, customerSearch, '', page, limit);
+  } = useInvoices(searchQuery, page, limit);
 
   // Fetch selected invoice details
   const { data: selectedInvoice, isLoading: isInvoiceLoading } = useInvoice(
@@ -162,6 +163,15 @@ const InvoiceManagementPage: React.FC = () => {
         setIsConfirmBulkDeleteDialogOpen(false);
       },
     });
+  };
+
+  const handleSearch = (query: string) => {
+    setSearchQuery(query);
+  };
+
+  const handleAiSearch = (query: string) => {
+    setAiSearchQuery(query);
+    setIsChatDrawerOpen(true);
   };
 
   // Handle view invoice
@@ -333,43 +343,12 @@ const InvoiceManagementPage: React.FC = () => {
           }
         />
         <CardContent sx={{ p: 0, '&:last-child': { pb: 0 } }}>
-          {/* Filter controls */}
-          <Box sx={{ p: 2, pb: 0, mb: 2 }}>
+          {/* Search and Filter controls */}
+          <Box sx={{ p: 2, pb: 1 }}>
+            <UnifiedSearchBar onSearch={handleSearch} onAiSearch={handleAiSearch} />
+          </Box>
+          <Box sx={{ p: 2, pt: 0, pb: 0, mb: 2 }}>
             <Grid container spacing={2}>
-              <Grid item xs={12} md={6}>
-                <TextField
-                  fullWidth
-                  placeholder="Search by vendor name..."
-                  value={vendorSearch}
-                  onChange={(e) => setVendorSearch(e.target.value)}
-                  variant="outlined"
-                  size="small"
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <SearchIcon color="action" />
-                      </InputAdornment>
-                    ),
-                  }}
-                />
-              </Grid>
-              <Grid item xs={12} md={6}>
-                <TextField
-                  fullWidth
-                  placeholder="Search by customer name..."
-                  value={customerSearch}
-                  onChange={(e) => setCustomerSearch(e.target.value)}
-                  variant="outlined"
-                  size="small"
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <SearchIcon color="action" />
-                      </InputAdornment>
-                    ),
-                  }}
-                />
-              </Grid>
               {/* Date Filter (±7 days range) */}
               <Grid item xs={12} md={6}>
                 <LocalizationProvider dateAdapter={AdapterDayjs}>
@@ -458,6 +437,8 @@ const InvoiceManagementPage: React.FC = () => {
         open={isChatDrawerOpen}
         onClose={() => setIsChatDrawerOpen(false)}
         onHighlightInvoice={handleHighlightInvoice}
+        initialQuery={aiSearchQuery}
+        onQuerySent={() => setAiSearchQuery('')}
       />
 
       {/* Confirmation Dialog for Bulk Delete */}
