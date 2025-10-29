@@ -6,18 +6,15 @@ import {
   CardContent,
   CardHeader,
   CircularProgress,
-  TextField,
-  InputAdornment,
   Typography,
   useTheme,
   Grid,
-  IconButton,
 } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs, { Dayjs } from 'dayjs';
-import { SmartToy as AIIcon, Download as DownloadIcon, Delete as DeleteIcon, Clear as ClearIcon } from '@mui/icons-material';
+import { SmartToy as AIIcon, Download as DownloadIcon, Delete as DeleteIcon } from '@mui/icons-material';
 import { useInvoices } from '../invoiceQueries';
 import UnifiedSearchBar from './UnifiedSearchBar';
 import InvoiceTable from './InvoiceTable';
@@ -41,7 +38,8 @@ const InvoiceManagementPage: React.FC = () => {
   const [isChatDrawerOpen, setIsChatDrawerOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [aiSearchQuery, setAiSearchQuery] = useState('');
-  const [dateFilter, setDateFilter] = useState<Dayjs | null>(null);
+  const [fromDate, setFromDate] = useState<Dayjs | null>(null);
+  const [toDate, setToDate] = useState<Dayjs | null>(null);
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
   const [isExporting, setIsExporting] = useState(false);
@@ -55,6 +53,10 @@ const InvoiceManagementPage: React.FC = () => {
   const userRoles = (user?.publicMetadata?.roles as string[]) || [];
   const isSuperAdmin = userRoles.includes('Super Admin');
 
+  // Prepare date filters (YYYY-MM-DD)
+  const fromDateStr = useMemo(() => (fromDate ? fromDate.format('YYYY-MM-DD') : undefined), [fromDate]);
+  const toDateStr = useMemo(() => (toDate ? toDate.format('YYYY-MM-DD') : undefined), [toDate]);
+
   // Fetch all invoices with pagination
   const {
     data: paginatedInvoices = {
@@ -65,46 +67,14 @@ const InvoiceManagementPage: React.FC = () => {
       totalPages: 1,
     } as PaginatedResponseDto<Invoice>,
     isLoading: isInvoicesLoading,
-  } = useInvoices(searchQuery, page, limit);
+  } = useInvoices(searchQuery, page, limit, fromDateStr, toDateStr);
 
   // Fetch selected invoice details
   const { data: selectedInvoice, isLoading: isInvoiceLoading } = useInvoice(
     selectedInvoiceId || '',
   );
 
-  // Apply client-side date filtering with ±7 days range
-  const filteredInvoices = useMemo(() => {
-    let filtered = paginatedInvoices.items;
-
-    // Filter by date with ±7 days range if date is set
-    if (dateFilter) {
-      filtered = filtered.filter((invoice) => {
-        const issueDate = dayjs(invoice.issueDate);
-        const dueDate = dayjs(invoice.dueDate);
-
-        // Create a ±7 days range from the selected date
-        const rangeStart = dateFilter.subtract(7, 'day');
-        const rangeEnd = dateFilter.add(7, 'day');
-
-        // Check if either issueDate or dueDate falls within the ±7 days range
-        const isIssueDateInRange =
-          issueDate.isAfter(rangeStart.subtract(1, 'day')) &&
-          issueDate.isBefore(rangeEnd.add(1, 'day'));
-
-        const isDueDateInRange =
-          dueDate.isAfter(rangeStart.subtract(1, 'day')) &&
-          dueDate.isBefore(rangeEnd.add(1, 'day'));
-
-        return isIssueDateInRange || isDueDateInRange;
-      });
-    }
-
-    return {
-      ...paginatedInvoices,
-      items: filtered,
-      total: filtered.length,
-    };
-  }, [paginatedInvoices, dateFilter]);
+  // Date filtering moved to data layer (via useInvoices)
 
   // Reset highlighted invoice after animation
   useEffect(() => {
@@ -302,9 +272,9 @@ const InvoiceManagementPage: React.FC = () => {
         <CardHeader
           title={
             selectedInvoiceIds.length === 0 ? (
-              <Box sx={{ maxWidth: 400 }}>
-                <UnifiedSearchBar onSearch={handleSearch} onAiSearch={handleAiSearch} />
-              </Box>
+              <Typography variant="h5" component="h1" sx={{ fontWeight: 'bold' }}>
+                Invoices
+              </Typography>
             ) : (
               <Typography variant="h5" component="h1" sx={{ fontWeight: 'bold' }}>
                 {`${selectedInvoiceIds.length} selected`}
@@ -315,6 +285,7 @@ const InvoiceManagementPage: React.FC = () => {
             <Box sx={{ display: 'flex', flexDirection: 'row', gap: 2 }}>
               {selectedInvoiceIds.length > 0 && (
                 <Button
+                  size="small"
                   variant="contained"
                   startIcon={<DeleteIcon />}
                   onClick={() => setIsConfirmBulkDeleteDialogOpen(true)}
@@ -326,6 +297,7 @@ const InvoiceManagementPage: React.FC = () => {
                 </Button>
               )}
               <Button
+                size="small"
                 variant="contained"
                 startIcon={<AIIcon />}
                 onClick={handleToggleChatDrawer}
@@ -336,6 +308,7 @@ const InvoiceManagementPage: React.FC = () => {
                 AI Assistant
               </Button>
               <Button
+                size="small"
                 variant="contained"
                 startIcon={<DownloadIcon />}
                 onClick={handleExportToExcel}
@@ -352,19 +325,27 @@ const InvoiceManagementPage: React.FC = () => {
         <CardContent sx={{ p: 0, '&:last-child': { pb: 0 } }}>
           {/* Filter controls */}
           <Box sx={{ p: 2, pb: 0, mb: 2 }}>
-            <Grid container spacing={2}>
-              {/* Date Filter (±7 days range) */}
+            <Grid container spacing={2} alignItems="center">
+              {/* Search + Date Range in one line */}
               <Grid item xs={12} md={6}>
+                <UnifiedSearchBar
+                  onSearch={handleSearch}
+                  onAiSearch={handleAiSearch}
+                  placeholder="Search by vendor/customer"
+                />
+              </Grid>
+              <Grid item xs={12} md={3}>
                 <LocalizationProvider dateAdapter={AdapterDayjs}>
                   <DatePicker
-                    label="Date Filter (±7 days)"
-                    value={dateFilter}
-                    onChange={(newValue) => setDateFilter(newValue)}
+                    label="From"
+                    value={fromDate}
+                    onChange={(newValue) => setFromDate(newValue)}
+                    maxDate={toDate ?? undefined}
                     slotProps={{
                       textField: {
                         fullWidth: true,
                         size: 'small',
-                        placeholder: 'Select date for ±7 days range...',
+                        placeholder: 'YYYY-MM-DD',
                       },
                       day: {
                         sx: {
@@ -412,18 +393,65 @@ const InvoiceManagementPage: React.FC = () => {
                   />
                 </LocalizationProvider>
               </Grid>
-              {dateFilter && (
-                <Grid item xs={12} md="auto" sx={{ display: 'flex', alignItems: 'center' }}>
-                  <IconButton
-                    aria-label="Clear date filter"
-                    onClick={() => setDateFilter(null)}
-                    size="small"
-                    sx={{ color: '#E91E63' }}
-                  >
-                    <ClearIcon />
-                  </IconButton>
-                </Grid>
-              )}
+              <Grid item xs={12} md={3}>
+                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                  <DatePicker
+                    label="To"
+                    value={toDate}
+                    onChange={(newValue) => setToDate(newValue)}
+                    minDate={fromDate ?? undefined}
+                    slotProps={{
+                      textField: {
+                        fullWidth: true,
+                        size: 'small',
+                        placeholder: 'YYYY-MM-DD',
+                      },
+                      day: {
+                        sx: {
+                          '&.Mui-selected': {
+                            backgroundColor: '#E91E63 !important',
+                            '&:hover': {
+                              backgroundColor: '#C2185B !important',
+                            },
+                          },
+                          '&:hover': {
+                            backgroundColor: '#FFC0CB',
+                          },
+                        },
+                      },
+                      calendarHeader: {
+                        sx: {
+                          '& .MuiPickersCalendarHeader-switchViewButton': {
+                            color: '#E91E63',
+                          },
+                          '& .MuiPickersArrowSwitcher-button': {
+                            color: '#E91E63',
+                          },
+                        },
+                      },
+                    }}
+                    sx={{
+                      '& .MuiOutlinedInput-root': {
+                        '&.Mui-focused fieldset': {
+                          borderColor: '#E91E63',
+                        },
+                        '&:hover fieldset': {
+                          borderColor: '#FFC0CB',
+                        },
+                      },
+                      '& .MuiInputLabel-root.Mui-focused': {
+                        color: '#E91E63',
+                      },
+                      '& .MuiIconButton-root': {
+                        color: '#E91E63',
+                      },
+                      '& .MuiPickersDay-root.Mui-selected': {
+                        backgroundColor: '#E91E63',
+                      },
+                    }}
+                  />
+                </LocalizationProvider>
+              </Grid>
             </Grid>
           </Box>
 
@@ -434,7 +462,7 @@ const InvoiceManagementPage: React.FC = () => {
           )}
           {!isInvoicesLoading && (
             <InvoiceTable
-              paginatedData={filteredInvoices}
+              paginatedData={paginatedInvoices}
               isLoading={isInvoicesLoading}
               onViewInvoice={handleViewInvoice}
               highlightedInvoiceId={highlightedInvoiceId}

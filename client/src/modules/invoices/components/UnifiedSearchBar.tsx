@@ -12,7 +12,7 @@ interface UnifiedSearchBarProps {
 const UnifiedSearchBar: React.FC<UnifiedSearchBarProps> = ({
   onSearch,
   onAiSearch,
-  placeholder = 'Search by vendor/customer, or click the AI icon to ask a question...',
+  placeholder = 'Search by vendor/customer',
   initialQuery = '',
 }) => {
   const [query, setQuery] = useState(initialQuery);
@@ -52,6 +52,7 @@ const UnifiedSearchBar: React.FC<UnifiedSearchBarProps> = ({
     <TextField
       fullWidth
       variant="outlined"
+      size="small"
       placeholder={placeholder}
       value={query}
       onChange={(e) => setQuery(e.target.value)}

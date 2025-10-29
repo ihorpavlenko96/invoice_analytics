@@ -19,11 +19,17 @@ export const invoiceService = {
   getInvoices: async (
     page: number = 1,
     limit: number = 10,
+    searchQuery?: string,
+    fromDate?: string,
+    toDate?: string,
   ): Promise<PaginatedResponseDto<Invoice>> => {
     const response = await axios.get<PaginatedResponseDto<Invoice>>('/invoices', {
       params: {
         page,
         limit,
+        search: searchQuery,
+        fromDate,
+        toDate,
       },
     });
     return response.data;
