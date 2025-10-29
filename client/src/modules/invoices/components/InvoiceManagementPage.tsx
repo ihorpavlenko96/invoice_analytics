@@ -302,59 +302,10 @@ const InvoiceManagementPage: React.FC = () => {
         <CardHeader
           title={
             selectedInvoiceIds.length === 0 ? (
-              <Box sx={{ maxWidth: 400 }}>
-                <UnifiedSearchBar onSearch={handleSearch} onAiSearch={handleAiSearch} />
-              </Box>
-            ) : (
-              <Typography variant="h5" component="h1" sx={{ fontWeight: 'bold' }}>
-                {`${selectedInvoiceIds.length} selected`}
-              </Typography>
-            )
-          }
-          action={
-            <Box sx={{ display: 'flex', flexDirection: 'row', gap: 2 }}>
-              {selectedInvoiceIds.length > 0 && (
-                <Button
-                  variant="contained"
-                  startIcon={<DeleteIcon />}
-                  onClick={() => setIsConfirmBulkDeleteDialogOpen(true)}
-                  sx={{
-                    backgroundColor: '#E91E63',
-                    '&:hover': { backgroundColor: '#C2185B' },
-                  }}>
-                  Delete ({selectedInvoiceIds.length})
-                </Button>
-              )}
-              <Button
-                variant="contained"
-                startIcon={<AIIcon />}
-                onClick={handleToggleChatDrawer}
-                sx={{
-                  backgroundColor: '#E91E63',
-                  '&:hover': { backgroundColor: '#C2185B' },
-                }}>
-                AI Assistant
-              </Button>
-              <Button
-                variant="contained"
-                startIcon={<DownloadIcon />}
-                onClick={handleExportToExcel}
-                disabled={isExporting}
-                sx={{
-                  backgroundColor: '#E91E63',
-                  '&:hover': { backgroundColor: '#C2185B' },
-                }}>
-                {isExporting ? 'Exporting...' : 'Export to Excel'}
-              </Button>
-            </Box>
-          }
-        />
-        <CardContent sx={{ p: 0, '&:last-child': { pb: 0 } }}>
-          {/* Filter controls */}
-          <Box sx={{ p: 2, pb: 0, mb: 2 }}>
-            <Grid container spacing={2}>
-              {/* Date Filter (±7 days range) */}
-              <Grid item xs={12} md={6}>
+              <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
+                <Box sx={{ maxWidth: 400 }}>
+                  <UnifiedSearchBar onSearch={handleSearch} onAiSearch={handleAiSearch} />
+                </Box>
                 <LocalizationProvider dateAdapter={AdapterDayjs}>
                   <DatePicker
                     label="Date Filter (±7 days)"
@@ -362,7 +313,6 @@ const InvoiceManagementPage: React.FC = () => {
                     onChange={(newValue) => setDateFilter(newValue)}
                     slotProps={{
                       textField: {
-                        fullWidth: true,
                         size: 'small',
                         placeholder: 'Select date for ±7 days range...',
                       },
@@ -411,9 +361,7 @@ const InvoiceManagementPage: React.FC = () => {
                     }}
                   />
                 </LocalizationProvider>
-              </Grid>
-              {dateFilter && (
-                <Grid item xs={12} md="auto" sx={{ display: 'flex', alignItems: 'center' }}>
+                {dateFilter && (
                   <IconButton
                     aria-label="Clear date filter"
                     onClick={() => setDateFilter(null)}
@@ -422,11 +370,53 @@ const InvoiceManagementPage: React.FC = () => {
                   >
                     <ClearIcon />
                   </IconButton>
-                </Grid>
+                )}
+              </Box>
+            ) : (
+              <Typography variant="h5" component="h1" sx={{ fontWeight: 'bold' }}>
+                {`${selectedInvoiceIds.length} selected`}
+              </Typography>
+            )
+          }
+          action={
+            <Box sx={{ display: 'flex', flexDirection: 'row', gap: 2 }}>
+              {selectedInvoiceIds.length > 0 && (
+                <Button
+                  variant="contained"
+                  startIcon={<DeleteIcon />}
+                  onClick={() => setIsConfirmBulkDeleteDialogOpen(true)}
+                  sx={{
+                    backgroundColor: '#E91E63',
+                    '&:hover': { backgroundColor: '#C2185B' },
+                  }}>
+                  Delete ({selectedInvoiceIds.length})
+                </Button>
               )}
-            </Grid>
-          </Box>
-
+              <Button
+                variant="contained"
+                startIcon={<AIIcon />}
+                onClick={handleToggleChatDrawer}
+                sx={{
+                  backgroundColor: '#E91E63',
+                  '&:hover': { backgroundColor: '#C2185B' },
+                }}>
+                AI Assistant
+              </Button>
+              <Button
+                variant="contained"
+                startIcon={<DownloadIcon />}
+                onClick={handleExportToExcel}
+                disabled={isExporting}
+                sx={{
+                  backgroundColor: '#E91E63',
+                  '&:hover': { backgroundColor: '#C2185B' },
+                }}>
+                {isExporting ? 'Exporting...' : 'Export to Excel'}
+              </Button>
+            </Box>
+          }
+        />
+        <CardContent sx={{ p: 0, '&:last-child': { pb: 0 } }}>
           {isInvoicesLoading && (
             <Box sx={{ display: 'flex', justifyContent: 'center', my: 5 }}>
               <CircularProgress />
