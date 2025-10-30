@@ -39,7 +39,7 @@ export const darkTheme = createTheme({
     invoiceStatus: {
       paid: '#C71585',
       unpaid: '#FFC0CB',
-      overdue: '#FF1493',
+      overdue: '#FF69B4',
     },
     divider: 'rgba(255, 255, 255, 0.12)',
   },
