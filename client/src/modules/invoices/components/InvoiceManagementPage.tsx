@@ -208,11 +208,11 @@ const InvoiceManagementPage: React.FC = () => {
     setPage(1); // Reset to first page when changing limit
   };
 
-  // Handle export to Excel
+  // Handle export to Excel - exports ALL invoices regardless of pagination or filters
   const handleExportToExcel = async () => {
     setIsExporting(true);
     try {
-      const blob = await invoiceService.exportInvoices(page, limit);
+      const blob = await invoiceService.exportInvoices();
 
       // Create download link
       const url = window.URL.createObjectURL(blob);
@@ -225,8 +225,12 @@ const InvoiceManagementPage: React.FC = () => {
       // Cleanup
       link.parentNode?.removeChild(link);
       window.URL.revokeObjectURL(url);
+
+      // Show success notification
+      enqueueSnackbar('All invoices exported successfully', { variant: 'success' });
     } catch (error) {
       console.error('Error exporting invoices:', error);
+      enqueueSnackbar('Failed to export invoices', { variant: 'error' });
     } finally {
       setIsExporting(false);
     }
