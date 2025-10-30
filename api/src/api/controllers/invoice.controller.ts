@@ -178,19 +178,19 @@ export class InvoiceController {
     @Authorize(RoleName.SUPER_ADMIN)
     @ApiOperation({
         summary: 'Export invoices to Excel',
-        description: 'Exports ALL invoices to an Excel file. Note: pagination parameters are accepted but ignored - all invoices are always exported.',
+        description: 'Exports all invoices to an Excel file based on pagination and filters',
     })
     @ApiQuery({
         name: 'page',
         required: false,
         type: Number,
-        description: 'Page number (ignored - kept for API compatibility)',
+        description: 'Page number (starts from 1)',
     })
     @ApiQuery({
         name: 'limit',
         required: false,
         type: Number,
-        description: 'Number of items per page (ignored - kept for API compatibility)',
+        description: 'Number of items per page',
     })
     @ApiResponse({
         status: HttpStatus.OK,
