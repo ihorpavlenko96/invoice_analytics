@@ -230,15 +230,15 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({
 
     return (
       <Typography
-        color="error"
         fontWeight="medium"
-        sx={{
-          backgroundColor: theme => theme.palette.error.light + '20',
+        sx={theme => ({
+          color: theme.palette.invoiceStatus.overdue,
+          backgroundColor: `${theme.palette.invoiceStatus.overdue}20`,
           px: 1,
           py: 0.5,
           borderRadius: 1,
           display: 'inline-block',
-        }}
+        })}
       >
         {daysOverdue} days
       </Typography>
@@ -248,22 +248,22 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({
   // Calculate and display the status of an invoice
   const getInvoiceStatus = (invoice: Invoice) => {
     const statusMap = {
-      PAID: { label: 'Paid', color: '#C71585' },
-      UNPAID: { label: 'Unpaid', color: '#FFC0CB' },
-      OVERDUE: { label: 'Overdue', color: '#A9A9A9' },
+      PAID: { label: 'Paid', key: 'paid' as const },
+      UNPAID: { label: 'Unpaid', key: 'unpaid' as const },
+      OVERDUE: { label: 'Overdue', key: 'overdue' as const },
     };
 
-    const status = statusMap[invoice.status] || { label: 'Unknown', color: '#9E9E9E' };
+    const status = statusMap[invoice.status] || { label: 'Unknown', key: null };
 
     return (
       <Chip
         label={status.label}
         size="small"
-        sx={{
+        sx={theme => ({
           fontWeight: 'medium',
-          backgroundColor: status.color,
+          backgroundColor: status.key ? theme.palette.invoiceStatus[status.key] : '#9E9E9E',
           color: '#000000',
-        }}
+        })}
       />
     );
   };
