@@ -15,7 +15,7 @@ const DashboardPage: React.FC = () => {
   const [vendorDetails, setVendorDetails] = useState<VendorDetails | null>(null);
 
   // Fetch all invoices with a high limit to get all data for aggregation
-  const { data: invoicesData, isLoading, error } = useInvoices('', '', '', 1, 1000);
+  const { data: invoicesData, isLoading, error } = useInvoices('', 1, 1000);
 
   const vendorData = useMemo(() => {
     if (!invoicesData?.items) return [];
