@@ -1,15 +1,15 @@
 import React from 'react';
 import { Box, Typography, Paper } from '@mui/material';
 import { BarChart } from '@mui/x-charts/BarChart';
-import { VendorData } from '../types/dashboard';
+import { CustomerData } from '../types/dashboard';
 
-interface VendorChartProps {
-  data: VendorData[];
-  onVendorClick: (vendorName: string) => void;
+interface CustomerChartProps {
+  data: CustomerData[];
+  onCustomerClick: (customerName: string) => void;
   timePeriodLabel: string;
 }
 
-const VendorChart: React.FC<VendorChartProps> = ({ data, onVendorClick, timePeriodLabel }) => {
+const CustomerChart: React.FC<CustomerChartProps> = ({ data, onCustomerClick, timePeriodLabel }) => {
   if (data.length === 0) {
     return (
       <Paper
@@ -25,7 +25,7 @@ const VendorChart: React.FC<VendorChartProps> = ({ data, onVendorClick, timePeri
     );
   }
 
-  const vendorNames = data.map((item) => item.vendorName);
+  const customerNames = data.map((item) => item.customerName);
   const amounts = data.map((item) => item.totalAmount);
 
   return (
@@ -35,15 +35,15 @@ const VendorChart: React.FC<VendorChartProps> = ({ data, onVendorClick, timePeri
         backgroundColor: 'white',
       }}>
       <Typography variant="h6" gutterBottom sx={{ color: 'text.primary', mb: 2 }}>
-        Vendor Totals - {timePeriodLabel}
+        Customer Totals - {timePeriodLabel}
       </Typography>
       <Box sx={{ width: '100%', height: 400 }}>
         <BarChart
           xAxis={[
             {
               scaleType: 'band',
-              data: vendorNames,
-              label: 'Vendors',
+              data: customerNames,
+              label: 'Customers',
             },
           ]}
           yAxis={[
@@ -55,14 +55,14 @@ const VendorChart: React.FC<VendorChartProps> = ({ data, onVendorClick, timePeri
             {
               data: amounts,
               label: 'Total Amount',
-              color: '#0ABAB5',
+              color: '#9C27B0',
             },
           ]}
           onAxisClick={(event, axisData) => {
             if (axisData && axisData.axisValue !== undefined) {
-              const clickedVendor = vendorNames[axisData.dataIndex || 0];
-              if (clickedVendor) {
-                onVendorClick(clickedVendor);
+              const clickedCustomer = customerNames[axisData.dataIndex || 0];
+              if (clickedCustomer) {
+                onCustomerClick(clickedCustomer);
               }
             }
           }}
@@ -78,4 +78,4 @@ const VendorChart: React.FC<VendorChartProps> = ({ data, onVendorClick, timePeri
   );
 };
 
-export default VendorChart;
+export default CustomerChart;
