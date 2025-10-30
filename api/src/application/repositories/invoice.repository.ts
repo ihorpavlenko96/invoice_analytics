@@ -30,20 +30,6 @@ export class InvoiceRepository {
         });
     }
 
-    /**
-     * Fetch all invoices for a tenant without pagination (for export purposes)
-     * @param tenantId - The tenant ID to filter invoices
-     * @returns Promise containing array of all invoices for the tenant
-     */
-    async findAllForExport(tenantId: string): Promise<Invoice[]> {
-        return this.invoiceRepository.find({
-            where: { tenantId },
-            order: {
-                issueDate: 'DESC',
-            },
-        });
-    }
-
     async findById(id: string, tenantId: string): Promise<Invoice | null> {
         return this.invoiceRepository.findOne({
             where: { id, tenantId },

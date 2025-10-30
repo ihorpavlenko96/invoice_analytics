@@ -74,11 +74,20 @@ export const invoiceService = {
   },
 
   /**
-   * Export all invoices to Excel file
+   * Export invoices to Excel file
+   * @param page - Page number (starts at 1)
+   * @param limit - Number of items per page
    * @returns Promise<Blob>
    */
-  exportInvoices: async (): Promise<Blob> => {
+  exportInvoices: async (
+    page: number = 1,
+    limit: number = 10,
+  ): Promise<Blob> => {
     const response = await axios.get('/invoices/export/excel', {
+      params: {
+        page,
+        limit,
+      },
       responseType: 'blob',
     });
     return response.data;
