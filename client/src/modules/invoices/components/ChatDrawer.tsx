@@ -68,12 +68,12 @@ const AIMessage = styled(Message)(({ theme }) => ({
     fontWeight: 'bold',
   },
   '& pre': {
-    backgroundColor: '#F9FAFB',
+    backgroundColor: theme.palette.action.hover,
     padding: theme.spacing(1),
     borderRadius: theme.shape.borderRadius,
     overflowX: 'auto',
     width: '100%',
-    border: '1px solid #E5E7EB',
+    border: `1px solid ${theme.palette.divider}`,
   },
 }));
 

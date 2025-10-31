@@ -1,6 +1,7 @@
 import { darkTheme } from './darkTheme';
+import { pinkGreyTheme } from './pinkGreyTheme';
 
-// Export the light theme as the default and only theme
+// Export the dark theme as the default theme
 export const theme = darkTheme;
 
-export { darkTheme };
+export { darkTheme, pinkGreyTheme };

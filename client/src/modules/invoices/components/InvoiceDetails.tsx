@@ -26,6 +26,7 @@ import {
   Download as DownloadIcon,
   SmartToy as AIIcon,
 } from '@mui/icons-material';
+import { useTheme } from '@mui/material/styles';
 import { format } from 'date-fns';
 import { Invoice } from '../types/invoice';
 
@@ -75,6 +76,7 @@ const InvoiceDetails: React.FC<InvoiceDetailsProps> = ({
   onToggleAIAssistant,
 }) => {
   const [tabValue, setTabValue] = useState(0);
+  const theme = useTheme();
 
   const handleTabChange = (_: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue);
@@ -173,13 +175,13 @@ const InvoiceDetails: React.FC<InvoiceDetailsProps> = ({
               fontWeight: 'medium',
               backgroundColor:
                 invoice.status === 'PAID'
-                  ? '#C71585'
+                  ? theme.palette.invoiceStatus.paid
                   : invoice.status === 'UNPAID'
-                    ? '#FFC0CB'
+                    ? theme.palette.invoiceStatus.unpaid
                     : invoice.status === 'OVERDUE'
-                      ? '#A9A9A9'
+                      ? theme.palette.invoiceStatus.overdue
                       : '#9E9E9E',
-              color: '#000000',
+              color: theme.palette.primary.contrastText,
             }}
             size="small"
           />

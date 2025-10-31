@@ -27,6 +27,7 @@ import {
   Visibility as ViewIcon,
   Delete as DeleteIcon,
 } from '@mui/icons-material';
+import { useTheme } from '@mui/material/styles';
 import { Invoice } from '../types/invoice';
 import { useDeleteInvoice } from '../invoiceMutations';
 import { format } from 'date-fns';
@@ -75,6 +76,7 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [invoiceToDelete, setInvoiceToDelete] = useState<string | null>(null);
   const { enqueueSnackbar } = useSnackbar();
+  const theme = useTheme();
 
   const deleteInvoiceMutation = useDeleteInvoice();
 
@@ -99,7 +101,7 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({
 
   const sortLabelSx = {
     '& .MuiTableSortLabel-icon': {
-      color: '#FFC0CB !important',
+      color: `${theme.palette.primary.light} !important`,
     },
   };
 
@@ -259,11 +261,11 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({
       <Chip
         label={status.label}
         size="small"
-        sx={theme => ({
+        sx={{
           fontWeight: 'medium',
           backgroundColor: status.key ? theme.palette.invoiceStatus[status.key] : '#9E9E9E',
-          color: '#000000',
-        })}
+          color: theme.palette.primary.contrastText,
+        }}
       />
     );
   };
@@ -482,7 +484,7 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({
                             handleDeleteClick(invoice.id);
                           }}
                           size="small"
-                          sx={{ color: '#F87171', '&:hover': { color: '#DC2626' } }}>
+                          sx={{ color: theme.palette.error.main, '&:hover': { color: theme.palette.error.dark } }}>
                           <DeleteIcon />
                         </IconButton>
                       </Tooltip>
@@ -555,9 +557,9 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({
             variant="contained"
             disabled={deleteInvoiceMutation.isPending}
             sx={{
-              backgroundColor: '#F87171',
-              color: '#000000',
-              '&:hover': { backgroundColor: '#DC2626' },
+              backgroundColor: theme.palette.error.main,
+              color: theme.palette.primary.contrastText,
+              '&:hover': { backgroundColor: theme.palette.error.dark },
             }}>
             {deleteInvoiceMutation.isPending ? 'Deleting...' : 'Delete'}
           </Button>

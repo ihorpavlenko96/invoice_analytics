@@ -23,6 +23,7 @@ import UnifiedSearchBar from './UnifiedSearchBar';
 import InvoiceTable from './InvoiceTable';
 import InvoiceDetails from './InvoiceDetails';
 import ChatDrawer from './ChatDrawer';
+import ThemeToggle from './ThemeToggle';
 import { useInvoice } from '../invoiceQueries';
 import { useUser } from '@clerk/clerk-react';
 import { PaginatedResponseDto, invoiceService } from '../services/invoiceService';
@@ -319,23 +320,23 @@ const InvoiceManagementPage: React.FC = () => {
                       day: {
                         sx: {
                           '&.Mui-selected': {
-                            backgroundColor: '#E91E63 !important',
+                            backgroundColor: `${theme.palette.primary.main} !important`,
                             '&:hover': {
-                              backgroundColor: '#C2185B !important',
+                              backgroundColor: `${theme.palette.primary.dark} !important`,
                             },
                           },
                           '&:hover': {
-                            backgroundColor: '#FFC0CB',
+                            backgroundColor: theme.palette.primary.light,
                           },
                         },
                       },
                       calendarHeader: {
                         sx: {
                           '& .MuiPickersCalendarHeader-switchViewButton': {
-                            color: '#E91E63',
+                            color: theme.palette.primary.main,
                           },
                           '& .MuiPickersArrowSwitcher-button': {
-                            color: '#E91E63',
+                            color: theme.palette.primary.main,
                           },
                         },
                       },
@@ -343,20 +344,20 @@ const InvoiceManagementPage: React.FC = () => {
                     sx={{
                       '& .MuiOutlinedInput-root': {
                         '&.Mui-focused fieldset': {
-                          borderColor: '#E91E63',
+                          borderColor: theme.palette.primary.main,
                         },
                         '&:hover fieldset': {
-                          borderColor: '#FFC0CB',
+                          borderColor: theme.palette.primary.light,
                         },
                       },
                       '& .MuiInputLabel-root.Mui-focused': {
-                        color: '#E91E63',
+                        color: theme.palette.primary.main,
                       },
                       '& .MuiIconButton-root': {
-                        color: '#E91E63',
+                        color: theme.palette.primary.main,
                       },
                       '& .MuiPickersDay-root.Mui-selected': {
-                        backgroundColor: '#E91E63',
+                        backgroundColor: theme.palette.primary.main,
                       },
                     }}
                   />
@@ -366,7 +367,7 @@ const InvoiceManagementPage: React.FC = () => {
                     aria-label="Clear date filter"
                     onClick={() => setDateFilter(null)}
                     size="small"
-                    sx={{ color: '#E91E63' }}
+                    sx={{ color: theme.palette.primary.main }}
                   >
                     <ClearIcon />
                   </IconButton>
@@ -386,8 +387,9 @@ const InvoiceManagementPage: React.FC = () => {
                   startIcon={<DeleteIcon />}
                   onClick={() => setIsConfirmBulkDeleteDialogOpen(true)}
                   sx={{
-                    backgroundColor: '#E91E63',
-                    '&:hover': { backgroundColor: '#C2185B' },
+                    backgroundColor: theme.palette.primary.main,
+                    color: theme.palette.primary.contrastText,
+                    '&:hover': { backgroundColor: theme.palette.primary.dark },
                   }}>
                   Delete ({selectedInvoiceIds.length})
                 </Button>
@@ -397,8 +399,9 @@ const InvoiceManagementPage: React.FC = () => {
                 startIcon={<AIIcon />}
                 onClick={handleToggleChatDrawer}
                 sx={{
-                  backgroundColor: '#E91E63',
-                  '&:hover': { backgroundColor: '#C2185B' },
+                  backgroundColor: theme.palette.primary.main,
+                  color: theme.palette.primary.contrastText,
+                  '&:hover': { backgroundColor: theme.palette.primary.dark },
                 }}>
                 AI Assistant
               </Button>
@@ -408,11 +411,13 @@ const InvoiceManagementPage: React.FC = () => {
                 onClick={handleExportToExcel}
                 disabled={isExporting}
                 sx={{
-                  backgroundColor: '#E91E63',
-                  '&:hover': { backgroundColor: '#C2185B' },
+                  backgroundColor: theme.palette.primary.main,
+                  color: theme.palette.primary.contrastText,
+                  '&:hover': { backgroundColor: theme.palette.primary.dark },
                 }}>
                 {isExporting ? 'Exporting...' : 'Export to Excel'}
               </Button>
+              <ThemeToggle />
             </Box>
           }
         />
@@ -459,8 +464,9 @@ const InvoiceManagementPage: React.FC = () => {
           variant: 'contained',
           disabled: deleteMultipleInvoicesMutation.isPending,
           sx: {
-            backgroundColor: '#E91E63',
-            '&:hover': { backgroundColor: '#C2185B' },
+            backgroundColor: theme.palette.primary.main,
+            color: theme.palette.primary.contrastText,
+            '&:hover': { backgroundColor: theme.palette.primary.dark },
           },
         }}
       />
