@@ -21,6 +21,10 @@ import {
   Tooltip,
   Typography,
   useTheme,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -105,6 +109,7 @@ const UserManagementPage: React.FC<UserManagementPageProps> = () => {
 
   const [sortBy, setSortBy] = useState<string | null>(null);
   const [sortOrder, setSortOrder] = useState<SortOrder>('asc');
+  const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'inactive'>('all');
 
   const users: User[] = usersData?.data ?? [];
 
@@ -135,10 +140,16 @@ const UserManagementPage: React.FC<UserManagementPageProps> = () => {
     }
   }, [columns, columnOrder.length, setColumnOrder]);
 
-  const sortedUsers = useMemo(() => {
-    if (!sortBy) return users;
+  const filteredUsers = useMemo(() => {
+    if (statusFilter === 'all') return users;
+    const shouldBeActive = statusFilter === 'active';
+    return users.filter((u) => Boolean(u.isActive) === shouldBeActive);
+  }, [users, statusFilter]);
 
-    return [...users].sort((a, b) => {
+  const sortedUsers = useMemo(() => {
+    if (!sortBy) return filteredUsers;
+
+    return [...filteredUsers].sort((a, b) => {
       let aValue: string;
       let bValue: string;
 
@@ -179,7 +190,7 @@ const UserManagementPage: React.FC<UserManagementPageProps> = () => {
         return bValue.localeCompare(aValue);
       }
     });
-  }, [users, sortBy, sortOrder]);
+  }, [filteredUsers, sortBy, sortOrder]);
 
   const handleSort = (column: string) => {
     if (sortBy === column) {
@@ -255,15 +266,32 @@ const UserManagementPage: React.FC<UserManagementPageProps> = () => {
             </Typography>
           }
           action={
-            <Button
-              variant="contained"
-              onClick={openCreateForm}
-              sx={{
-                backgroundColor: '#8B5CF6',
-                '&:hover': { backgroundColor: '#7C3AED' },
-              }}>
-              + Add User
-            </Button>
+            <Stack direction="row" spacing={2} alignItems="center">
+              <FormControl size="small" sx={{ minWidth: 160 }}>
+                <InputLabel id="status-filter-label">Status</InputLabel>
+                <Select
+                  labelId="status-filter-label"
+                  id="status-filter"
+                  value={statusFilter}
+                  label="Status"
+                  onChange={(e) =>
+                    setStatusFilter(e.target.value as 'all' | 'active' | 'inactive')
+                  }>
+                  <MenuItem value="all">All</MenuItem>
+                  <MenuItem value="active">Active</MenuItem>
+                  <MenuItem value="inactive">Inactive</MenuItem>
+                </Select>
+              </FormControl>
+              <Button
+                variant="contained"
+                onClick={openCreateForm}
+                sx={{
+                  backgroundColor: '#8B5CF6',
+                  '&:hover': { backgroundColor: '#7C3AED' },
+                }}>
+                + Add User
+              </Button>
+            </Stack>
           }
         />
         <CardContent sx={{ p: 0, '&:last-child': { pb: 0 } }}>
