@@ -213,7 +213,7 @@ const InvoiceManagementPage: React.FC = () => {
   const handleExportToExcel = async () => {
     setIsExporting(true);
     try {
-      const blob = await invoiceService.exportInvoices(page, limit);
+      const blob = await invoiceService.exportInvoices();
 
       // Create download link
       const url = window.URL.createObjectURL(blob);
@@ -415,7 +415,7 @@ const InvoiceManagementPage: React.FC = () => {
                   color: theme.palette.primary.contrastText,
                   '&:hover': { backgroundColor: theme.palette.primary.dark },
                 }}>
-                {isExporting ? 'Exporting...' : 'Export to Excel'}
+                {isExporting ? 'Exporting...' : 'Export All to Excel'}
               </Button>
               <ThemeToggle />
             </Box>
