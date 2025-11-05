@@ -30,6 +30,19 @@ export class InvoiceRepository {
         });
     }
 
+    /**
+     * Find all invoices for a tenant without pagination
+     * Used for exports where all records are needed
+     */
+    async findAllWithoutPagination(tenantId: string): Promise<[Invoice[], number]> {
+        return this.invoiceRepository.findAndCount({
+            where: { tenantId },
+            order: {
+                issueDate: 'DESC',
+            },
+        });
+    }
+
     async findById(id: string, tenantId: string): Promise<Invoice | null> {
         return this.invoiceRepository.findOne({
             where: { id, tenantId },
