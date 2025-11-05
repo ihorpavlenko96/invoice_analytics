@@ -1,14 +1,14 @@
 import { createTheme } from '@mui/material';
 import { darken, lighten } from '@mui/material/styles';
 
-// Coral Peach-Paper Grey Theme for Invoice Page
+// Pink-Dark Grey Theme for Invoice Page
 export const pinkGreyTheme = createTheme({
   palette: {
     mode: 'dark',
     primary: {
-      main: '#FFB399', // Coral Peach
-      light: lighten('#FFB399', 0.1),
-      dark: darken('#FFB399', 0.15),
+      main: '#FFC0CB', // Light Pink
+      light: lighten('#FFC0CB', 0.1),
+      dark: darken('#FFC0CB', 0.15),
       contrastText: '#000000',
     },
     secondary: {
@@ -18,12 +18,12 @@ export const pinkGreyTheme = createTheme({
       contrastText: '#000000',
     },
     background: {
-      default: '#D3D3D3', // Paper Grey
-      paper: '#E0E0E0', // Slightly lighter paper grey for cards
+      default: '#2A2A2A', // Dark Grey
+      paper: '#3A3A3A', // Slightly lighter grey for cards
     },
     text: {
-      primary: '#1A1A1A',
-      secondary: '#4A4A4A',
+      primary: '#FFFFFF',
+      secondary: '#B3B3B3',
     },
     error: {
       main: '#F87171',
@@ -38,11 +38,11 @@ export const pinkGreyTheme = createTheme({
       main: '#34D399',
     },
     invoiceStatus: {
-      paid: '#FFB399', // Coral Peach for paid
-      unpaid: lighten('#FFB399', 0.2), // Lighter coral peach for unpaid
-      overdue: darken('#FFB399', 0.3), // Darker coral peach for overdue
+      paid: '#FFC0CB', // Light Pink for paid
+      unpaid: lighten('#FFC0CB', 0.2), // Even lighter pink for unpaid
+      overdue: darken('#FFC0CB', 0.3), // Darker pink for overdue
     },
-    divider: 'rgba(0, 0, 0, 0.12)',
+    divider: 'rgba(255, 255, 255, 0.12)',
   },
   typography: {
     fontFamily: 'Inter, system-ui, Avenir, Helvetica, Arial, sans-serif',
@@ -86,18 +86,18 @@ export const pinkGreyTheme = createTheme({
           },
         },
         contained: {
-          backgroundColor: '#FFB399',
+          backgroundColor: '#FFC0CB',
           color: '#000000',
           '&:hover': {
-            backgroundColor: darken('#FFB399', 0.15),
+            backgroundColor: darken('#FFC0CB', 0.15),
           },
         },
         outlined: {
-          borderColor: lighten('#FFB399', 0.1),
-          color: '#FFB399',
+          borderColor: lighten('#FFC0CB', 0.1),
+          color: '#FFC0CB',
           '&:hover': {
-            borderColor: '#FFB399',
-            backgroundColor: 'rgba(255, 179, 153, 0.08)',
+            borderColor: '#FFC0CB',
+            backgroundColor: 'rgba(255, 192, 203, 0.08)',
           },
         },
       },
@@ -106,10 +106,10 @@ export const pinkGreyTheme = createTheme({
       styleOverrides: {
         root: {
           '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-            borderColor: '#FFB399',
+            borderColor: '#FFC0CB',
           },
           '&:hover .MuiOutlinedInput-notchedOutline': {
-            borderColor: 'rgba(0, 0, 0, 0.23)',
+            borderColor: 'rgba(255, 255, 255, 0.23)',
           },
         },
       },
@@ -118,13 +118,13 @@ export const pinkGreyTheme = createTheme({
       styleOverrides: {
         root: {
           '&.Mui-selected': {
-            backgroundColor: 'rgba(255, 179, 153, 0.16)',
+            backgroundColor: 'rgba(255, 192, 203, 0.16)',
           },
           '&.Mui-selected:hover': {
-            backgroundColor: 'rgba(255, 179, 153, 0.24)',
+            backgroundColor: 'rgba(255, 192, 203, 0.24)',
           },
           '&:hover': {
-            backgroundColor: 'rgba(0, 0, 0, 0.04)',
+            backgroundColor: 'rgba(255, 255, 255, 0.08)',
           },
         },
       },
@@ -134,7 +134,7 @@ export const pinkGreyTheme = createTheme({
         root: {
           borderRadius: 12,
           boxShadow: '0 1px 3px rgba(0, 0, 0, 0.5), 0 1px 2px rgba(0, 0, 0, 0.3)',
-          border: '1px solid rgba(0, 0, 0, 0.12)',
+          border: '1px solid rgba(255, 255, 255, 0.12)',
           backgroundImage: 'none',
         },
       },
@@ -152,8 +152,8 @@ export const pinkGreyTheme = createTheme({
         root: {
           boxShadow: '0 1px 3px rgba(0, 0, 0, 0.5)',
           backgroundImage: 'none',
-          backgroundColor: '#E0E0E0',
-          borderBottom: '1px solid rgba(0, 0, 0, 0.12)',
+          backgroundColor: '#3A3A3A',
+          borderBottom: '1px solid rgba(255, 255, 255, 0.12)',
         },
       },
     },
@@ -162,9 +162,9 @@ export const pinkGreyTheme = createTheme({
         root: {
           '& .MuiTableCell-root': {
             fontWeight: 600,
-            color: '#1A1A1A',
-            backgroundColor: '#E0E0E0',
-            borderBottom: '2px solid rgba(0, 0, 0, 0.12)',
+            color: '#FFFFFF',
+            backgroundColor: '#3A3A3A',
+            borderBottom: '2px solid rgba(255, 255, 255, 0.12)',
           },
         },
       },
@@ -174,13 +174,13 @@ export const pinkGreyTheme = createTheme({
         root: {
           '& .MuiOutlinedInput-root': {
             '& fieldset': {
-              borderColor: 'rgba(0, 0, 0, 0.23)',
+              borderColor: 'rgba(255, 255, 255, 0.23)',
             },
             '&:hover fieldset': {
-              borderColor: 'rgba(0, 0, 0, 0.4)',
+              borderColor: 'rgba(255, 255, 255, 0.4)',
             },
             '&.Mui-focused fieldset': {
-              borderColor: '#FFB399',
+              borderColor: '#FFC0CB',
             },
           },
         },
