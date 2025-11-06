@@ -30,6 +30,15 @@ export class InvoiceRepository {
         });
     }
 
+    async findAllWithoutPagination(tenantId: string): Promise<[Invoice[], number]> {
+        return this.invoiceRepository.findAndCount({
+            where: { tenantId },
+            order: {
+                issueDate: 'DESC',
+            },
+        });
+    }
+
     async findById(id: string, tenantId: string): Promise<Invoice | null> {
         return this.invoiceRepository.findOne({
             where: { id, tenantId },
