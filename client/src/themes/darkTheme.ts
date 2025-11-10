@@ -37,9 +37,9 @@ export const darkTheme = createTheme({
       main: '#34D399',
     },
     invoiceStatus: {
-      paid: '#34D399', // Green for paid
-      unpaid: '#FBBF24', // Yellow for unpaid
-      overdue: '#F87171', // Red for overdue
+      paid: '#C71585',
+      unpaid: '#FFC0CB',
+      overdue: '#FF69B4',
     },
     divider: 'rgba(255, 255, 255, 0.12)',
   },
