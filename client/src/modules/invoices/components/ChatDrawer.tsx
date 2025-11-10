@@ -176,7 +176,7 @@ const ChatDrawer: React.FC<ChatDrawerProps> = ({
         onQuerySent();
       }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, [initialQuery, open, onQuerySent]);
 
   // Add click event listeners to db-object spans
