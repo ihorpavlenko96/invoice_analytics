@@ -6,11 +6,8 @@ import {
   CardContent,
   CardHeader,
   CircularProgress,
-  TextField,
-  InputAdornment,
   Typography,
   useTheme,
-  Grid,
   IconButton,
 } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
@@ -213,7 +210,7 @@ const InvoiceManagementPage: React.FC = () => {
   const handleExportToExcel = async () => {
     setIsExporting(true);
     try {
-      const blob = await invoiceService.exportInvoices(page, limit);
+      const blob = await invoiceService.exportInvoices();
 
       // Create download link
       const url = window.URL.createObjectURL(blob);
