@@ -6,10 +6,17 @@ import { charcoalCitrusTheme } from './charcoalCitrusTheme';
 
 type ThemeMode = 'dark' | 'pinkGrey' | 'charcoalCitrus';
 
+interface ThemeInfo {
+  theme: Theme;
+  displayName: string;
+  iconColor?: string;
+}
+
 interface ThemeContextType {
   themeMode: ThemeMode;
   toggleTheme: () => void;
   currentTheme: Theme;
+  currentThemeInfo: ThemeInfo;
 }
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
@@ -31,19 +38,30 @@ export const ThemeProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     }
   });
 
-  const getTheme = (mode: ThemeMode): Theme => {
+  const getThemeInfo = (mode: ThemeMode): ThemeInfo => {
     switch (mode) {
       case 'pinkGrey':
-        return pinkGreyTheme;
+        return {
+          theme: pinkGreyTheme,
+          displayName: 'Pink Grey',
+        };
       case 'charcoalCitrus':
-        return charcoalCitrusTheme;
+        return {
+          theme: charcoalCitrusTheme,
+          displayName: 'Charcoal Citrus',
+          iconColor: '#FF8C00', // Orange icon
+        };
       case 'dark':
       default:
-        return darkTheme;
+        return {
+          theme: darkTheme,
+          displayName: 'Dark',
+        };
     }
   };
 
-  const currentTheme = getTheme(themeMode);
+  const currentThemeInfo = getThemeInfo(themeMode);
+  const currentTheme = currentThemeInfo.theme;
 
   const toggleTheme = () => {
     setThemeMode((prev) => {
@@ -77,7 +95,7 @@ export const ThemeProvider: React.FC<{ children: ReactNode }> = ({ children }) =
   }, []);
 
   return (
-    <ThemeContext.Provider value={{ themeMode, toggleTheme, currentTheme }}>
+    <ThemeContext.Provider value={{ themeMode, toggleTheme, currentTheme, currentThemeInfo }}>
       <MuiThemeProvider theme={currentTheme}>{children}</MuiThemeProvider>
     </ThemeContext.Provider>
   );

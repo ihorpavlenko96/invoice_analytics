@@ -16,13 +16,17 @@ import {
   ListItemIcon,
   useTheme,
   useMediaQuery,
+  Tooltip,
 } from '@mui/material';
 import { Theme } from '@mui/material/styles';
 import MenuIcon from '@mui/icons-material/Menu';
+import PaletteIcon from '@mui/icons-material/Palette';
+import CircleIcon from '@mui/icons-material/Circle';
 import CustomUserButton from './CustomUserButton';
 import useUserRoles from '../hooks/useUserRoles';
 import { ROLES } from '../constants/roles';
 import InvoiceFileUpload from '../../modules/invoices/components/InvoiceFileUpload';
+import { useThemeMode } from '../../themes/ThemeContext';
 
 const drawerWidth = 240;
 
@@ -38,6 +42,7 @@ const MainLayout: React.FC = () => {
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const [mobileOpen, setMobileOpen] = useState(false);
   const userRoles = useUserRoles();
+  const { toggleTheme, currentThemeInfo } = useThemeMode();
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
@@ -153,7 +158,23 @@ const MainLayout: React.FC = () => {
               ))}
             </Box>
 
-            <Box sx={{ ml: { xs: 1, md: 2 } }}>
+            <Box sx={{ ml: { xs: 1, md: 2 }, display: 'flex', alignItems: 'center', gap: 1 }}>
+              <Tooltip title={`Current theme: ${currentThemeInfo.displayName}`}>
+                <IconButton onClick={toggleTheme} color="inherit" size="small">
+                  <PaletteIcon />
+                  {currentThemeInfo.iconColor && (
+                    <CircleIcon
+                      sx={{
+                        position: 'absolute',
+                        fontSize: 12,
+                        color: currentThemeInfo.iconColor,
+                        bottom: 2,
+                        right: 2,
+                      }}
+                    />
+                  )}
+                </IconButton>
+              </Tooltip>
               <CustomUserButton afterSignOutUrl="/" />
             </Box>
           </Toolbar>
