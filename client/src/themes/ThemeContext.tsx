@@ -2,13 +2,21 @@ import React, { ReactNode, createContext, useState, useContext, useEffect } from
 import { ThemeProvider as MuiThemeProvider, Theme } from '@mui/material';
 import { darkTheme } from './darkTheme';
 import { pinkGreyTheme } from './pinkGreyTheme';
+import { charcoalCitrusTheme } from './charcoalCitrusTheme';
 
-type ThemeMode = 'dark' | 'pinkGrey';
+type ThemeMode = 'dark' | 'pinkGrey' | 'charcoalCitrus';
+
+interface ThemeInfo {
+  theme: Theme;
+  displayName: string;
+  iconColor?: string;
+}
 
 interface ThemeContextType {
   themeMode: ThemeMode;
   toggleTheme: () => void;
   currentTheme: Theme;
+  currentThemeInfo: ThemeInfo;
 }
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
@@ -21,17 +29,50 @@ export const ThemeProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     // Load theme preference from localStorage
     try {
       const stored = localStorage.getItem(THEME_STORAGE_KEY);
-      return (stored === 'pinkGrey' ? 'pinkGrey' : 'dark') as ThemeMode;
+      if (stored === 'pinkGrey' || stored === 'charcoalCitrus') {
+        return stored as ThemeMode;
+      }
+      return 'dark';
     } catch {
       return 'dark';
     }
   });
 
-  const currentTheme = themeMode === 'pinkGrey' ? pinkGreyTheme : darkTheme;
+  const getThemeInfo = (mode: ThemeMode): ThemeInfo => {
+    switch (mode) {
+      case 'pinkGrey':
+        return {
+          theme: pinkGreyTheme,
+          displayName: 'Pink Grey',
+        };
+      case 'charcoalCitrus':
+        return {
+          theme: charcoalCitrusTheme,
+          displayName: '🍋 Charcoal Citrus',
+          iconColor: '#FF8C00', // Orange icon
+        };
+      case 'dark':
+      default:
+        return {
+          theme: darkTheme,
+          displayName: 'Dark',
+        };
+    }
+  };
+
+  const currentThemeInfo = getThemeInfo(themeMode);
+  const currentTheme = currentThemeInfo.theme;
 
   const toggleTheme = () => {
     setThemeMode((prev) => {
-      const newMode = prev === 'dark' ? 'pinkGrey' : 'dark';
+      let newMode: ThemeMode;
+      if (prev === 'dark') {
+        newMode = 'pinkGrey';
+      } else if (prev === 'pinkGrey') {
+        newMode = 'charcoalCitrus';
+      } else {
+        newMode = 'dark';
+      }
       // Persist to localStorage
       try {
         localStorage.setItem(THEME_STORAGE_KEY, newMode);
@@ -54,7 +95,7 @@ export const ThemeProvider: React.FC<{ children: ReactNode }> = ({ children }) =
   }, []);
 
   return (
-    <ThemeContext.Provider value={{ themeMode, toggleTheme, currentTheme }}>
+    <ThemeContext.Provider value={{ themeMode, toggleTheme, currentTheme, currentThemeInfo }}>
       <MuiThemeProvider theme={currentTheme}>{children}</MuiThemeProvider>
     </ThemeContext.Provider>
   );
