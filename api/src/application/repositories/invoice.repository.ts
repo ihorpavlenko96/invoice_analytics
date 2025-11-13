@@ -18,16 +18,19 @@ export class InvoiceRepository {
     ): Promise<[Invoice[], number]> {
         const page = paginationParams.page ?? 1;
         const limit = paginationParams.limit ?? 10;
-        const skip = (page - 1) * limit;
+        
+        const queryBuilder = this.invoiceRepository
+            .createQueryBuilder('invoice')
+            .where('invoice.tenantId = :tenantId', { tenantId })
+            .orderBy('invoice.issueDate', 'DESC');
 
-        return this.invoiceRepository.findAndCount({
-            where: { tenantId },
-            skip,
-            take: limit,
-            order: {
-                issueDate: 'DESC',
-            },
-        });
+        // Only apply pagination if limit is reasonable (not MAX_SAFE_INTEGER which indicates "fetch all")
+        if (limit < Number.MAX_SAFE_INTEGER) {
+            const skip = (page - 1) * limit;
+            queryBuilder.skip(skip).take(limit);
+        }
+
+        return queryBuilder.getManyAndCount();
     }
 
     async findById(id: string, tenantId: string): Promise<Invoice | null> {
