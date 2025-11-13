@@ -48,7 +48,7 @@ export const ThemeProvider: React.FC<{ children: ReactNode }> = ({ children }) =
       case 'charcoalCitrus':
         return {
           theme: charcoalCitrusTheme,
-          displayName: 'Charcoal Citrus',
+          displayName: '🍋 Charcoal Citrus',
           iconColor: '#FF8C00', // Orange icon
         };
       case 'dark':
