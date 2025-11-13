@@ -9,6 +9,16 @@ export interface PaginatedResponseDto<T> {
   totalPages: number;
 }
 
+export interface StatusDistributionItemDto {
+  status: string;
+  count: number;
+  totalAmount: number;
+}
+
+export interface StatusDistributionDto {
+  distribution: StatusDistributionItemDto[];
+}
+
 export const invoiceService = {
   /**
    * Get all invoices with pagination
@@ -90,6 +100,15 @@ export const invoiceService = {
       },
       responseType: 'blob',
     });
+    return response.data;
+  },
+
+  /**
+   * Get invoice status distribution analytics
+   * @returns Promise<StatusDistributionDto>
+   */
+  getStatusDistribution: async (): Promise<StatusDistributionDto> => {
+    const response = await axios.get<StatusDistributionDto>('/analytics/status-distribution');
     return response.data;
   },
 };

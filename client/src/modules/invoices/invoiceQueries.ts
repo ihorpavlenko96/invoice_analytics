@@ -47,3 +47,15 @@ export const useInvoice = (id: string) => {
     enabled: !!id, // Only run if ID is provided
   });
 };
+
+/**
+ * Hook to fetch invoice status distribution analytics
+ * Returns counts of paid, unpaid, and overdue invoices
+ */
+export const useStatusDistribution = () => {
+  return useQuery({
+    queryKey: invoiceKeys.statusDistribution(),
+    queryFn: () => invoiceService.getStatusDistribution(),
+    staleTime: 5 * 60 * 1000, // Consider data fresh for 5 minutes
+  });
+};
