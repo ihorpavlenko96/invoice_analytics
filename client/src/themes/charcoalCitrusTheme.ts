@@ -18,7 +18,7 @@ export const charcoalCitrusTheme = createTheme({
       contrastText: '#000000',
     },
     background: {
-      default: '#282929', // Dark Grey
+      default: '#2C2C2C', // Dark Grey
       paper: '#3A3A3A', // Slightly lighter grey for cards
     },
     text: {
