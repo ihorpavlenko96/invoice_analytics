@@ -178,19 +178,19 @@ export class InvoiceController {
     @Authorize(RoleName.SUPER_ADMIN)
     @ApiOperation({
         summary: 'Export invoices to Excel',
-        description: 'Exports invoices to an Excel file. If pagination parameters are omitted, exports all invoices.',
+        description: 'Exports all invoices to an Excel file based on pagination and filters',
     })
     @ApiQuery({
         name: 'page',
         required: false,
         type: Number,
-        description: 'Page number (starts from 1). Omit to export all invoices.',
+        description: 'Page number (starts from 1)',
     })
     @ApiQuery({
         name: 'limit',
         required: false,
         type: Number,
-        description: 'Number of items per page. Omit to export all invoices.',
+        description: 'Number of items per page',
     })
     @ApiResponse({
         status: HttpStatus.OK,
@@ -204,13 +204,7 @@ export class InvoiceController {
         @Query() paginationParams: PaginationParamsDto,
     ): Promise<void> {
         const tenantId = request.tenantId!;
-        
-        // If both page and limit are undefined, pass undefined to export all
-        const params = (paginationParams.page === undefined && paginationParams.limit === undefined) 
-            ? undefined 
-            : paginationParams;
-        
-        const buffer = await this.invoiceService.exportToExcel(tenantId, params);
+        const buffer = await this.invoiceService.exportToExcel(tenantId, paginationParams);
 
         response.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
         response.setHeader('Content-Disposition', `attachment; filename=invoices-${Date.now()}.xlsx`);
