@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsInt, IsOptional, Min } from 'class-validator';
+import { IsInt, IsOptional, Min, IsIn, IsString } from 'class-validator';
 import { Type } from 'class-transformer';
 
 export class PaginationParamsDto {
@@ -26,6 +26,17 @@ export class PaginationParamsDto {
     @IsOptional()
     @Type(() => Number)
     limit?: number = 10;
+
+    @ApiProperty({
+        description: 'Filter invoices by status',
+        example: 'PAID',
+        enum: ['PAID', 'UNPAID', 'OVERDUE'],
+        required: false,
+    })
+    @IsString()
+    @IsIn(['PAID', 'UNPAID', 'OVERDUE'])
+    @IsOptional()
+    status?: string;
 }
 
 export class PaginatedResponseDto<T> {

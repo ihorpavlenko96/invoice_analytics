@@ -78,6 +78,12 @@ export class InvoiceController {
         type: Number,
         description: 'Number of items per page',
     })
+    @ApiQuery({
+        name: 'status',
+        required: false,
+        enum: ['PAID', 'UNPAID', 'OVERDUE'],
+        description: 'Filter invoices by status',
+    })
     @ApiResponse({
         status: HttpStatus.OK,
         description: 'List of invoices retrieved successfully',
@@ -191,6 +197,12 @@ export class InvoiceController {
         required: false,
         type: Number,
         description: 'Number of items per page',
+    })
+    @ApiQuery({
+        name: 'status',
+        required: false,
+        enum: ['PAID', 'UNPAID', 'OVERDUE'],
+        description: 'Filter invoices by status',
     })
     @ApiResponse({
         status: HttpStatus.OK,
