@@ -28,6 +28,7 @@ import InvoiceTable from './InvoiceTable';
 import InvoiceDetails from './InvoiceDetails';
 import ChatDrawer from './ChatDrawer';
 import ThemeToggle from './ThemeToggle';
+import OverdueMonthlyChart from './OverdueMonthlyChart';
 import { useInvoice } from '../invoiceQueries';
 import { useUser } from '@clerk/clerk-react';
 import { PaginatedResponseDto, invoiceService } from '../services/invoiceService';
@@ -471,7 +472,10 @@ const InvoiceManagementPage: React.FC = () => {
             </Box>
           }
         />
-        <CardContent sx={{ p: 0, '&:last-child': { pb: 0 } }}>
+        <CardContent sx={{ p: 3, '&:last-child': { pb: 0 } }}>
+          {/* Overdue Monthly Statistics Chart */}
+          <OverdueMonthlyChart />
+
           {isInvoicesLoading && (
             <Box sx={{ display: 'flex', justifyContent: 'center', my: 5 }}>
               <CircularProgress />
