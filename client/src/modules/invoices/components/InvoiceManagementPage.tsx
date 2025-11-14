@@ -28,6 +28,7 @@ import InvoiceTable from './InvoiceTable';
 import InvoiceDetails from './InvoiceDetails';
 import ChatDrawer from './ChatDrawer';
 import ThemeToggle from './ThemeToggle';
+import InvoiceStatusChart from './InvoiceStatusChart';
 import { useInvoice } from '../invoiceQueries';
 import { useUser } from '@clerk/clerk-react';
 import { PaginatedResponseDto, invoiceService } from '../services/invoiceService';
@@ -472,6 +473,11 @@ const InvoiceManagementPage: React.FC = () => {
           }
         />
         <CardContent sx={{ p: 0, '&:last-child': { pb: 0 } }}>
+          {/* Invoice Status Distribution Chart */}
+          <Box sx={{ px: 3, pt: 3 }}>
+            <InvoiceStatusChart />
+          </Box>
+
           {isInvoicesLoading && (
             <Box sx={{ display: 'flex', justifyContent: 'center', my: 5 }}>
               <CircularProgress />
