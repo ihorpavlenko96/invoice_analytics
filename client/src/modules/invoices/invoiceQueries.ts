@@ -7,12 +7,13 @@ import { invoiceService } from './services/invoiceService';
  * @param searchQuery - Optional search term for vendor or customer name
  * @param page - Page number (starts at 1)
  * @param limit - Number of items per page
+ * @param status - Optional status filter (PAID, UNPAID, OVERDUE)
  */
-export const useInvoices = (searchQuery = '', page = 1, limit = 10) => {
+export const useInvoices = (searchQuery = '', page = 1, limit = 10, status?: string) => {
   return useQuery({
-    queryKey: invoiceKeys.list(searchQuery, page, limit),
+    queryKey: invoiceKeys.list(searchQuery, page, limit, status),
     queryFn: async () => {
-      const paginatedResponse = await invoiceService.getInvoices(page, limit);
+      const paginatedResponse = await invoiceService.getInvoices(page, limit, status);
 
       // Apply filters if any are specified
       let filteredItems = paginatedResponse.items;

@@ -20,8 +20,14 @@ export class InvoiceRepository {
         const limit = paginationParams.limit ?? 10;
         const skip = (page - 1) * limit;
 
+        // Build where clause with optional status filter
+        const whereClause: any = { tenantId };
+        if (paginationParams.status) {
+            whereClause.status = paginationParams.status;
+        }
+
         return this.invoiceRepository.findAndCount({
-            where: { tenantId },
+            where: whereClause,
             skip,
             take: limit,
             order: {

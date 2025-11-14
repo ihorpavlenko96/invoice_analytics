@@ -12,6 +12,10 @@ import {
   useTheme,
   Grid,
   IconButton,
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel,
 } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
@@ -43,6 +47,7 @@ const InvoiceManagementPage: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [aiSearchQuery, setAiSearchQuery] = useState('');
   const [dateFilter, setDateFilter] = useState<Dayjs | null>(null);
+  const [statusFilter, setStatusFilter] = useState<string>('');
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
   const [isExporting, setIsExporting] = useState(false);
@@ -66,7 +71,7 @@ const InvoiceManagementPage: React.FC = () => {
       totalPages: 1,
     } as PaginatedResponseDto<Invoice>,
     isLoading: isInvoicesLoading,
-  } = useInvoices(searchQuery, page, limit);
+  } = useInvoices(searchQuery, page, limit, statusFilter || undefined);
 
   // Fetch selected invoice details
   const { data: selectedInvoice, isLoading: isInvoiceLoading } = useInvoice(
@@ -213,7 +218,7 @@ const InvoiceManagementPage: React.FC = () => {
   const handleExportToExcel = async () => {
     setIsExporting(true);
     try {
-      const blob = await invoiceService.exportInvoices(page, limit);
+      const blob = await invoiceService.exportInvoices(page, limit, statusFilter || undefined);
 
       // Create download link
       const url = window.URL.createObjectURL(blob);
@@ -366,6 +371,51 @@ const InvoiceManagementPage: React.FC = () => {
                   <IconButton
                     aria-label="Clear date filter"
                     onClick={() => setDateFilter(null)}
+                    size="small"
+                    sx={{ color: theme.palette.primary.main }}
+                  >
+                    <ClearIcon />
+                  </IconButton>
+                )}
+                <FormControl size="small" sx={{ minWidth: 150 }}>
+                  <InputLabel
+                    id="status-filter-label"
+                    sx={{
+                      '&.Mui-focused': {
+                        color: theme.palette.primary.main,
+                      },
+                    }}
+                  >
+                    Status
+                  </InputLabel>
+                  <Select
+                    labelId="status-filter-label"
+                    id="status-filter"
+                    value={statusFilter}
+                    label="Status"
+                    onChange={(e) => setStatusFilter(e.target.value)}
+                    sx={{
+                      '& .MuiOutlinedInput-notchedOutline': {
+                        borderColor: theme.palette.divider,
+                      },
+                      '&:hover .MuiOutlinedInput-notchedOutline': {
+                        borderColor: theme.palette.primary.light,
+                      },
+                      '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                        borderColor: theme.palette.primary.main,
+                      },
+                    }}
+                  >
+                    <MenuItem value="">All Statuses</MenuItem>
+                    <MenuItem value="PAID">Paid</MenuItem>
+                    <MenuItem value="UNPAID">Unpaid</MenuItem>
+                    <MenuItem value="OVERDUE">Overdue</MenuItem>
+                  </Select>
+                </FormControl>
+                {statusFilter && (
+                  <IconButton
+                    aria-label="Clear status filter"
+                    onClick={() => setStatusFilter('')}
                     size="small"
                     sx={{ color: theme.palette.primary.main }}
                   >
