@@ -108,77 +108,88 @@ export class InvoiceService implements IInvoiceService {
         tenantId: string,
         paginationParams: PaginationParamsDto,
     ): Promise<Buffer> {
-        // Override pagination to fetch all invoices
-        const exportParams: PaginationParamsDto = {
-            page: 1,
-            limit: 999999,
-            status: paginationParams.status, // Preserve status filter if provided
-        };
+        try {
+            // Override pagination to fetch all invoices
+            const exportParams: PaginationParamsDto = {
+                page: 1,
+                limit: 999999,
+                status: paginationParams.status, // Preserve status filter if provided
+            };
 
-        const [invoices] = await this.invoiceRepository.findAll(tenantId, exportParams);
+            const [invoices] = await this.invoiceRepository.findAll(tenantId, exportParams);
 
-        const workbook = new ExcelJS.Workbook();
-        const worksheet = workbook.addWorksheet('Invoices');
+            if (!invoices || invoices.length === 0) {
+                throw new NotFoundException('No invoices found to export');
+            }
 
-        // Define columns
-        worksheet.columns = [
-            { header: 'Invoice Number', key: 'invoiceNumber', width: 20 },
-            { header: 'Issue Date', key: 'issueDate', width: 15 },
-            { header: 'Due Date', key: 'dueDate', width: 15 },
-            { header: 'Vendor Name', key: 'vendorName', width: 25 },
-            { header: 'Vendor Address', key: 'vendorAddress', width: 30 },
-            { header: 'Vendor Phone', key: 'vendorPhone', width: 15 },
-            { header: 'Vendor Email', key: 'vendorEmail', width: 25 },
-            { header: 'Customer Name', key: 'customerName', width: 25 },
-            { header: 'Customer Address', key: 'customerAddress', width: 30 },
-            { header: 'Customer Phone', key: 'customerPhone', width: 15 },
-            { header: 'Customer Email', key: 'customerEmail', width: 25 },
-            { header: 'Status', key: 'status', width: 12 },
-            { header: 'Currency', key: 'currency', width: 10 },
-            { header: 'Subtotal', key: 'subtotal', width: 12 },
-            { header: 'Discount', key: 'discount', width: 12 },
-            { header: 'Tax Rate', key: 'taxRate', width: 12 },
-            { header: 'Tax Amount', key: 'taxAmount', width: 12 },
-            { header: 'Total Amount', key: 'totalAmount', width: 15 },
-            { header: 'Terms', key: 'terms', width: 30 },
-        ];
+            const workbook = new ExcelJS.Workbook();
+            const worksheet = workbook.addWorksheet('Invoices');
 
-        // Style header row
-        worksheet.getRow(1).font = { bold: true };
-        worksheet.getRow(1).fill = {
-            type: 'pattern',
-            pattern: 'solid',
-            fgColor: { argb: 'FFE0E0E0' },
-        };
+            // Define columns
+            worksheet.columns = [
+                { header: 'Invoice Number', key: 'invoiceNumber', width: 20 },
+                { header: 'Issue Date', key: 'issueDate', width: 15 },
+                { header: 'Due Date', key: 'dueDate', width: 15 },
+                { header: 'Vendor Name', key: 'vendorName', width: 25 },
+                { header: 'Vendor Address', key: 'vendorAddress', width: 30 },
+                { header: 'Vendor Phone', key: 'vendorPhone', width: 15 },
+                { header: 'Vendor Email', key: 'vendorEmail', width: 25 },
+                { header: 'Customer Name', key: 'customerName', width: 25 },
+                { header: 'Customer Address', key: 'customerAddress', width: 30 },
+                { header: 'Customer Phone', key: 'customerPhone', width: 15 },
+                { header: 'Customer Email', key: 'customerEmail', width: 25 },
+                { header: 'Status', key: 'status', width: 12 },
+                { header: 'Currency', key: 'currency', width: 10 },
+                { header: 'Subtotal', key: 'subtotal', width: 12 },
+                { header: 'Discount', key: 'discount', width: 12 },
+                { header: 'Tax Rate', key: 'taxRate', width: 12 },
+                { header: 'Tax Amount', key: 'taxAmount', width: 12 },
+                { header: 'Total Amount', key: 'totalAmount', width: 15 },
+                { header: 'Terms', key: 'terms', width: 30 },
+            ];
 
-        // Add data rows
-        invoices.forEach((invoice) => {
-            worksheet.addRow({
-                invoiceNumber: invoice.invoiceNumber,
-                issueDate: invoice.issueDate,
-                dueDate: invoice.dueDate,
-                vendorName: invoice.vendorName,
-                vendorAddress: invoice.vendorAddress,
-                vendorPhone: invoice.vendorPhone,
-                vendorEmail: invoice.vendorEmail,
-                customerName: invoice.customerName,
-                customerAddress: invoice.customerAddress,
-                customerPhone: invoice.customerPhone,
-                customerEmail: invoice.customerEmail,
-                status: invoice.status || 'N/A',
-                currency: invoice.currency || 'USD',
-                subtotal: invoice.subtotal,
-                discount: invoice.discount,
-                taxRate: invoice.taxRate,
-                taxAmount: invoice.taxAmount,
-                totalAmount: invoice.totalAmount,
-                terms: invoice.terms || '',
+            // Style header row
+            worksheet.getRow(1).font = { bold: true };
+            worksheet.getRow(1).fill = {
+                type: 'pattern',
+                pattern: 'solid',
+                fgColor: { argb: 'FFE0E0E0' },
+            };
+
+            // Add data rows
+            invoices.forEach((invoice) => {
+                worksheet.addRow({
+                    invoiceNumber: invoice.invoiceNumber,
+                    issueDate: invoice.issueDate,
+                    dueDate: invoice.dueDate,
+                    vendorName: invoice.vendorName,
+                    vendorAddress: invoice.vendorAddress,
+                    vendorPhone: invoice.vendorPhone,
+                    vendorEmail: invoice.vendorEmail,
+                    customerName: invoice.customerName,
+                    customerAddress: invoice.customerAddress,
+                    customerPhone: invoice.customerPhone,
+                    customerEmail: invoice.customerEmail,
+                    status: invoice.status || 'N/A',
+                    currency: invoice.currency || 'USD',
+                    subtotal: invoice.subtotal,
+                    discount: invoice.discount,
+                    taxRate: invoice.taxRate,
+                    taxAmount: invoice.taxAmount,
+                    totalAmount: invoice.totalAmount,
+                    terms: invoice.terms || '',
+                });
             });
-        });
 
-        // Generate buffer
-        const buffer = await workbook.xlsx.writeBuffer();
-        return Buffer.from(buffer);
+            // Generate buffer
+            const buffer = await workbook.xlsx.writeBuffer();
+            return Buffer.from(buffer);
+        } catch (error) {
+            if (error instanceof NotFoundException) {
+                throw error;
+            }
+            throw new Error(`Failed to export invoices: ${error.message}`);
+        }
     }
 
     private formatDateValue(dateValue: ExcelJS.CellValue): string {

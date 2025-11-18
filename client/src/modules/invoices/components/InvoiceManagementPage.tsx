@@ -231,9 +231,12 @@ const InvoiceManagementPage: React.FC = () => {
       // Cleanup
       link.parentNode?.removeChild(link);
       window.URL.revokeObjectURL(url);
+
+      enqueueSnackbar('Invoices exported successfully', { variant: 'success' });
     } catch (error) {
       console.error('Error exporting invoices:', error);
-      enqueueSnackbar('Failed to export invoices.', { variant: 'error' });
+      const errorMessage = error instanceof Error ? error.message : 'Failed to export invoices';
+      enqueueSnackbar(errorMessage, { variant: 'error' });
     } finally {
       setIsExporting(false);
     }

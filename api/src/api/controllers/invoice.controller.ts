@@ -13,6 +13,8 @@ import {
     Query,
     Inject,
     NotFoundException,
+    BadRequestException,
+    InternalServerErrorException,
 } from '@nestjs/common';
 import { Response } from 'express';
 import { FileInterceptor } from '@nestjs/platform-express';
@@ -152,12 +154,25 @@ export class InvoiceController {
         @UploadedFile() file: MulterFile,
         @Req() request: RequestWithTenant,
     ): Promise<InvoiceDto> {
-        if (!file) {
-            throw new NotFoundException('No file uploaded');
-        }
+        try {
+            if (!file) {
+                throw new BadRequestException('No file uploaded');
+            }
 
-        const tenantId = request.tenantId!;
-        return this.invoiceService.importFromBuffer(file.buffer, tenantId);
+            if (!file.buffer || file.buffer.length === 0) {
+                throw new BadRequestException('Invalid file content');
+            }
+
+            const tenantId = request.tenantId!;
+            return await this.invoiceService.importFromBuffer(file.buffer, tenantId);
+        } catch (error) {
+            if (error instanceof BadRequestException || error instanceof NotFoundException) {
+                throw error;
+            }
+            throw new InternalServerErrorException(
+                `Failed to import invoice: ${error.message}`,
+            );
+        }
     }
 
     @Delete(':id')
@@ -215,11 +230,25 @@ export class InvoiceController {
         @Res() response: Response,
         @Query() paginationParams: PaginationParamsDto,
     ): Promise<void> {
-        const tenantId = request.tenantId!;
-        const buffer = await this.invoiceService.exportToExcel(tenantId, paginationParams);
+        try {
+            const tenantId = request.tenantId!;
+            const buffer = await this.invoiceService.exportToExcel(tenantId, paginationParams);
 
-        response.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-        response.setHeader('Content-Disposition', `attachment; filename=invoices-${Date.now()}.xlsx`);
-        response.send(buffer);
+            response.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+            response.setHeader('Content-Disposition', `attachment; filename=invoices-${Date.now()}.xlsx`);
+            response.send(buffer);
+        } catch (error) {
+            if (error instanceof NotFoundException) {
+                response.status(HttpStatus.NOT_FOUND).json({
+                    statusCode: HttpStatus.NOT_FOUND,
+                    message: error.message,
+                });
+            } else {
+                response.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+                    statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+                    message: `Failed to export invoices: ${error.message}`,
+                });
+            }
+        }
     }
 }
