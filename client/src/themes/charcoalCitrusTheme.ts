@@ -6,10 +6,10 @@ export const charcoalCitrusTheme = createTheme({
   palette: {
     mode: 'dark',
     primary: {
-      main: '#F4F4A1', // Light Lemon
-      light: lighten('#F4F4A1', 0.1),
-      dark: darken('#F4F4A1', 0.15),
-      contrastText: '#000000',
+      main: '#000000', // Black
+      light: lighten('#000000', 0.2),
+      dark: '#333333',
+      contrastText: '#FFFFFF',
     },
     secondary: {
       main: '#9CA3AF',
@@ -86,18 +86,18 @@ export const charcoalCitrusTheme = createTheme({
           },
         },
         contained: {
-          backgroundColor: '#F4F4A1',
-          color: '#000000',
+          backgroundColor: '#000000',
+          color: '#FFFFFF',
           '&:hover': {
-            backgroundColor: darken('#F4F4A1', 0.15),
+            backgroundColor: '#333333',
           },
         },
         outlined: {
-          borderColor: lighten('#F4F4A1', 0.1),
-          color: '#F4F4A1',
+          borderColor: '#000000',
+          color: '#000000',
           '&:hover': {
-            borderColor: '#F4F4A1',
-            backgroundColor: 'rgba(244, 244, 161, 0.08)',
+            borderColor: '#333333',
+            backgroundColor: 'rgba(0, 0, 0, 0.08)',
           },
         },
       },
@@ -106,7 +106,7 @@ export const charcoalCitrusTheme = createTheme({
       styleOverrides: {
         root: {
           '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-            borderColor: '#F4F4A1',
+            borderColor: '#000000',
           },
           '&:hover .MuiOutlinedInput-notchedOutline': {
             borderColor: 'rgba(255, 255, 255, 0.23)',
@@ -118,10 +118,10 @@ export const charcoalCitrusTheme = createTheme({
       styleOverrides: {
         root: {
           '&.Mui-selected': {
-            backgroundColor: 'rgba(244, 244, 161, 0.16)',
+            backgroundColor: 'rgba(0, 0, 0, 0.16)',
           },
           '&.Mui-selected:hover': {
-            backgroundColor: 'rgba(244, 244, 161, 0.24)',
+            backgroundColor: 'rgba(0, 0, 0, 0.24)',
           },
           '&:hover': {
             backgroundColor: 'rgba(255, 255, 255, 0.08)',
@@ -180,7 +180,7 @@ export const charcoalCitrusTheme = createTheme({
               borderColor: 'rgba(255, 255, 255, 0.4)',
             },
             '&.Mui-focused fieldset': {
-              borderColor: '#F4F4A1',
+              borderColor: '#000000',
             },
           },
         },
