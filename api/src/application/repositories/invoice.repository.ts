@@ -164,13 +164,4 @@ export class InvoiceRepository {
             .limit(5)
             .getRawMany();
     }
-
-    async findAllWithoutPagination(tenantId: string): Promise<Invoice[]> {
-        return this.invoiceRepository.find({
-            where: { tenantId },
-            order: {
-                issueDate: 'DESC',
-            },
-        });
-    }
 }
