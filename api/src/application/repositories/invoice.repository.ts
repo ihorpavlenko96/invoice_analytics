@@ -164,19 +164,4 @@ export class InvoiceRepository {
             .limit(5)
             .getRawMany();
     }
-
-    async findAllForExport(tenantId: string, status?: string): Promise<Invoice[]> {
-        // Build where clause with optional status filter
-        const whereClause: any = { tenantId };
-        if (status) {
-            whereClause.status = status;
-        }
-
-        return this.invoiceRepository.find({
-            where: whereClause,
-            order: {
-                issueDate: 'DESC',
-            },
-        });
-    }
 }
