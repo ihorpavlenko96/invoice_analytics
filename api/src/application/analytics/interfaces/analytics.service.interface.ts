@@ -3,6 +3,7 @@ import { SummaryAnalyticsDto } from '../dto/summary-analytics.dto';
 import { StatusDistributionDto } from '../dto/status-distribution.dto';
 import { MonthlyTrendsDto } from '../dto/monthly-trends.dto';
 import { TopVendorsDto, TopCustomersDto } from '../dto/top-entities.dto';
+import { OverdueMonthlyDto } from '../dto/overdue-monthly.dto';
 
 export const ANALYTICS_SERVICE = 'ANALYTICS_SERVICE';
 
@@ -12,4 +13,5 @@ export interface IAnalyticsService {
     getMonthlyTrends(tenantId: string, filters?: AnalyticsFiltersDto): Promise<MonthlyTrendsDto>;
     getTopVendors(tenantId: string, filters?: AnalyticsFiltersDto): Promise<TopVendorsDto>;
     getTopCustomers(tenantId: string, filters?: AnalyticsFiltersDto): Promise<TopCustomersDto>;
+    getOverdueMonthlyStatistics(tenantId: string): Promise<OverdueMonthlyDto>;
 }
