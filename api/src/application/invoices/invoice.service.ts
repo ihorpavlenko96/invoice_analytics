@@ -108,14 +108,7 @@ export class InvoiceService implements IInvoiceService {
         tenantId: string,
         paginationParams: PaginationParamsDto,
     ): Promise<Buffer> {
-        // For export, fetch ALL invoices (not just current page)
-        // Set a very high limit to export all records, while preserving status filter
-        const exportParams = {
-            ...paginationParams,
-            page: 1,
-            limit: 1000000, // High limit to fetch all invoices
-        };
-        const [invoices] = await this.invoiceRepository.findAll(tenantId, exportParams);
+        const [invoices] = await this.invoiceRepository.findAll(tenantId, paginationParams);
 
         const workbook = new ExcelJS.Workbook();
         const worksheet = workbook.addWorksheet('Invoices');
