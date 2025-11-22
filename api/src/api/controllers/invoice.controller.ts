@@ -96,7 +96,7 @@ export class InvoiceController {
         @Query() paginationParams: PaginationParamsDto,
     ): Promise<PaginatedResponseDto<InvoiceDto>> {
         const tenantId = request.tenantId!;
-        return this.invoiceService.findAll(tenantId, paginationParams);
+        return this.invoiceService.findAll(tenantId, p aginationParams);
     }
 
     @Get(':id')
@@ -190,19 +190,25 @@ export class InvoiceController {
         name: 'page',
         required: false,
         type: Number,
-        description: 'Page number (starts from 1)',
+        description: 'Page number (starts from 1, ignored if exportAll is true)',
     })
     @ApiQuery({
         name: 'limit',
         required: false,
         type: Number,
-        description: 'Number of items per page',
+        description: 'Number of items per page (ignored if exportAll is true)',
     })
     @ApiQuery({
         name: 'status',
         required: false,
         enum: ['PAID', 'UNPAID', 'OVERDUE'],
         description: 'Filter invoices by status',
+    })
+    @ApiQuery({
+        name: 'exportAll',
+        required: false,
+        type: Boolean,
+        description: 'Export all invoices regardless of pagination (default: false)',
     })
     @ApiResponse({
         status: HttpStatus.OK,
@@ -214,9 +220,11 @@ export class InvoiceController {
         @Req() request: RequestWithTenant,
         @Res() response: Response,
         @Query() paginationParams: PaginationParamsDto,
+        @Query('exportAll') exportAll?: string,
     ): Promise<void> {
         const tenantId = request.tenantId!;
-        const buffer = await this.invoiceService.exportToExcel(tenantId, paginationParams);
+        const shouldExportAll = exportAll === 'true';
+        const buffer = await this.invoiceService.exportToExcel(tenantId, paginationParams, shouldExportAll);
 
         response.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
         response.setHeader('Content-Disposition', `attachment; filename=invoices-${Date.now()}.xlsx`);
