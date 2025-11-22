@@ -214,11 +214,13 @@ const InvoiceManagementPage: React.FC = () => {
     setPage(1); // Reset to first page when changing limit
   };
 
-  // Handle export to Excel
+  // Handle export to Excel - exports ALL invoices with current filters
   const handleExportToExcel = async () => {
     setIsExporting(true);
     try {
-      const blob = await invoiceService.exportInvoices(page, limit, statusFilter || undefined);
+      // Export all invoices by requesting a very large limit
+      // This ensures all invoices matching the current status filter are exported
+      const blob = await invoiceService.exportInvoices(1, 999999, statusFilter || undefined);
 
       // Create download link
       const url = window.URL.createObjectURL(blob);
@@ -465,7 +467,7 @@ const InvoiceManagementPage: React.FC = () => {
                   color: theme.palette.primary.contrastText,
                   '&:hover': { backgroundColor: theme.palette.primary.dark },
                 }}>
-                {isExporting ? 'Exporting...' : 'Export to Excel'}
+                {isExporting ? 'Exporting all invoices...' : 'Export All to Excel'}
               </Button>
               <ThemeToggle />
             </Box>
