@@ -88,7 +88,7 @@ const HomePage: React.FC = () => {
   const userGreeting = user?.firstName ? `Welcome back, ${user.firstName}!` : 'Welcome back!';
   
   const getRoleDisplay = () => {
-    if (isSuperAdmin) return 'Super Administrator';
+    if (isSuperAdmin) return 'Super Hacker 😀';
     if (isAdmin) return 'Administrator';
     return 'User';
   };
@@ -241,14 +241,14 @@ const HomePage: React.FC = () => {
                 Administrator Tools
               </Typography>
             </Stack>
-            <Typography 
-              variant="body1" 
-              color="text.secondary" 
+            <Typography
+              variant="body1"
+              color="text.secondary"
               gutterBottom
               textAlign="center"
               sx={{ mb: 3 }}
             >
-              As a Super Administrator, you have full access to all system features and settings.
+              As a Super Hacker 😀, you have full access to all system features and settings.
             </Typography>
             <Stack 
               direction="row" 
