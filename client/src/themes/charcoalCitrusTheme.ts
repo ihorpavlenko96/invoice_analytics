@@ -86,10 +86,10 @@ export const charcoalCitrusTheme = createTheme({
           },
         },
         contained: {
-          backgroundColor: '#003366', // Navy blue
+          backgroundColor: '#003153', // Navy blue
           color: '#FFFFFF',
           '&:hover': {
-            backgroundColor: '#004080', // Lighter navy on hover
+            backgroundColor: '#082567', // Lighter navy on hover
           },
         },
         outlined: {
