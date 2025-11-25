@@ -286,8 +286,8 @@ const UserManagementPage: React.FC<UserManagementPageProps> = () => {
                 variant="contained"
                 onClick={openCreateForm}
                 sx={{
-                  backgroundColor: '#8B5CF6',
-                  '&:hover': { backgroundColor: '#7C3AED' },
+                  backgroundColor: '#003934',
+                  '&:hover': { backgroundColor: '#002822' },
                 }}>
                 + Add User
               </Button>
