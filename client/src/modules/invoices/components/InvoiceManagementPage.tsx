@@ -22,13 +22,12 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs, { Dayjs } from 'dayjs';
 import { SmartToy as AIIcon, Download as DownloadIcon, Delete as DeleteIcon, Clear as ClearIcon } from '@mui/icons-material';
-import { useInvoices, useMonthlyTrends } from '../invoiceQueries';
+import { useInvoices } from '../invoiceQueries';
 import UnifiedSearchBar from './UnifiedSearchBar';
 import InvoiceTable from './InvoiceTable';
 import InvoiceDetails from './InvoiceDetails';
 import ChatDrawer from './ChatDrawer';
 import ThemeToggle from './ThemeToggle';
-import MonthlyTrendsChart from './MonthlyTrendsChart';
 import { useInvoice } from '../invoiceQueries';
 import { useUser } from '@clerk/clerk-react';
 import { PaginatedResponseDto, invoiceService } from '../services/invoiceService';
@@ -73,9 +72,6 @@ const InvoiceManagementPage: React.FC = () => {
     } as PaginatedResponseDto<Invoice>,
     isLoading: isInvoicesLoading,
   } = useInvoices(searchQuery, page, limit, statusFilter || undefined);
-
-  // Fetch monthly trends data
-  const { data: monthlyTrendsData, isLoading: isTrendsLoading } = useMonthlyTrends();
 
   // Fetch selected invoice details
   const { data: selectedInvoice, isLoading: isInvoiceLoading } = useInvoice(
@@ -303,12 +299,6 @@ const InvoiceManagementPage: React.FC = () => {
 
   return (
     <Box sx={{ backgroundColor: theme.palette.background.default }}>
-      {/* Monthly Trends Chart */}
-      <MonthlyTrendsChart 
-        data={monthlyTrendsData?.trends || []} 
-        isLoading={isTrendsLoading} 
-      />
-
       <Card
         sx={{
           backgroundColor: theme.palette.background.paper,

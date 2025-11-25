@@ -1,7 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { invoiceKeys } from './invoiceQueryKeys';
 import { invoiceService } from './services/invoiceService';
-import { analyticsService } from './services/analyticsService';
 
 /**
  * Hook to fetch all invoices
@@ -47,16 +46,5 @@ export const useInvoice = (id: string) => {
     queryKey: invoiceKeys.detail(id),
     queryFn: () => invoiceService.getInvoice(id),
     enabled: !!id, // Only run if ID is provided
-  });
-};
-
-/**
- * Hook to fetch monthly trends analytics data
- * @param filters - Optional filters for the analytics query
- */
-export const useMonthlyTrends = (filters?: Record<string, unknown>) => {
-  return useQuery({
-    queryKey: invoiceKeys.monthlyTrends(filters),
-    queryFn: () => analyticsService.getMonthlyTrends(filters),
   });
 };
