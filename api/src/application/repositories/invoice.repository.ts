@@ -51,6 +51,28 @@ export class InvoiceRepository {
         await this.invoiceRepository.delete(id);
     }
 
+    /**
+     * Find all invoices for export without pagination
+     * Used for exporting all invoices matching the filters
+     * @param tenantId - Tenant ID
+     * @param status - Optional status filter
+     * @returns Promise<Invoice[]>
+     */
+    async findAllForExport(tenantId: string, status?: string): Promise<Invoice[]> {
+        // Build where clause with optional status filter
+        const whereClause: any = { tenantId };
+        if (status) {
+            whereClause.status = status;
+        }
+
+        return this.invoiceRepository.find({
+            where: whereClause,
+            order: {
+                issueDate: 'DESC',
+            },
+        });
+    }
+
     async getSummaryAnalytics(tenantId: string, filters?: AnalyticsFiltersDto) {
         const query = this.invoiceRepository.createQueryBuilder('invoice')
             .select([
