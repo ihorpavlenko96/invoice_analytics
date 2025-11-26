@@ -106,9 +106,10 @@ export class InvoiceService implements IInvoiceService {
 
     async exportToExcel(
         tenantId: string,
-        paginationParams: PaginationParamsDto,
+        status?: string,
     ): Promise<Buffer> {
-        const [invoices] = await this.invoiceRepository.findAll(tenantId, paginationParams);
+        // Fetch all invoices matching the status filter (no pagination)
+        const invoices = await this.invoiceRepository.findAllWithoutPagination(tenantId, status);
 
         const workbook = new ExcelJS.Workbook();
         const worksheet = workbook.addWorksheet('Invoices');
