@@ -14,6 +14,7 @@ import {
   useTheme,
 } from '@mui/material';
 import SettingsIcon from '@mui/icons-material/Settings';
+import LockResetIcon from '@mui/icons-material/LockReset';
 import LogoutIcon from '@mui/icons-material/Logout';
 import { useClerk, useUser } from '@clerk/clerk-react';
 
@@ -24,7 +25,7 @@ type CustomUserButtonProps = {
 const CustomUserButton: React.FC<CustomUserButtonProps> = ({ afterSignOutUrl }) => {
   const [anchorEl, setAnchorEl] = useState<HTMLDivElement | null>(null);
   const buttonRef = useRef<HTMLDivElement>(null);
-  const { signOut } = useClerk();
+  const { signOut, openUserProfile } = useClerk();
   const { user } = useUser();
   const theme = useTheme();
 
@@ -44,6 +45,11 @@ const CustomUserButton: React.FC<CustomUserButtonProps> = ({ afterSignOutUrl }) 
   };
 
   const handleManageAccount = (): void => {
+    handleClose();
+  };
+
+  const handleResetPassword = (): void => {
+    openUserProfile();
     handleClose();
   };
 
@@ -154,6 +160,22 @@ const CustomUserButton: React.FC<CustomUserButtonProps> = ({ afterSignOutUrl }) 
                 <SettingsIcon fontSize="small" />
               </ListItemIcon>
               <ListItemText primary="Manage account" />
+            </ListItemButton>
+          </ListItem>
+
+          <ListItem disablePadding>
+            <ListItemButton
+              onClick={handleResetPassword}
+              sx={{
+                px: 2,
+                '&:hover': {
+                  backgroundColor: theme.palette.action.hover,
+                },
+              }}>
+              <ListItemIcon sx={{ minWidth: 36, color: theme.palette.primary.main }}>
+                <LockResetIcon fontSize="small" />
+              </ListItemIcon>
+              <ListItemText primary="Reset Password" />
             </ListItemButton>
           </ListItem>
 
