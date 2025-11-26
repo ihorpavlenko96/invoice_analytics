@@ -15,6 +15,8 @@ import {
 } from '@mui/material';
 import SettingsIcon from '@mui/icons-material/Settings';
 import LogoutIcon from '@mui/icons-material/Logout';
+import PersonAddIcon from '@mui/icons-material/PersonAdd';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import { useClerk, useUser } from '@clerk/clerk-react';
 
 type CustomUserButtonProps = {
@@ -24,7 +26,7 @@ type CustomUserButtonProps = {
 const CustomUserButton: React.FC<CustomUserButtonProps> = ({ afterSignOutUrl }) => {
   const [anchorEl, setAnchorEl] = useState<HTMLDivElement | null>(null);
   const buttonRef = useRef<HTMLDivElement>(null);
-  const { signOut } = useClerk();
+  const { signOut, client, setActive } = useClerk();
   const { user } = useUser();
   const theme = useTheme();
 
@@ -47,7 +49,23 @@ const CustomUserButton: React.FC<CustomUserButtonProps> = ({ afterSignOutUrl }) 
     handleClose();
   };
 
+  const handleSwitchSession = async (sessionId: string): Promise<void> => {
+    try {
+      await setActive({ session: sessionId });
+      handleClose();
+    } catch (error) {
+      console.error('Failed to switch session:', error);
+    }
+  };
+
+  const handleAddAccount = (): void => {
+    client?.signIn.create({});
+    handleClose();
+  };
+
   const open = Boolean(anchorEl);
+  const sessions = client?.sessions || [];
+  const currentSessionId = client?.session?.id;
 
   return (
     <>
@@ -141,6 +159,96 @@ const CustomUserButton: React.FC<CustomUserButtonProps> = ({ afterSignOutUrl }) 
         <Divider sx={{ mb: 1 }} />
 
         <List disablePadding>
+          {sessions.length > 1 && (
+            <>
+              <Box sx={{ px: 2, py: 1 }}>
+                <Typography
+                  variant="caption"
+                  sx={{
+                    color: theme.palette.text.secondary,
+                    fontWeight: 600,
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.5px',
+                  }}>
+                  Switch Account
+                </Typography>
+              </Box>
+              {sessions.map((session) => {
+                const isCurrentSession = session.id === currentSessionId;
+                const sessionUser = session.user;
+                const sessionEmail =
+                  sessionUser?.primaryEmailAddress?.emailAddress ||
+                  sessionUser?.emailAddresses?.[0]?.emailAddress ||
+                  'Unknown';
+
+                return (
+                  <ListItem key={session.id} disablePadding>
+                    <ListItemButton
+                      onClick={() => handleSwitchSession(session.id)}
+                      disabled={isCurrentSession}
+                      sx={{
+                        px: 2,
+                        backgroundColor: isCurrentSession
+                          ? theme.palette.action.selected
+                          : 'transparent',
+                        '&:hover': {
+                          backgroundColor: isCurrentSession
+                            ? theme.palette.action.selected
+                            : theme.palette.action.hover,
+                        },
+                      }}>
+                      <Avatar
+                        src={sessionUser?.imageUrl}
+                        alt={sessionUser?.firstName || 'User'}
+                        sx={{
+                          width: 32,
+                          height: 32,
+                          mr: 1.5,
+                        }}
+                      />
+                      <ListItemText
+                        primary={sessionEmail}
+                        primaryTypographyProps={{
+                          sx: {
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            whiteSpace: 'nowrap',
+                            fontSize: '0.875rem',
+                          },
+                        }}
+                      />
+                      {isCurrentSession && (
+                        <CheckCircleIcon
+                          fontSize="small"
+                          sx={{ color: theme.palette.primary.main, ml: 1 }}
+                        />
+                      )}
+                    </ListItemButton>
+                  </ListItem>
+                );
+              })}
+              <Divider sx={{ my: 1 }} />
+            </>
+          )}
+
+          <ListItem disablePadding>
+            <ListItemButton
+              onClick={handleAddAccount}
+              sx={{
+                px: 2,
+                '&:hover': {
+                  backgroundColor: theme.palette.action.hover,
+                },
+              }}>
+              <ListItemIcon sx={{ minWidth: 36, color: theme.palette.primary.main }}>
+                <PersonAddIcon fontSize="small" />
+              </ListItemIcon>
+              <ListItemText primary="Add another account" />
+            </ListItemButton>
+          </ListItem>
+
+          <Divider sx={{ my: 1 }} />
+
           <ListItem disablePadding>
             <ListItemButton
               onClick={handleManageAccount}
