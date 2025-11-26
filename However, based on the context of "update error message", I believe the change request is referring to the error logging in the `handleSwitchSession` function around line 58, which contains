@@ -1,1 +1,0 @@
-console.error('Failed to switch session:', error);
