@@ -1,1 +1,0 @@
-const { signOut, client, setActive } = useClerk();
