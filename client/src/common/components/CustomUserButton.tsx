@@ -54,7 +54,7 @@ const CustomUserButton: React.FC<CustomUserButtonProps> = ({ afterSignOutUrl }) 
       await setActive({ session: sessionId });
       handleClose();
     } catch (error) {
-      console.error('Failed to switch session:', error);
+      console.error('oops i did it again1', error);
     }
   };
 
