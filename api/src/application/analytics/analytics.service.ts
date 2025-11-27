@@ -11,10 +11,7 @@ import { TopVendorsDto, TopCustomersDto } from './dto/top-entities.dto';
 export class AnalyticsService implements IAnalyticsService {
     constructor(private readonly invoiceRepository: InvoiceRepository) {}
 
-    async getSummaryAnalytics(
-        tenantId: string,
-        filters?: AnalyticsFiltersDto,
-    ): Promise<SummaryAnalyticsDto> {
+    async getSummaryAnalytics(tenantId: string, filters?: AnalyticsFiltersDto): Promise<SummaryAnalyticsDto> {
         const result = await this.invoiceRepository.getSummaryAnalytics(tenantId, filters);
 
         return {
@@ -27,14 +24,11 @@ export class AnalyticsService implements IAnalyticsService {
         };
     }
 
-    async getStatusDistribution(
-        tenantId: string,
-        filters?: AnalyticsFiltersDto,
-    ): Promise<StatusDistributionDto> {
+    async getStatusDistribution(tenantId: string, filters?: AnalyticsFiltersDto): Promise<StatusDistributionDto> {
         const results = await this.invoiceRepository.getStatusDistribution(tenantId, filters);
 
         return {
-            distribution: results.map((result) => ({
+            distribution: results.map(result => ({
                 status: result.status,
                 count: parseInt(result.count) || 0,
                 totalAmount: parseFloat(result.totalAmount) || 0,
@@ -42,14 +36,11 @@ export class AnalyticsService implements IAnalyticsService {
         };
     }
 
-    async getMonthlyTrends(
-        tenantId: string,
-        filters?: AnalyticsFiltersDto,
-    ): Promise<MonthlyTrendsDto> {
+    async getMonthlyTrends(tenantId: string, filters?: AnalyticsFiltersDto): Promise<MonthlyTrendsDto> {
         const results = await this.invoiceRepository.getMonthlyTrends(tenantId, filters);
 
         return {
-            trends: results.map((result) => ({
+            trends: results.map(result => ({
                 year: parseInt(result.year),
                 month: parseInt(result.month),
                 totalAmount: parseFloat(result.totalAmount) || 0,
@@ -62,7 +53,7 @@ export class AnalyticsService implements IAnalyticsService {
         const results = await this.invoiceRepository.getTopVendors(tenantId, filters);
 
         return {
-            topVendors: results.map((result) => ({
+            topVendors: results.map(result => ({
                 name: result.name,
                 totalAmount: parseFloat(result.totalAmount) || 0,
                 invoiceCount: parseInt(result.invoiceCount) || 0,
@@ -70,14 +61,11 @@ export class AnalyticsService implements IAnalyticsService {
         };
     }
 
-    async getTopCustomers(
-        tenantId: string,
-        filters?: AnalyticsFiltersDto,
-    ): Promise<TopCustomersDto> {
+    async getTopCustomers(tenantId: string, filters?: AnalyticsFiltersDto): Promise<TopCustomersDto> {
         const results = await this.invoiceRepository.getTopCustomers(tenantId, filters);
 
         return {
-            topCustomers: results.map((result) => ({
+            topCustomers: results.map(result => ({
                 name: result.name,
                 totalAmount: parseFloat(result.totalAmount) || 0,
                 invoiceCount: parseInt(result.invoiceCount) || 0,

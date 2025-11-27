@@ -15,7 +15,7 @@ export class StatusDistributionItemDto {
 
     @ApiProperty({
         description: 'Total amount for this status',
-        example: 85000.5,
+        example: 85000.50,
     })
     totalAmount!: number;
 }
