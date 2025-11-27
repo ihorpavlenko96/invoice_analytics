@@ -9,7 +9,7 @@ export class TopEntityItemDto {
 
     @ApiProperty({
         description: 'Total amount for this entity',
-        example: 45000.50,
+        example: 45000.5,
     })
     totalAmount!: number;
 
