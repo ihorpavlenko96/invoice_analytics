@@ -77,22 +77,22 @@ export const invoiceService = {
   },
 
   /**
-   * Export invoices to Excel file
-   * @param page - Page number (starts at 1)
-   * @param limit - Number of items per page
+   * Export ALL invoices to Excel file (no pagination - exports all matching invoices)
    * @param status - Optional status filter (PAID, UNPAID, OVERDUE)
+   * @param dateFrom - Optional start date filter (format: YYYY-MM-DD)
+   * @param dateTo - Optional end date filter (format: YYYY-MM-DD)
    * @returns Promise<Blob>
    */
   exportInvoices: async (
-    page: number = 1,
-    limit: number = 10,
     status?: string,
+    dateFrom?: string,
+    dateTo?: string,
   ): Promise<Blob> => {
     const response = await axios.get('/invoices/export/excel', {
       params: {
-        page,
-        limit,
         ...(status && { status }),
+        ...(dateFrom && { dateFrom }),
+        ...(dateTo && { dateTo }),
       },
       responseType: 'blob',
     });
