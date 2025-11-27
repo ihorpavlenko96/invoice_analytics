@@ -218,7 +218,23 @@ const InvoiceManagementPage: React.FC = () => {
   const handleExportToExcel = async () => {
     setIsExporting(true);
     try {
-      const blob = await invoiceService.exportInvoices(page, limit, statusFilter || undefined);
+      // Calculate date range based on dateFilter if set (±7 days)
+      let dateFrom: string | undefined;
+      let dateTo: string | undefined;
+
+      if (dateFilter) {
+        const rangeStart = dateFilter.subtract(7, 'day');
+        const rangeEnd = dateFilter.add(7, 'day');
+        dateFrom = rangeStart.format('YYYY-MM-DD');
+        dateTo = rangeEnd.format('YYYY-MM-DD');
+      }
+
+      // Export all invoices matching the current filters (no pagination)
+      const blob = await invoiceService.exportInvoices(
+        statusFilter || undefined,
+        dateFrom,
+        dateTo,
+      );
 
       // Create download link
       const url = window.URL.createObjectURL(blob);
@@ -231,8 +247,11 @@ const InvoiceManagementPage: React.FC = () => {
       // Cleanup
       link.parentNode?.removeChild(link);
       window.URL.revokeObjectURL(url);
+
+      enqueueSnackbar('Invoices exported successfully', { variant: 'success' });
     } catch (error) {
       console.error('Error exporting invoices:', error);
+      enqueueSnackbar('Failed to export invoices', { variant: 'error' });
     } finally {
       setIsExporting(false);
     }

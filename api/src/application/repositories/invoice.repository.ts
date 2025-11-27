@@ -36,6 +36,33 @@ export class InvoiceRepository {
         });
     }
 
+    async findAllForExport(
+        tenantId: string,
+        status?: string,
+        dateFrom?: string,
+        dateTo?: string,
+    ): Promise<Invoice[]> {
+        const query = this.invoiceRepository.createQueryBuilder('invoice')
+            .where('invoice.tenantId = :tenantId', { tenantId })
+            .orderBy('invoice.issueDate', 'DESC');
+
+        // Apply status filter if provided
+        if (status) {
+            query.andWhere('invoice.status = :status', { status });
+        }
+
+        // Apply date range filter if provided
+        // Filter by issue date within the specified range
+        if (dateFrom) {
+            query.andWhere('invoice.issueDate >= :dateFrom', { dateFrom });
+        }
+        if (dateTo) {
+            query.andWhere('invoice.issueDate <= :dateTo', { dateTo });
+        }
+
+        return query.getMany();
+    }
+
     async findById(id: string, tenantId: string): Promise<Invoice | null> {
         return this.invoiceRepository.findOne({
             where: { id, tenantId },
