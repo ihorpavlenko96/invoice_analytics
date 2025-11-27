@@ -51,15 +51,6 @@ export class InvoiceRepository {
         await this.invoiceRepository.delete(id);
     }
 
-    async findAllForExport(tenantId: string): Promise<Invoice[]> {
-        return this.invoiceRepository.find({
-            where: { tenantId },
-            order: {
-                issueDate: 'DESC',
-            },
-        });
-    }
-
     async getSummaryAnalytics(tenantId: string, filters?: AnalyticsFiltersDto) {
         const query = this.invoiceRepository.createQueryBuilder('invoice')
             .select([
