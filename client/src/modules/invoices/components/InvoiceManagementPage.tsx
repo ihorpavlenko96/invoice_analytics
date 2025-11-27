@@ -6,11 +6,8 @@ import {
   CardContent,
   CardHeader,
   CircularProgress,
-  TextField,
-  InputAdornment,
   Typography,
   useTheme,
-  Grid,
   IconButton,
   Select,
   MenuItem,
@@ -214,11 +211,11 @@ const InvoiceManagementPage: React.FC = () => {
     setPage(1); // Reset to first page when changing limit
   };
 
-  // Handle export to Excel
+  // Handle export to Excel - exports all invoices without pagination or filters
   const handleExportToExcel = async () => {
     setIsExporting(true);
     try {
-      const blob = await invoiceService.exportInvoices(page, limit, statusFilter || undefined);
+      const blob = await invoiceService.exportInvoices();
 
       // Create download link
       const url = window.URL.createObjectURL(blob);
