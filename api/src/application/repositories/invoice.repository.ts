@@ -36,20 +36,6 @@ export class InvoiceRepository {
         });
     }
 
-    /**
-     * Find all invoices without pagination (for export purposes)
-     * @param tenantId - Tenant ID to filter by
-     * @returns Promise<Invoice[]>
-     */
-    async findAllForExport(tenantId: string): Promise<Invoice[]> {
-        return this.invoiceRepository.find({
-            where: { tenantId },
-            order: {
-                issueDate: 'DESC',
-            },
-        });
-    }
-
     async findById(id: string, tenantId: string): Promise<Invoice | null> {
         return this.invoiceRepository.findOne({
             where: { id, tenantId },
