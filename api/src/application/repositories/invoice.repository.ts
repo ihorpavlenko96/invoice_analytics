@@ -36,6 +36,30 @@ export class InvoiceRepository {
         });
     }
 
+    /**
+     * Find all invoices without pagination (for export functionality)
+     * @param tenantId - Tenant ID
+     * @param status - Optional status filter
+     * @returns Promise<Invoice[]>
+     */
+    async findAllWithoutPagination(
+        tenantId: string,
+        status?: string,
+    ): Promise<Invoice[]> {
+        // Build where clause with optional status filter
+        const whereClause: any = { tenantId };
+        if (status) {
+            whereClause.status = status;
+        }
+
+        return this.invoiceRepository.find({
+            where: whereClause,
+            order: {
+                issueDate: 'DESC',
+            },
+        });
+    }
+
     async findById(id: string, tenantId: string): Promise<Invoice | null> {
         return this.invoiceRepository.findOne({
             where: { id, tenantId },
