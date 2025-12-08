@@ -75,6 +75,11 @@ const MainLayout: React.FC = () => {
               to={item.path}
               sx={(theme) => ({
                 textAlign: 'left',
+                border: '2px solid transparent',
+                transition: 'all 0.2s ease',
+                '&:hover': {
+                  borderColor: '#90CAF9',
+                },
                 '&.active': {
                   fontWeight: 'bold',
                   color: theme.palette.primary.main,
@@ -148,6 +153,11 @@ const MainLayout: React.FC = () => {
                     color: 'text.secondary',
                     ml: 1,
                     textTransform: 'none',
+                    border: '2px solid transparent',
+                    transition: 'all 0.2s ease',
+                    '&:hover': {
+                      borderColor: '#90CAF9',
+                    },
                     '&.active': {
                       fontWeight: 'bold',
                       color: theme.palette.primary.main,
