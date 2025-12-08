@@ -160,6 +160,71 @@ export class InvoiceController {
         return this.invoiceService.importFromBuffer(file.buffer, tenantId);
     }
 
+    @Get('ids/all')
+    @Authorize(RoleName.SUPER_ADMIN)
+    @ApiOperation({
+        summary: 'Get all invoice IDs',
+        description: 'Retrieves all invoice IDs matching the given filters (no pagination)',
+    })
+    @ApiQuery({
+        name: 'status',
+        required: false,
+        enum: ['PAID', 'UNPAID', 'OVERDUE'],
+        description: 'Filter invoices by status',
+    })
+    @ApiResponse({
+        status: HttpStatus.OK,
+        description: 'List of invoice IDs retrieved successfully',
+        type: [String],
+    })
+    @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+    @ApiForbiddenResponse({ description: 'Forbidden - requires SUPER_ADMIN role' })
+    async findAllIds(
+        @Req() request: RequestWithTenant,
+        @Query() paginationParams: PaginationParamsDto,
+    ): Promise<string[]> {
+        const tenantId = request.tenantId!;
+        return this.invoiceService.findAllIds(tenantId, paginationParams);
+    }
+
+    @Delete('bulk')
+    @HttpCode(HttpStatus.NO_CONTENT)
+    @Authorize(RoleName.SUPER_ADMIN)
+    @ApiOperation({
+        summary: 'Delete multiple invoices',
+        description: 'Deletes multiple invoices by their IDs',
+    })
+    @ApiBody({
+        schema: {
+            type: 'object',
+            properties: {
+                ids: {
+                    type: 'array',
+                    items: { type: 'string' },
+                    description: 'Array of invoice IDs to delete',
+                },
+            },
+            required: ['ids'],
+        },
+    })
+    @ApiNoContentResponse({ description: 'Invoices deleted successfully' })
+    @ApiResponse({
+        status: HttpStatus.NOT_FOUND,
+        description: 'No invoice IDs provided',
+    })
+    @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+    @ApiForbiddenResponse({ description: 'Forbidden - requires SUPER_ADMIN role' })
+    async removeMultiple(
+        @Req() request: RequestWithTenant,
+        @Res() response: Response,
+    ): Promise<void> {
+        const tenantId = request.tenantId!;
+        const { ids } = request.body as { ids: string[] };
+
+        await this.invoiceService.removeMultiple(ids, tenantId);
+        response.status(HttpStatus.NO_CONTENT).send();
+    }
+
     @Delete(':id')
     @HttpCode(HttpStatus.NO_CONTENT)
     @Authorize(RoleName.SUPER_ADMIN)

@@ -297,12 +297,16 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({
                 <Checkbox
                   color="primary"
                   indeterminate={
-                    selectedInvoices.length > 0 && selectedInvoices.length < invoices.length
+                    selectedInvoices.length > 0 &&
+                    invoices.some((inv) => selectedInvoices.includes(inv.id)) &&
+                    !invoices.every((inv) => selectedInvoices.includes(inv.id))
                   }
-                  checked={invoices.length > 0 && selectedInvoices.length === invoices.length}
+                  checked={
+                    invoices.length > 0 && invoices.every((inv) => selectedInvoices.includes(inv.id))
+                  }
                   onChange={onSelectAllClick}
                   inputProps={{
-                    'aria-label': 'select all invoices on this page',
+                    'aria-label': 'select all invoices matching current filters',
                   }}
                 />
               </TableCell>

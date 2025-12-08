@@ -53,6 +53,8 @@ const InvoiceManagementPage: React.FC = () => {
   const [isExporting, setIsExporting] = useState(false);
   const [selectedInvoiceIds, setSelectedInvoiceIds] = useState<string[]>([]);
   const [isConfirmBulkDeleteDialogOpen, setIsConfirmBulkDeleteDialogOpen] = useState(false);
+  const [isLoadingAllIds, setIsLoadingAllIds] = useState(false);
+  const [totalSelectableCount, setTotalSelectableCount] = useState<number>(0);
   const theme = useTheme();
   const { enqueueSnackbar } = useSnackbar();
   const deleteMultipleInvoicesMutation = useDeleteMultipleInvoices();
@@ -123,14 +125,29 @@ const InvoiceManagementPage: React.FC = () => {
     }
   }, [highlightedInvoiceId]);
 
-  // Handle select all click
-  const handleSelectAllClick = (event: React.ChangeEvent<HTMLInputElement>) => {
+  // Handle select all click - now fetches ALL invoice IDs matching filters
+  const handleSelectAllClick = async (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.checked) {
-      const newSelecteds = filteredInvoices.items.map((invoice) => invoice.id);
-      setSelectedInvoiceIds(newSelecteds);
+      setIsLoadingAllIds(true);
+      try {
+        // Fetch all invoice IDs matching current status filter
+        const allIds = await invoiceService.getAllInvoiceIds(statusFilter || undefined);
+        setSelectedInvoiceIds(allIds);
+        setTotalSelectableCount(allIds.length);
+      } catch (error) {
+        console.error('Error fetching all invoice IDs:', error);
+        enqueueSnackbar('Failed to select all invoices', { variant: 'error' });
+        // Fallback to current page selection
+        const newSelecteds = filteredInvoices.items.map((invoice) => invoice.id);
+        setSelectedInvoiceIds(newSelecteds);
+        setTotalSelectableCount(newSelecteds.length);
+      } finally {
+        setIsLoadingAllIds(false);
+      }
       return;
     }
     setSelectedInvoiceIds([]);
+    setTotalSelectableCount(0);
   };
 
   // Handle select one invoice
@@ -471,6 +488,40 @@ const InvoiceManagementPage: React.FC = () => {
             </Box>
           }
         />
+        {/* Visual indicator for cross-page selection */}
+        {selectedInvoiceIds.length > 0 && totalSelectableCount > filteredInvoices.items.length && (
+          <Box
+            sx={{
+              backgroundColor: theme.palette.primary.main,
+              color: theme.palette.primary.contrastText,
+              px: 3,
+              py: 1.5,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              borderBottom: `1px solid ${theme.palette.divider}`,
+            }}>
+            <Typography variant="body2">
+              {selectedInvoiceIds.length} invoices selected across{' '}
+              {Math.ceil(totalSelectableCount / limit)} pages
+            </Typography>
+            <Button
+              size="small"
+              onClick={() => {
+                setSelectedInvoiceIds([]);
+                setTotalSelectableCount(0);
+              }}
+              sx={{
+                color: theme.palette.primary.contrastText,
+                textTransform: 'none',
+                '&:hover': {
+                  backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                },
+              }}>
+              Clear selection
+            </Button>
+          </Box>
+        )}
         <CardContent sx={{ p: 0, '&:last-child': { pb: 0 } }}>
           {isInvoicesLoading && (
             <Box sx={{ display: 'flex', justifyContent: 'center', my: 5 }}>

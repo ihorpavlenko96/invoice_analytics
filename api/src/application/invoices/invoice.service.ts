@@ -104,6 +104,18 @@ export class InvoiceService implements IInvoiceService {
         await this.invoiceRepository.remove(id, tenantId);
     }
 
+    async findAllIds(tenantId: string, paginationParams: PaginationParamsDto): Promise<string[]> {
+        return this.invoiceRepository.findAllIds(tenantId, paginationParams);
+    }
+
+    async removeMultiple(ids: string[], tenantId: string): Promise<void> {
+        if (!ids || ids.length === 0) {
+            throw new NotFoundException('No invoice IDs provided');
+        }
+
+        await this.invoiceRepository.removeMultiple(ids, tenantId);
+    }
+
     async exportToExcel(
         tenantId: string,
         paginationParams: PaginationParamsDto,
