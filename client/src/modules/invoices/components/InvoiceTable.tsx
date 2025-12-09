@@ -26,6 +26,7 @@ import {
 import {
   Visibility as ViewIcon,
   Delete as DeleteIcon,
+  Notifications as NotificationsIcon,
 } from '@mui/icons-material';
 import { useTheme } from '@mui/material/styles';
 import { Invoice } from '../types/invoice';
@@ -231,19 +232,29 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({
     }
 
     return (
-      <Typography
-        fontWeight="medium"
-        sx={theme => ({
-          color: theme.palette.invoiceStatus.overdue,
-          backgroundColor: `${theme.palette.invoiceStatus.overdue}20`,
-          px: 1,
-          py: 0.5,
-          borderRadius: 1,
-          display: 'inline-block',
-        })}
-      >
-        {daysOverdue} days
-      </Typography>
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+        <Typography
+          fontWeight="medium"
+          sx={theme => ({
+            color: theme.palette.invoiceStatus.overdue,
+            backgroundColor: `${theme.palette.invoiceStatus.overdue}20`,
+            px: 1,
+            py: 0.5,
+            borderRadius: 1,
+            display: 'inline-block',
+          })}
+        >
+          {daysOverdue} days
+        </Typography>
+        {daysOverdue > 80 && (
+          <NotificationsIcon
+            sx={theme => ({
+              color: theme.palette.invoiceStatus.overdue,
+              fontSize: 18,
+            })}
+          />
+        )}
+      </Box>
     );
   };
 
