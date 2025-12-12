@@ -36,15 +36,6 @@ export class InvoiceRepository {
         });
     }
 
-    async findAllForExport(tenantId: string): Promise<Invoice[]> {
-        return this.invoiceRepository.find({
-            where: { tenantId },
-            order: {
-                issueDate: 'DESC',
-            },
-        });
-    }
-
     async findById(id: string, tenantId: string): Promise<Invoice | null> {
         return this.invoiceRepository.findOne({
             where: { id, tenantId },
@@ -61,15 +52,14 @@ export class InvoiceRepository {
     }
 
     async getSummaryAnalytics(tenantId: string, filters?: AnalyticsFiltersDto) {
-        const query = this.invoiceRepository
-            .createQueryBuilder('invoice')
+        const query = this.invoiceRepository.createQueryBuilder('invoice')
             .select([
                 'COUNT(invoice.id) as totalInvoices',
                 'SUM(invoice.totalAmount) as totalInvoicedAmount',
-                "SUM(CASE WHEN invoice.status = 'PAID' THEN invoice.totalAmount ELSE 0 END) as totalPaidAmount",
-                "SUM(CASE WHEN invoice.dueDate < CURRENT_DATE AND invoice.status != 'PAID' THEN invoice.totalAmount ELSE 0 END) as totalOverdueAmount",
-                "COUNT(CASE WHEN invoice.status = 'PAID' THEN 1 END) as paidCount",
-                "COUNT(CASE WHEN invoice.dueDate < CURRENT_DATE AND invoice.status != 'PAID' THEN 1 END) as overdueCount",
+                'SUM(CASE WHEN invoice.status = \'PAID\' THEN invoice.totalAmount ELSE 0 END) as totalPaidAmount',
+                'SUM(CASE WHEN invoice.dueDate < CURRENT_DATE AND invoice.status != \'PAID\' THEN invoice.totalAmount ELSE 0 END) as totalOverdueAmount',
+                'COUNT(CASE WHEN invoice.status = \'PAID\' THEN 1 END) as paidCount',
+                'COUNT(CASE WHEN invoice.dueDate < CURRENT_DATE AND invoice.status != \'PAID\' THEN 1 END) as overdueCount'
             ])
             .where('invoice.tenantId = :tenantId', { tenantId });
 
@@ -84,12 +74,11 @@ export class InvoiceRepository {
     }
 
     async getStatusDistribution(tenantId: string, filters?: AnalyticsFiltersDto) {
-        const query = this.invoiceRepository
-            .createQueryBuilder('invoice')
+        const query = this.invoiceRepository.createQueryBuilder('invoice')
             .select([
                 'invoice.status as status',
                 'COUNT(invoice.id) as count',
-                'SUM(invoice.totalAmount) as totalAmount',
+                'SUM(invoice.totalAmount) as totalAmount'
             ])
             .where('invoice.tenantId = :tenantId', { tenantId });
 
@@ -100,17 +89,19 @@ export class InvoiceRepository {
             query.andWhere('invoice.issueDate <= :to', { to: filters.to });
         }
 
-        return query.groupBy('invoice.status').orderBy('totalAmount', 'DESC').getRawMany();
+        return query
+            .groupBy('invoice.status')
+            .orderBy('totalAmount', 'DESC')
+            .getRawMany();
     }
 
     async getMonthlyTrends(tenantId: string, filters?: AnalyticsFiltersDto) {
-        const query = this.invoiceRepository
-            .createQueryBuilder('invoice')
+        const query = this.invoiceRepository.createQueryBuilder('invoice')
             .select([
                 'EXTRACT(YEAR FROM invoice.issueDate) as year',
                 'EXTRACT(MONTH FROM invoice.issueDate) as month',
                 'SUM(invoice.totalAmount) as totalAmount',
-                'COUNT(invoice.id) as invoiceCount',
+                'COUNT(invoice.id) as invoiceCount'
             ])
             .where('invoice.tenantId = :tenantId', { tenantId });
 
@@ -129,12 +120,11 @@ export class InvoiceRepository {
     }
 
     async getTopVendors(tenantId: string, filters?: AnalyticsFiltersDto) {
-        const query = this.invoiceRepository
-            .createQueryBuilder('invoice')
+        const query = this.invoiceRepository.createQueryBuilder('invoice')
             .select([
                 'invoice.vendorName as name',
                 'SUM(invoice.totalAmount) as totalAmount',
-                'COUNT(invoice.id) as invoiceCount',
+                'COUNT(invoice.id) as invoiceCount'
             ])
             .where('invoice.tenantId = :tenantId', { tenantId });
 
@@ -153,12 +143,11 @@ export class InvoiceRepository {
     }
 
     async getTopCustomers(tenantId: string, filters?: AnalyticsFiltersDto) {
-        const query = this.invoiceRepository
-            .createQueryBuilder('invoice')
+        const query = this.invoiceRepository.createQueryBuilder('invoice')
             .select([
                 'invoice.customerName as name',
                 'SUM(invoice.totalAmount) as totalAmount',
-                'COUNT(invoice.id) as invoiceCount',
+                'COUNT(invoice.id) as invoiceCount'
             ])
             .where('invoice.tenantId = :tenantId', { tenantId });
 
