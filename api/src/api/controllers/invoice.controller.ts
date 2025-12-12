@@ -184,29 +184,17 @@ export class InvoiceController {
     @Authorize(RoleName.SUPER_ADMIN)
     @ApiOperation({
         summary: 'Export invoices to Excel',
-        description: 'Exports all invoices to an Excel file based on pagination and filters',
-    })
-    @ApiQuery({
-        name: 'page',
-        required: false,
-        type: Number,
-        description: 'Page number (starts from 1)',
-    })
-    @ApiQuery({
-        name: 'limit',
-        required: false,
-        type: Number,
-        description: 'Number of items per page',
+        description: 'Exports ALL invoices to an Excel file, regardless of pagination. Status filter is preserved if provided.',
     })
     @ApiQuery({
         name: 'status',
         required: false,
         enum: ['PAID', 'UNPAID', 'OVERDUE'],
-        description: 'Filter invoices by status',
+        description: 'Filter invoices by status (optional)',
     })
     @ApiResponse({
         status: HttpStatus.OK,
-        description: 'Excel file generated successfully',
+        description: 'Excel file generated successfully with all invoices',
     })
     @ApiUnauthorizedResponse({ description: 'Unauthorized' })
     @ApiForbiddenResponse({ description: 'Forbidden - requires SUPER_ADMIN role' })

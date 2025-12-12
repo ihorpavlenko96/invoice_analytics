@@ -164,4 +164,29 @@ export class InvoiceRepository {
             .limit(5)
             .getRawMany();
     }
+
+    /**
+     * Find all invoices for export without pagination
+     * Used for exporting all invoices while preserving filters
+     * @param tenantId - The tenant ID
+     * @param status - Optional status filter
+     * @returns Array of all invoices matching the criteria
+     */
+    async findAllForExport(
+        tenantId: string,
+        status?: string,
+    ): Promise<Invoice[]> {
+        // Build where clause with optional status filter
+        const whereClause: any = { tenantId };
+        if (status) {
+            whereClause.status = status;
+        }
+
+        return this.invoiceRepository.find({
+            where: whereClause,
+            order: {
+                issueDate: 'DESC',
+            },
+        });
+    }
 }
