@@ -52,6 +52,20 @@ export const invoiceService = {
   },
 
   /**
+   * Get all invoice IDs matching the given filters
+   * @param status - Optional status filter (PAID, UNPAID, OVERDUE)
+   * @returns Promise<string[]>
+   */
+  getAllInvoiceIds: async (status?: string): Promise<string[]> => {
+    const response = await axios.get<string[]>('/invoices/ids/all', {
+      params: {
+        ...(status && { status }),
+      },
+    });
+    return response.data;
+  },
+
+  /**
    * Delete multiple invoices by their IDs
    * @param ids - Array of invoice IDs
    * @returns Promise<void>

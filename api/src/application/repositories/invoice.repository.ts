@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, In } from 'typeorm';
 import { Invoice } from '../../domain/entities/invoice.entity';
 import { PaginationParamsDto } from '../invoices/dto/pagination.dto';
 import { AnalyticsFiltersDto } from '../analytics/dto/analytics-filters.dto';
@@ -49,6 +49,41 @@ export class InvoiceRepository {
 
     async remove(id: string, tenantId: string): Promise<void> {
         await this.invoiceRepository.delete(id);
+    }
+
+    /**
+     * Get all invoice IDs matching the given filters
+     * @param tenantId - Tenant ID
+     * @param paginationParams - Pagination parameters (status filter only, no pagination applied)
+     * @returns Array of invoice IDs
+     */
+    async findAllIds(tenantId: string, paginationParams: PaginationParamsDto): Promise<string[]> {
+        const whereClause: any = { tenantId };
+        if (paginationParams.status) {
+            whereClause.status = paginationParams.status;
+        }
+
+        const invoices = await this.invoiceRepository.find({
+            where: whereClause,
+            select: ['id'],
+            order: {
+                issueDate: 'DESC',
+            },
+        });
+
+        return invoices.map(invoice => invoice.id);
+    }
+
+    /**
+     * Remove multiple invoices by their IDs
+     * @param ids - Array of invoice IDs
+     * @param tenantId - Tenant ID
+     */
+    async removeMultiple(ids: string[], tenantId: string): Promise<void> {
+        await this.invoiceRepository.delete({
+            id: In(ids),
+            tenantId,
+        });
     }
 
     async getSummaryAnalytics(tenantId: string, filters?: AnalyticsFiltersDto) {

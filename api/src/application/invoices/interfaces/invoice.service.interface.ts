@@ -17,4 +17,8 @@ export interface IInvoiceService {
     remove(id: string, tenantId: string): Promise<void>;
 
     exportToExcel(tenantId: string, paginationParams: PaginationParamsDto): Promise<Buffer>;
+
+    findAllIds(tenantId: string, paginationParams: PaginationParamsDto): Promise<string[]>;
+
+    removeMultiple(ids: string[], tenantId: string): Promise<void>;
 }
