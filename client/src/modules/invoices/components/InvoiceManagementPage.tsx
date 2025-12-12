@@ -404,6 +404,9 @@ const InvoiceManagementPage: React.FC = () => {
                       '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
                         borderColor: theme.palette.primary.main,
                       },
+                      '& .MuiSelect-icon': {
+                        color: theme.palette.primary.main,
+                      },
                     }}
                   >
                     <MenuItem value="">All Statuses</MenuItem>
