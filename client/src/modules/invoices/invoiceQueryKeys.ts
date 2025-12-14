@@ -5,4 +5,6 @@ export const invoiceKeys = {
     [...invoiceKeys.lists(), { searchQuery, page, limit, status }] as const,
   details: () => [...invoiceKeys.all, 'detail'] as const,
   detail: (id: string) => [...invoiceKeys.details(), id] as const,
+  analytics: () => [...invoiceKeys.all, 'analytics'] as const,
+  statusDistribution: () => [...invoiceKeys.analytics(), 'status-distribution'] as const,
 };
