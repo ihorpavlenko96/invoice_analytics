@@ -164,4 +164,26 @@ export class InvoiceRepository {
             .limit(5)
             .getRawMany();
     }
+
+    /**
+     * Find all invoices without pagination (for exports)
+     * Respects status filter but ignores pagination parameters
+     * @param tenantId - The tenant ID
+     * @param status - Optional status filter
+     * @returns Promise<Invoice[]> - All invoices matching the filter
+     */
+    async findAllWithoutPagination(tenantId: string, status?: string): Promise<Invoice[]> {
+        // Build where clause with optional status filter
+        const whereClause: any = { tenantId };
+        if (status) {
+            whereClause.status = status;
+        }
+
+        return this.invoiceRepository.find({
+            where: whereClause,
+            order: {
+                issueDate: 'DESC',
+            },
+        });
+    }
 }
