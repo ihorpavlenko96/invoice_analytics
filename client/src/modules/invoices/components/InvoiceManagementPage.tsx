@@ -214,12 +214,11 @@ const InvoiceManagementPage: React.FC = () => {
     setPage(1); // Reset to first page when changing limit
   };
 
-  // Handle export to Excel - exports ALL invoices (respecting status filter)
+  // Handle export to Excel
   const handleExportToExcel = async () => {
     setIsExporting(true);
     try {
-      // Export all invoices regardless of pagination, but respect status filter
-      const blob = await invoiceService.exportInvoices(statusFilter || undefined);
+      const blob = await invoiceService.exportInvoices(page, limit, statusFilter || undefined);
 
       // Create download link
       const url = window.URL.createObjectURL(blob);

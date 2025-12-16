@@ -15,7 +15,6 @@ export class InvoiceRepository {
     async findAll(
         tenantId: string,
         paginationParams: PaginationParamsDto,
-        skipPagination: boolean = false,
     ): Promise<[Invoice[], number]> {
         const page = paginationParams.page ?? 1;
         const limit = paginationParams.limit ?? 10;
@@ -27,20 +26,14 @@ export class InvoiceRepository {
             whereClause.status = paginationParams.status;
         }
 
-        const queryOptions: any = {
+        return this.invoiceRepository.findAndCount({
             where: whereClause,
+            skip,
+            take: limit,
             order: {
                 issueDate: 'DESC',
             },
-        };
-
-        // Only apply pagination if not skipped (for exports, we want all records)
-        if (!skipPagination) {
-            queryOptions.skip = skip;
-            queryOptions.take = limit;
-        }
-
-        return this.invoiceRepository.findAndCount(queryOptions);
+        });
     }
 
     async findById(id: string, tenantId: string): Promise<Invoice | null> {
