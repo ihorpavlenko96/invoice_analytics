@@ -5,10 +5,10 @@ export const darkTheme = createTheme({
   palette: {
     mode: 'dark',
     primary: {
-      main: '#90CAF9',
-      light: '#B3E5FC',
-      dark: '#42A5F5',
-      contrastText: '#000000',
+      main: '#000000',
+      light: '#1A1A1A',
+      dark: '#000000',
+      contrastText: '#FFFFFF',
     },
     secondary: {
       main: '#9CA3AF',
@@ -85,10 +85,10 @@ export const darkTheme = createTheme({
           },
         },
         contained: {
-          backgroundColor: '#90CAF9',
-          color: '#000000',
+          backgroundColor: '#000000',
+          color: '#FFFFFF',
           '&:hover': {
-            backgroundColor: '#42A5F5',
+            backgroundColor: '#1A1A1A',
           },
         },
         outlined: {
