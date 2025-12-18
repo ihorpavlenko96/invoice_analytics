@@ -64,6 +64,9 @@ export class Invoice {
     @Column({ type: 'text', nullable: true })
     terms!: string;
 
+    @Column({ default: false })
+    isArchived!: boolean;
+
     @OneToMany(() => InvoiceItem, (item) => item.invoice, {
         cascade: true,
         eager: true,

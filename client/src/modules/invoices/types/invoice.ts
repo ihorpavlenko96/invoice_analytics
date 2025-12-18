@@ -30,6 +30,7 @@ export interface Invoice {
   status: 'PAID' | 'UNPAID' | 'OVERDUE';
   terms?: string;
   items: InvoiceItem[];
+  isArchived: boolean;
 }
 
 export interface AskAboutDataDto {

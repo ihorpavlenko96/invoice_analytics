@@ -26,6 +26,7 @@ import {
 import {
   Visibility as ViewIcon,
   Delete as DeleteIcon,
+  Archive as ArchiveIcon,
 } from '@mui/icons-material';
 import { useTheme } from '@mui/material/styles';
 import { Invoice } from '../types/invoice';
@@ -444,6 +445,10 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({
                       ...(highlightedInvoiceId === invoice.id && {
                         animation: `${pulseAnimation} 2s ease-in-out`,
                       }),
+                      ...(invoice.isArchived && {
+                        opacity: 0.6,
+                        backgroundColor: theme => `${theme.palette.action.disabled}20`,
+                      }),
                     }}>
                     <TableCell padding="checkbox">
                       <Checkbox
@@ -455,7 +460,22 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({
                       />
                     </TableCell>
                     <TableCell>
-                      <Typography fontWeight="medium">{invoice.invoiceNumber}</Typography>
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <Typography fontWeight="medium">{invoice.invoiceNumber}</Typography>
+                        {invoice.isArchived && (
+                          <Chip
+                            icon={<ArchiveIcon />}
+                            label="Archived"
+                            size="small"
+                            sx={{
+                              height: 20,
+                              fontSize: '0.7rem',
+                              backgroundColor: theme => theme.palette.grey[500],
+                              color: 'white',
+                            }}
+                          />
+                        )}
+                      </Box>
                     </TableCell>
                     <TableCell>{invoice.vendorName}</TableCell>
                   <TableCell>{invoice.customerName}</TableCell>

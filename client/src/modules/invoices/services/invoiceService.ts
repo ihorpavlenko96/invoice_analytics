@@ -15,18 +15,21 @@ export const invoiceService = {
    * @param page - Page number (starts at 1)
    * @param limit - Number of items per page
    * @param status - Optional status filter (PAID, UNPAID, OVERDUE)
+   * @param includeArchived - Include archived invoices in results (default: false)
    * @returns Promise<PaginatedResponseDto<Invoice>>
    */
   getInvoices: async (
     page: number = 1,
     limit: number = 10,
     status?: string,
+    includeArchived: boolean = false,
   ): Promise<PaginatedResponseDto<Invoice>> => {
     const response = await axios.get<PaginatedResponseDto<Invoice>>('/invoices', {
       params: {
         page,
         limit,
         ...(status && { status }),
+        includeArchived,
       },
     });
     return response.data;
@@ -97,5 +100,23 @@ export const invoiceService = {
       responseType: 'blob',
     });
     return response.data;
+  },
+
+  /**
+   * Archive multiple invoices by their IDs
+   * @param ids - Array of invoice IDs
+   * @returns Promise<void>
+   */
+  archiveInvoices: async (ids: string[]): Promise<void> => {
+    await axios.patch('/invoices/archive', { ids });
+  },
+
+  /**
+   * Unarchive multiple invoices by their IDs
+   * @param ids - Array of invoice IDs
+   * @returns Promise<void>
+   */
+  unarchiveInvoices: async (ids: string[]): Promise<void> => {
+    await axios.patch('/invoices/unarchive', { ids });
   },
 };

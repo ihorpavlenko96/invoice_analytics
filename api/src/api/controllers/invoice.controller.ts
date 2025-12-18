@@ -13,6 +13,8 @@ import {
     Query,
     Inject,
     NotFoundException,
+    Patch,
+    Body,
 } from '@nestjs/common';
 import { Response } from 'express';
 import { FileInterceptor } from '@nestjs/platform-express';
@@ -83,6 +85,12 @@ export class InvoiceController {
         required: false,
         enum: ['PAID', 'UNPAID', 'OVERDUE'],
         description: 'Filter invoices by status',
+    })
+    @ApiQuery({
+        name: 'includeArchived',
+        required: false,
+        type: Boolean,
+        description: 'Include archived invoices in results',
     })
     @ApiResponse({
         status: HttpStatus.OK,
@@ -221,5 +229,67 @@ export class InvoiceController {
         response.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
         response.setHeader('Content-Disposition', `attachment; filename=invoices-${Date.now()}.xlsx`);
         response.send(buffer);
+    }
+
+    @Patch('archive')
+    @HttpCode(HttpStatus.NO_CONTENT)
+    @Authorize(RoleName.SUPER_ADMIN)
+    @ApiOperation({
+        summary: 'Archive invoices',
+        description: 'Archives multiple invoices by their IDs (bulk operation)',
+    })
+    @ApiBody({
+        schema: {
+            type: 'object',
+            properties: {
+                ids: {
+                    type: 'array',
+                    items: { type: 'string' },
+                    description: 'Array of invoice IDs to archive',
+                },
+            },
+            required: ['ids'],
+        },
+    })
+    @ApiNoContentResponse({ description: 'Invoices archived successfully' })
+    @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+    @ApiForbiddenResponse({ description: 'Forbidden - requires SUPER_ADMIN role' })
+    async archiveInvoices(
+        @Body('ids') ids: string[],
+        @Req() request: RequestWithTenant,
+    ): Promise<void> {
+        const tenantId = request.tenantId!;
+        await this.invoiceService.archiveInvoices(ids, tenantId);
+    }
+
+    @Patch('unarchive')
+    @HttpCode(HttpStatus.NO_CONTENT)
+    @Authorize(RoleName.SUPER_ADMIN)
+    @ApiOperation({
+        summary: 'Unarchive invoices',
+        description: 'Restores multiple archived invoices by their IDs (bulk operation)',
+    })
+    @ApiBody({
+        schema: {
+            type: 'object',
+            properties: {
+                ids: {
+                    type: 'array',
+                    items: { type: 'string' },
+                    description: 'Array of invoice IDs to unarchive',
+                },
+            },
+            required: ['ids'],
+        },
+    })
+    @ApiNoContentResponse({ description: 'Invoices unarchived successfully' })
+    @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+    @ApiForbiddenResponse({ description: 'Forbidden - requires SUPER_ADMIN role' })
+    async unarchiveInvoices(
+        @Body('ids') ids: string[],
+        @Req() request: RequestWithTenant,
+    ): Promise<void> {
+        const tenantId = request.tenantId!;
+        await this.invoiceService.unarchiveInvoices(ids, tenantId);
     }
 }

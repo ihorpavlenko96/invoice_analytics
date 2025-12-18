@@ -16,12 +16,21 @@ import {
   MenuItem,
   FormControl,
   InputLabel,
+  FormControlLabel,
+  Switch,
 } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs, { Dayjs } from 'dayjs';
-import { SmartToy as AIIcon, Download as DownloadIcon, Delete as DeleteIcon, Clear as ClearIcon } from '@mui/icons-material';
+import {
+  SmartToy as AIIcon,
+  Download as DownloadIcon,
+  Delete as DeleteIcon,
+  Clear as ClearIcon,
+  Archive as ArchiveIcon,
+  Unarchive as UnarchiveIcon,
+} from '@mui/icons-material';
 import { useInvoices } from '../invoiceQueries';
 import UnifiedSearchBar from './UnifiedSearchBar';
 import InvoiceTable from './InvoiceTable';
@@ -32,7 +41,7 @@ import { useInvoice } from '../invoiceQueries';
 import { useUser } from '@clerk/clerk-react';
 import { PaginatedResponseDto, invoiceService } from '../services/invoiceService';
 import { Invoice } from '../types/invoice';
-import { useDeleteMultipleInvoices } from '../invoiceMutations';
+import { useDeleteMultipleInvoices, useArchiveInvoices, useUnarchiveInvoices } from '../invoiceMutations';
 import ConfirmationDialog from '../../../common/components/ConfirmationDialog';
 import { useSnackbar } from 'notistack';
 
@@ -53,9 +62,12 @@ const InvoiceManagementPage: React.FC = () => {
   const [isExporting, setIsExporting] = useState(false);
   const [selectedInvoiceIds, setSelectedInvoiceIds] = useState<string[]>([]);
   const [isConfirmBulkDeleteDialogOpen, setIsConfirmBulkDeleteDialogOpen] = useState(false);
+  const [includeArchived, setIncludeArchived] = useState(false);
   const theme = useTheme();
   const { enqueueSnackbar } = useSnackbar();
   const deleteMultipleInvoicesMutation = useDeleteMultipleInvoices();
+  const archiveInvoicesMutation = useArchiveInvoices();
+  const unarchiveInvoicesMutation = useUnarchiveInvoices();
 
   const { user } = useUser();
   const userRoles = (user?.publicMetadata?.roles as string[]) || [];
@@ -71,7 +83,7 @@ const InvoiceManagementPage: React.FC = () => {
       totalPages: 1,
     } as PaginatedResponseDto<Invoice>,
     isLoading: isInvoicesLoading,
-  } = useInvoices(searchQuery, page, limit, statusFilter || undefined);
+  } = useInvoices(searchQuery, page, limit, statusFilter || undefined, includeArchived);
 
   // Fetch selected invoice details
   const { data: selectedInvoice, isLoading: isInvoiceLoading } = useInvoice(
@@ -168,6 +180,38 @@ const InvoiceManagementPage: React.FC = () => {
       },
       onSettled: () => {
         setIsConfirmBulkDeleteDialogOpen(false);
+      },
+    });
+  };
+
+  // Handle bulk archive
+  const handleBulkArchive = () => {
+    archiveInvoicesMutation.mutate(selectedInvoiceIds, {
+      onSuccess: () => {
+        enqueueSnackbar(`${selectedInvoiceIds.length} invoices archived successfully.`, {
+          variant: 'success',
+        });
+        setSelectedInvoiceIds([]);
+      },
+      onError: (error) => {
+        console.error('Error archiving invoices:', error);
+        enqueueSnackbar('Failed to archive invoices.', { variant: 'error' });
+      },
+    });
+  };
+
+  // Handle bulk unarchive
+  const handleBulkUnarchive = () => {
+    unarchiveInvoicesMutation.mutate(selectedInvoiceIds, {
+      onSuccess: () => {
+        enqueueSnackbar(`${selectedInvoiceIds.length} invoices unarchived successfully.`, {
+          variant: 'success',
+        });
+        setSelectedInvoiceIds([]);
+      },
+      onError: (error) => {
+        console.error('Error unarchiving invoices:', error);
+        enqueueSnackbar('Failed to unarchive invoices.', { variant: 'error' });
       },
     });
   };
@@ -422,6 +466,24 @@ const InvoiceManagementPage: React.FC = () => {
                     <ClearIcon />
                   </IconButton>
                 )}
+                <FormControlLabel
+                  control={
+                    <Switch
+                      checked={includeArchived}
+                      onChange={(e) => setIncludeArchived(e.target.checked)}
+                      sx={{
+                        '& .MuiSwitch-switchBase.Mui-checked': {
+                          color: theme.palette.primary.main,
+                        },
+                        '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
+                          backgroundColor: theme.palette.primary.main,
+                        },
+                      }}
+                    />
+                  }
+                  label="Show Archived"
+                  sx={{ ml: 1 }}
+                />
               </Box>
             ) : (
               <Typography variant="h5" component="h1" sx={{ fontWeight: 'bold' }}>
@@ -432,17 +494,30 @@ const InvoiceManagementPage: React.FC = () => {
           action={
             <Box sx={{ display: 'flex', flexDirection: 'row', gap: 2 }}>
               {selectedInvoiceIds.length > 0 && (
-                <Button
-                  variant="contained"
-                  startIcon={<DeleteIcon />}
-                  onClick={() => setIsConfirmBulkDeleteDialogOpen(true)}
-                  sx={{
-                    backgroundColor: theme.palette.primary.main,
-                    color: theme.palette.primary.contrastText,
-                    '&:hover': { backgroundColor: theme.palette.primary.dark },
-                  }}>
-                  Delete ({selectedInvoiceIds.length})
-                </Button>
+                <>
+                  <Button
+                    variant="contained"
+                    startIcon={includeArchived ? <UnarchiveIcon /> : <ArchiveIcon />}
+                    onClick={includeArchived ? handleBulkUnarchive : handleBulkArchive}
+                    sx={{
+                      backgroundColor: theme.palette.secondary.main,
+                      color: theme.palette.secondary.contrastText,
+                      '&:hover': { backgroundColor: theme.palette.secondary.dark },
+                    }}>
+                    {includeArchived ? 'Unarchive' : 'Archive'} ({selectedInvoiceIds.length})
+                  </Button>
+                  <Button
+                    variant="contained"
+                    startIcon={<DeleteIcon />}
+                    onClick={() => setIsConfirmBulkDeleteDialogOpen(true)}
+                    sx={{
+                      backgroundColor: theme.palette.primary.main,
+                      color: theme.palette.primary.contrastText,
+                      '&:hover': { backgroundColor: theme.palette.primary.dark },
+                    }}>
+                    Delete ({selectedInvoiceIds.length})
+                  </Button>
+                </>
               )}
               <Button
                 variant="contained"
