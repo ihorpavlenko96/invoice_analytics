@@ -289,4 +289,20 @@ export class InvoiceService implements IInvoiceService {
 
         return String(value);
     }
+
+    async archiveInvoices(ids: string[], tenantId: string): Promise<void> {
+        if (!ids || ids.length === 0) {
+            throw new NotFoundException('No invoice IDs provided');
+        }
+
+        await this.invoiceRepository.archiveInvoices(ids, tenantId);
+    }
+
+    async unarchiveInvoices(ids: string[], tenantId: string): Promise<void> {
+        if (!ids || ids.length === 0) {
+            throw new NotFoundException('No invoice IDs provided');
+        }
+
+        await this.invoiceRepository.unarchiveInvoices(ids, tenantId);
+    }
 }

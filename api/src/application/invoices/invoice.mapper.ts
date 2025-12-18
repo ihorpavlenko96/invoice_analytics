@@ -31,6 +31,7 @@ export class InvoiceMapper {
         dto.status = entity.status;
         dto.terms = entity.terms;
         dto.tenantId = entity.tenantId;
+        dto.isArchived = entity.isArchived;
         dto.items = entity.items ? entity.items.map((item) => this.toItemDto(item)) : [];
 
         return dto;

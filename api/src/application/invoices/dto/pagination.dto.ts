@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsInt, IsOptional, Min, IsIn, IsString } from 'class-validator';
-import { Type } from 'class-transformer';
+import { IsInt, IsOptional, Min, IsIn, IsString, IsBoolean } from 'class-validator';
+import { Type, Transform } from 'class-transformer';
 
 export class PaginationParamsDto {
     @ApiProperty({
@@ -37,6 +37,17 @@ export class PaginationParamsDto {
     @IsIn(['PAID', 'UNPAID', 'OVERDUE'])
     @IsOptional()
     status?: string;
+
+    @ApiProperty({
+        description: 'Include archived invoices in results',
+        example: false,
+        default: false,
+        required: false,
+    })
+    @IsBoolean()
+    @IsOptional()
+    @Transform(({ value }) => value === 'true' || value === true)
+    includeArchived?: boolean = false;
 }
 
 export class PaginatedResponseDto<T> {

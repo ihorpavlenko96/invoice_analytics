@@ -52,3 +52,37 @@ export const useDeleteMultipleInvoices = () => {
     },
   });
 };
+
+/**
+ * Hook to archive multiple invoices
+ */
+export const useArchiveInvoices = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (ids: string[]) => invoiceService.archiveInvoices(ids),
+    onSuccess: () => {
+      // Invalidate and refetch invoices list
+      queryClient.invalidateQueries({
+        queryKey: invoiceKeys.lists(),
+      });
+    },
+  });
+};
+
+/**
+ * Hook to unarchive multiple invoices
+ */
+export const useUnarchiveInvoices = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (ids: string[]) => invoiceService.unarchiveInvoices(ids),
+    onSuccess: () => {
+      // Invalidate and refetch invoices list
+      queryClient.invalidateQueries({
+        queryKey: invoiceKeys.lists(),
+      });
+    },
+  });
+};

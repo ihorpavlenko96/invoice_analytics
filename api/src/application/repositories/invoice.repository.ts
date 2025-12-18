@@ -26,6 +26,11 @@ export class InvoiceRepository {
             whereClause.status = paginationParams.status;
         }
 
+        // By default, exclude archived invoices unless explicitly requested
+        if (!paginationParams.includeArchived) {
+            whereClause.isArchived = false;
+        }
+
         return this.invoiceRepository.findAndCount({
             where: whereClause,
             skip,
@@ -51,6 +56,26 @@ export class InvoiceRepository {
         await this.invoiceRepository.delete(id);
     }
 
+    async archiveInvoices(ids: string[], tenantId: string): Promise<void> {
+        await this.invoiceRepository
+            .createQueryBuilder()
+            .update(Invoice)
+            .set({ isArchived: true })
+            .where('id IN (:...ids)', { ids })
+            .andWhere('tenantId = :tenantId', { tenantId })
+            .execute();
+    }
+
+    async unarchiveInvoices(ids: string[], tenantId: string): Promise<void> {
+        await this.invoiceRepository
+            .createQueryBuilder()
+            .update(Invoice)
+            .set({ isArchived: false })
+            .where('id IN (:...ids)', { ids })
+            .andWhere('tenantId = :tenantId', { tenantId })
+            .execute();
+    }
+
     async getSummaryAnalytics(tenantId: string, filters?: AnalyticsFiltersDto) {
         const query = this.invoiceRepository.createQueryBuilder('invoice')
             .select([
@@ -61,7 +86,8 @@ export class InvoiceRepository {
                 'COUNT(CASE WHEN invoice.status = \'PAID\' THEN 1 END) as paidCount',
                 'COUNT(CASE WHEN invoice.dueDate < CURRENT_DATE AND invoice.status != \'PAID\' THEN 1 END) as overdueCount'
             ])
-            .where('invoice.tenantId = :tenantId', { tenantId });
+            .where('invoice.tenantId = :tenantId', { tenantId })
+            .andWhere('invoice.isArchived = :isArchived', { isArchived: false });
 
         if (filters?.from) {
             query.andWhere('invoice.issueDate >= :from', { from: filters.from });
@@ -80,7 +106,8 @@ export class InvoiceRepository {
                 'COUNT(invoice.id) as count',
                 'SUM(invoice.totalAmount) as totalAmount'
             ])
-            .where('invoice.tenantId = :tenantId', { tenantId });
+            .where('invoice.tenantId = :tenantId', { tenantId })
+            .andWhere('invoice.isArchived = :isArchived', { isArchived: false });
 
         if (filters?.from) {
             query.andWhere('invoice.issueDate >= :from', { from: filters.from });
@@ -103,7 +130,8 @@ export class InvoiceRepository {
                 'SUM(invoice.totalAmount) as totalAmount',
                 'COUNT(invoice.id) as invoiceCount'
             ])
-            .where('invoice.tenantId = :tenantId', { tenantId });
+            .where('invoice.tenantId = :tenantId', { tenantId })
+            .andWhere('invoice.isArchived = :isArchived', { isArchived: false });
 
         if (filters?.from) {
             query.andWhere('invoice.issueDate >= :from', { from: filters.from });
@@ -126,7 +154,8 @@ export class InvoiceRepository {
                 'SUM(invoice.totalAmount) as totalAmount',
                 'COUNT(invoice.id) as invoiceCount'
             ])
-            .where('invoice.tenantId = :tenantId', { tenantId });
+            .where('invoice.tenantId = :tenantId', { tenantId })
+            .andWhere('invoice.isArchived = :isArchived', { isArchived: false });
 
         if (filters?.from) {
             query.andWhere('invoice.issueDate >= :from', { from: filters.from });
@@ -149,7 +178,8 @@ export class InvoiceRepository {
                 'SUM(invoice.totalAmount) as totalAmount',
                 'COUNT(invoice.id) as invoiceCount'
             ])
-            .where('invoice.tenantId = :tenantId', { tenantId });
+            .where('invoice.tenantId = :tenantId', { tenantId })
+            .andWhere('invoice.isArchived = :isArchived', { isArchived: false });
 
         if (filters?.from) {
             query.andWhere('invoice.issueDate >= :from', { from: filters.from });
