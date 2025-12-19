@@ -194,34 +194,4 @@ export class InvoiceRepository {
             .limit(5)
             .getRawMany();
     }
-
-    /**
-     * Find all invoices for a tenant without pagination
-     * Used for exporting all invoices to Excel
-     * @param tenantId - The tenant ID
-     * @param paginationParams - Pagination params (only status and includeArchived filters are used)
-     * @returns Promise<Invoice[]> - Array of all invoices matching the filters
-     */
-    async findAllWithoutPagination(
-        tenantId: string,
-        paginationParams: PaginationParamsDto,
-    ): Promise<Invoice[]> {
-        // Build where clause with optional status filter
-        const whereClause: any = { tenantId };
-        if (paginationParams.status) {
-            whereClause.status = paginationParams.status;
-        }
-
-        // By default, exclude archived invoices unless explicitly requested
-        if (!paginationParams.includeArchived) {
-            whereClause.isArchived = false;
-        }
-
-        return this.invoiceRepository.find({
-            where: whereClause,
-            order: {
-                issueDate: 'DESC',
-            },
-        });
-    }
 }
