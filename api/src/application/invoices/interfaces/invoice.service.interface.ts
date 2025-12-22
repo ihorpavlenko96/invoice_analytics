@@ -16,10 +16,7 @@ export interface IInvoiceService {
 
     remove(id: string, tenantId: string): Promise<void>;
 
-    exportToExcel(
-        tenantId: string,
-        filters?: { status?: string; includeArchived?: boolean },
-    ): Promise<Buffer>;
+    exportToExcel(tenantId: string, paginationParams: PaginationParamsDto): Promise<Buffer>;
 
     archiveInvoices(ids: string[], tenantId: string): Promise<void>;
 
