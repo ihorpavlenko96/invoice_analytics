@@ -41,31 +41,6 @@ export class InvoiceRepository {
         });
     }
 
-    async findAllForExport(
-        tenantId: string,
-        status?: string,
-        includeArchived: boolean = false,
-    ): Promise<Invoice[]> {
-        // Build where clause with optional status filter
-        const whereClause: any = { tenantId };
-        if (status) {
-            whereClause.status = status;
-        }
-
-        // By default, exclude archived invoices unless explicitly requested
-        if (!includeArchived) {
-            whereClause.isArchived = false;
-        }
-
-        // Return all invoices without pagination
-        return this.invoiceRepository.find({
-            where: whereClause,
-            order: {
-                issueDate: 'DESC',
-            },
-        });
-    }
-
     async findById(id: string, tenantId: string): Promise<Invoice | null> {
         return this.invoiceRepository.findOne({
             where: { id, tenantId },
