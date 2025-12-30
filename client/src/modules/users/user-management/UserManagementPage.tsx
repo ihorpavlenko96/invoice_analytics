@@ -395,7 +395,13 @@ const UserManagementPage: React.FC<UserManagementPageProps> = () => {
                                       color={user.isActive ? 'warning' : 'success'}
                                       sx={{ mr: 0.5 }}
                                       disabled={isTogglingStatus && userToToggleStatus?.id === user.id}>
-                                      {user.isActive ? <HighlightOffIcon /> : <CheckCircleOutlineIcon />}
+                                      {isTogglingStatus && userToToggleStatus?.id === user.id ? (
+                                        <CircularProgress size={20} />
+                                      ) : user.isActive ? (
+                                        <HighlightOffIcon />
+                                      ) : (
+                                        <CheckCircleOutlineIcon />
+                                      )}
                                     </IconButton>
                                   </Tooltip>
                                   <Tooltip title="Edit User">
@@ -458,9 +464,9 @@ const UserManagementPage: React.FC<UserManagementPageProps> = () => {
         title="Delete User"
         message={`Are you sure you want to delete user #${userToDeleteId}? This action cannot be undone.`}
         confirmText="Delete"
+        isLoading={isDeleting}
         confirmButtonProps={{
           variant: 'contained',
-          disabled: isDeleting,
           sx: {
             backgroundColor: '#F87171',
             color: '#000000',
@@ -476,9 +482,9 @@ const UserManagementPage: React.FC<UserManagementPageProps> = () => {
         title={userToToggleStatus?.isActive ? 'Deactivate User' : 'Activate User'}
         message={`Are you sure you want to ${userToToggleStatus?.isActive ? 'deactivate' : 'activate'} user ${userToToggleStatus?.email ?? ''}?`}
         confirmText={userToToggleStatus?.isActive ? 'Deactivate' : 'Activate'}
+        isLoading={isTogglingStatus}
         confirmButtonProps={{
           color: userToToggleStatus?.isActive ? 'warning' : 'success',
-          disabled: isTogglingStatus,
         }}
       />
     </Box>

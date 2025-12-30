@@ -7,6 +7,7 @@ import {
   DialogContentText,
   DialogTitle,
   ButtonProps,
+  CircularProgress,
 } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 
@@ -21,6 +22,7 @@ type ConfirmationDialogProps = {
   confirmButtonProps?: ButtonProps;
   cancelButtonProps?: ButtonProps;
   error?: string | null;
+  isLoading?: boolean;
 };
 
 const ConfirmationDialog: React.FC<ConfirmationDialogProps> = ({
@@ -32,6 +34,7 @@ const ConfirmationDialog: React.FC<ConfirmationDialogProps> = ({
   confirmText = 'Confirm',
   cancelText = 'Cancel',
   confirmButtonProps = {},
+  isLoading = false,
 }) => {
   const theme = useTheme();
 
@@ -46,9 +49,9 @@ const ConfirmationDialog: React.FC<ConfirmationDialogProps> = ({
         <DialogContentText id="confirmation-dialog-description">{message}</DialogContentText>
       </DialogContent>
       <DialogActions sx={{ p: 2, borderTop: `1px solid ${theme.palette.divider}` }}>
-        <Button onClick={onClose}>{cancelText}</Button>
-        <Button onClick={onConfirm} autoFocus {...confirmButtonProps}>
-          {confirmText}
+        <Button onClick={onClose} disabled={isLoading}>{cancelText}</Button>
+        <Button onClick={onConfirm} autoFocus {...confirmButtonProps} disabled={isLoading || confirmButtonProps.disabled}>
+          {isLoading ? <CircularProgress size={24} /> : confirmText}
         </Button>
       </DialogActions>
     </Dialog>

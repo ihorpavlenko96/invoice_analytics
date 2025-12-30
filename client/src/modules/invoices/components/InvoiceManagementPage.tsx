@@ -295,8 +295,18 @@ const InvoiceManagementPage: React.FC = () => {
       // Cleanup
       link.parentNode?.removeChild(link);
       window.URL.revokeObjectURL(url);
+
+      enqueueSnackbar('Invoices exported successfully', {
+        variant: 'success',
+      });
     } catch (error) {
       console.error('Error exporting invoices:', error);
+      enqueueSnackbar(
+        error instanceof Error ? error.message : 'Failed to export invoices. Please try again.',
+        {
+          variant: 'error',
+        }
+      );
     } finally {
       setIsExporting(false);
     }
@@ -610,7 +620,7 @@ const InvoiceManagementPage: React.FC = () => {
               </Button>
               <Button
                 variant="contained"
-                startIcon={<DownloadIcon />}
+                startIcon={isExporting ? undefined : <DownloadIcon />}
                 onClick={handleExportToExcel}
                 disabled={isExporting}
                 sx={{
@@ -618,7 +628,7 @@ const InvoiceManagementPage: React.FC = () => {
                   color: theme.palette.primary.contrastText,
                   '&:hover': { backgroundColor: theme.palette.primary.dark },
                 }}>
-                {isExporting ? 'Exporting...' : 'Export to Excel'}
+                {isExporting ? <CircularProgress size={24} /> : 'Export to Excel'}
               </Button>
               <ThemeToggle />
             </Box>
@@ -662,10 +672,10 @@ const InvoiceManagementPage: React.FC = () => {
         onConfirm={handleBulkDelete}
         title="Confirm Bulk Deletion"
         message={`Are you sure you want to delete ${selectedInvoiceIds.length} selected invoice(s)? This action cannot be undone.`}
-        confirmText={deleteMultipleInvoicesMutation.isPending ? 'Deleting...' : 'Delete'}
+        confirmText="Delete"
+        isLoading={deleteMultipleInvoicesMutation.isPending}
         confirmButtonProps={{
           variant: 'contained',
-          disabled: deleteMultipleInvoicesMutation.isPending,
           sx: {
             backgroundColor: theme.palette.primary.main,
             color: theme.palette.primary.contrastText,

@@ -40,7 +40,10 @@ const InvoiceFileUpload: React.FC<{ variant?: 'text' | 'contained' | 'outlined' 
       },
       onError: (error) => {
         console.error('Error importing invoice:', error);
-        enqueueSnackbar('Failed to import invoice', { variant: 'error' });
+        enqueueSnackbar(
+          error instanceof Error ? error.message : 'Failed to import invoice. Please try again.',
+          { variant: 'error' }
+        );
       },
     });
   };
