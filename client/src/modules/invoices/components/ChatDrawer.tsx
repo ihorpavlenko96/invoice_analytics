@@ -253,7 +253,9 @@ const ChatDrawer: React.FC<ChatDrawerProps> = ({
 
       const errorMessage: Message = {
         id: `error-${Date.now()}`,
-        content: 'Sorry, I encountered an error. Please try again.',
+        content: error instanceof Error
+          ? `Sorry, I encountered an error: ${error.message}. Please try again.`
+          : 'Sorry, I encountered an error. Please try again.',
         isUser: false,
         timestamp: new Date(),
       };
