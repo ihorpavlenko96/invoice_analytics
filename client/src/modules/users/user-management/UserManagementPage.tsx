@@ -395,7 +395,13 @@ const UserManagementPage: React.FC<UserManagementPageProps> = () => {
                                       color={user.isActive ? 'warning' : 'success'}
                                       sx={{ mr: 0.5 }}
                                       disabled={isTogglingStatus && userToToggleStatus?.id === user.id}>
-                                      {user.isActive ? <HighlightOffIcon /> : <CheckCircleOutlineIcon />}
+                                      {isTogglingStatus && userToToggleStatus?.id === user.id ? (
+                                        <CircularProgress size={20} color="inherit" />
+                                      ) : user.isActive ? (
+                                        <HighlightOffIcon />
+                                      ) : (
+                                        <CheckCircleOutlineIcon />
+                                      )}
                                     </IconButton>
                                   </Tooltip>
                                   <Tooltip title="Edit User">
@@ -413,7 +419,11 @@ const UserManagementPage: React.FC<UserManagementPageProps> = () => {
                                       size="small"
                                       disabled={isDeleting && userToDeleteId === user.id}
                                       color="primary">
-                                      <DeleteIcon />
+                                      {isDeleting && userToDeleteId === user.id ? (
+                                        <CircularProgress size={20} color="inherit" />
+                                      ) : (
+                                        <DeleteIcon />
+                                      )}
                                     </IconButton>
                                   </Tooltip>
                                 </TableCell>

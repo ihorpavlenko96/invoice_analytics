@@ -22,6 +22,7 @@ import {
   Skeleton,
   keyframes,
   Checkbox,
+  CircularProgress,
 } from '@mui/material';
 import {
   Visibility as ViewIcon,
@@ -484,8 +485,13 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({
                             handleDeleteClick(invoice.id);
                           }}
                           size="small"
+                          disabled={deleteInvoiceMutation.isPending && invoiceToDelete === invoice.id}
                           sx={{ color: theme.palette.error.main, '&:hover': { color: theme.palette.error.dark } }}>
-                          <DeleteIcon />
+                          {deleteInvoiceMutation.isPending && invoiceToDelete === invoice.id ? (
+                            <CircularProgress size={20} color="inherit" />
+                          ) : (
+                            <DeleteIcon />
+                          )}
                         </IconButton>
                       </Tooltip>
                     </Box>
