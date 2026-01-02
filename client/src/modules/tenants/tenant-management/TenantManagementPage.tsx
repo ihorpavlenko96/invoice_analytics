@@ -67,7 +67,7 @@ const TenantManagementPage: React.FC<TenantManagementPageProps> = () => {
     staleTime: CACHE_TIMES.DEFAULT,
   });
 
-  const { mutateAsync: removeTenant } = useMutation({
+  const { mutateAsync: removeTenant, isPending: isDeleting } = useMutation({
     mutationFn: deleteTenant,
     onSuccess: () => queryClient.invalidateQueries({ queryKey: [TENANT_QUERY_KEYS.GET_TENANTS] }),
     onError: (error: Error) => {
@@ -240,10 +240,17 @@ const TenantManagementPage: React.FC<TenantManagementPageProps> = () => {
                         </Button>
                         <Button
                           variant="text"
-                          startIcon={<DeleteIcon />}
+                          startIcon={
+                            isDeleting && tenantToDeleteId === tenant.id ? (
+                              <CircularProgress size={20} color="inherit" />
+                            ) : (
+                              <DeleteIcon />
+                            )
+                          }
                           onClick={() => openConfirmDeleteDialog(tenant.id)}
                           aria-label="delete"
                           size="small"
+                          disabled={isDeleting && tenantToDeleteId === tenant.id}
                           sx={{
                             color: '#F87171',
                             textTransform: 'none',

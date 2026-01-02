@@ -434,14 +434,23 @@ const InvoiceManagementPage: React.FC = () => {
               {selectedInvoiceIds.length > 0 && (
                 <Button
                   variant="contained"
-                  startIcon={<DeleteIcon />}
+                  startIcon={
+                    deleteMultipleInvoicesMutation.isPending ? (
+                      <CircularProgress size={20} color="inherit" />
+                    ) : (
+                      <DeleteIcon />
+                    )
+                  }
                   onClick={() => setIsConfirmBulkDeleteDialogOpen(true)}
+                  disabled={deleteMultipleInvoicesMutation.isPending}
                   sx={{
                     backgroundColor: theme.palette.primary.main,
                     color: theme.palette.primary.contrastText,
                     '&:hover': { backgroundColor: theme.palette.primary.dark },
                   }}>
-                  Delete ({selectedInvoiceIds.length})
+                  {deleteMultipleInvoicesMutation.isPending
+                    ? 'Deleting...'
+                    : `Delete (${selectedInvoiceIds.length})`}
                 </Button>
               )}
               <Button
