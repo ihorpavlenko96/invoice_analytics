@@ -18,8 +18,6 @@ import {
   InputLabel,
   FormControlLabel,
   Switch,
-  Autocomplete,
-  Chip,
 } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
@@ -59,7 +57,6 @@ const InvoiceManagementPage: React.FC = () => {
   const [aiSearchQuery, setAiSearchQuery] = useState('');
   const [dateFilter, setDateFilter] = useState<Dayjs | null>(null);
   const [statusFilter, setStatusFilter] = useState<string>('');
-  const [currencyFilter, setCurrencyFilter] = useState<string[]>([]);
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
   const [isExporting, setIsExporting] = useState(false);
@@ -93,17 +90,7 @@ const InvoiceManagementPage: React.FC = () => {
     selectedInvoiceId || '',
   );
 
-  // Extract unique currencies from loaded invoices
-  const uniqueCurrencies = useMemo(() => {
-    const currencies = paginatedInvoices.items
-      .map((invoice) => invoice.currency)
-      .filter((currency) => currency); // Filter out null/undefined values
-
-    // Return unique currencies sorted alphabetically
-    return Array.from(new Set(currencies)).sort();
-  }, [paginatedInvoices.items]);
-
-  // Apply client-side date and currency filtering
+  // Apply client-side date filtering
   const filteredInvoices = useMemo(() => {
     let filtered = paginatedInvoices.items;
 
@@ -130,19 +117,12 @@ const InvoiceManagementPage: React.FC = () => {
       });
     }
 
-    // Filter by currency if currencies are selected
-    if (currencyFilter.length > 0) {
-      filtered = filtered.filter((invoice) =>
-        currencyFilter.includes(invoice.currency)
-      );
-    }
-
     return {
       ...paginatedInvoices,
       items: filtered,
       total: filtered.length,
     };
-  }, [paginatedInvoices, dateFilter, currencyFilter]);
+  }, [paginatedInvoices, dateFilter]);
 
   // Reset highlighted invoice after animation
   useEffect(() => {
@@ -480,64 +460,6 @@ const InvoiceManagementPage: React.FC = () => {
                   <IconButton
                     aria-label="Clear status filter"
                     onClick={() => setStatusFilter('')}
-                    size="small"
-                    sx={{ color: theme.palette.primary.main }}
-                  >
-                    <ClearIcon />
-                  </IconButton>
-                )}
-                <Autocomplete
-                  multiple
-                  id="currency-filter"
-                  options={uniqueCurrencies}
-                  value={currencyFilter}
-                  onChange={(event, newValue) => setCurrencyFilter(newValue)}
-                  size="small"
-                  sx={{ minWidth: 200 }}
-                  renderInput={(params) => (
-                    <TextField
-                      {...params}
-                      label="Currency"
-                      placeholder="Select currencies..."
-                      sx={{
-                        '& .MuiOutlinedInput-root': {
-                          '&.Mui-focused fieldset': {
-                            borderColor: theme.palette.primary.main,
-                          },
-                          '&:hover fieldset': {
-                            borderColor: theme.palette.primary.light,
-                          },
-                        },
-                        '& .MuiInputLabel-root.Mui-focused': {
-                          color: theme.palette.primary.main,
-                        },
-                      }}
-                    />
-                  )}
-                  renderTags={(value, getTagProps) =>
-                    value.map((option, index) => (
-                      <Chip
-                        label={option}
-                        size="small"
-                        {...getTagProps({ index })}
-                        sx={{
-                          backgroundColor: theme.palette.primary.main,
-                          color: theme.palette.primary.contrastText,
-                          '& .MuiChip-deleteIcon': {
-                            color: theme.palette.primary.contrastText,
-                            '&:hover': {
-                              color: theme.palette.primary.light,
-                            },
-                          },
-                        }}
-                      />
-                    ))
-                  }
-                />
-                {currencyFilter.length > 0 && (
-                  <IconButton
-                    aria-label="Clear currency filter"
-                    onClick={() => setCurrencyFilter([])}
                     size="small"
                     sx={{ color: theme.palette.primary.main }}
                   >
