@@ -19,20 +19,13 @@ export class InvoiceService implements IInvoiceService {
         tenantId: string,
         paginationParams: PaginationParamsDto,
     ): Promise<PaginatedResponseDto<InvoiceDto>> {
-        // Ensure defaults for pagination when not provided
-        const paramsWithDefaults = {
-            ...paginationParams,
-            page: paginationParams.page ?? 1,
-            limit: paginationParams.limit ?? 10,
-        };
-
-        const [invoices, total] = await this.invoiceRepository.findAll(tenantId, paramsWithDefaults);
+        const [invoices, total] = await this.invoiceRepository.findAll(tenantId, paginationParams);
 
         return this.invoiceMapper.toPaginatedResponse(
             invoices,
             total,
-            paramsWithDefaults.page,
-            paramsWithDefaults.limit,
+            paginationParams.page ?? 1,
+            paginationParams.limit ?? 10,
         );
     }
 

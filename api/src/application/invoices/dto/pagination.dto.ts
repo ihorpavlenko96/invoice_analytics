@@ -13,7 +13,7 @@ export class PaginationParamsDto {
     @Min(1)
     @IsOptional()
     @Type(() => Number)
-    page?: number;
+    page?: number = 1;
 
     @ApiProperty({
         description: 'Number of items per page',
@@ -25,7 +25,7 @@ export class PaginationParamsDto {
     @Min(1)
     @IsOptional()
     @Type(() => Number)
-    limit?: number;
+    limit?: number = 10;
 
     @ApiProperty({
         description: 'Filter invoices by status',
