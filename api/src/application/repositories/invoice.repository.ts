@@ -16,10 +16,6 @@ export class InvoiceRepository {
         tenantId: string,
         paginationParams: PaginationParamsDto,
     ): Promise<[Invoice[], number]> {
-        const page = paginationParams.page ?? 1;
-        const limit = paginationParams.limit ?? 10;
-        const skip = (page - 1) * limit;
-
         // Build where clause with optional status filter
         const whereClause: any = { tenantId };
         if (paginationParams.status) {
@@ -31,14 +27,25 @@ export class InvoiceRepository {
             whereClause.isArchived = false;
         }
 
-        return this.invoiceRepository.findAndCount({
+        // If both page and limit are provided, use pagination
+        // Otherwise, return all records (for export functionality)
+        const queryOptions: any = {
             where: whereClause,
-            skip,
-            take: limit,
             order: {
                 issueDate: 'DESC',
             },
-        });
+        };
+
+        // Only apply pagination if page and limit are explicitly provided
+        if (paginationParams.page !== undefined && paginationParams.limit !== undefined) {
+            const page = paginationParams.page ?? 1;
+            const limit = paginationParams.limit ?? 10;
+            const skip = (page - 1) * limit;
+            queryOptions.skip = skip;
+            queryOptions.take = limit;
+        }
+
+        return this.invoiceRepository.findAndCount(queryOptions);
     }
 
     async findById(id: string, tenantId: string): Promise<Invoice | null> {
