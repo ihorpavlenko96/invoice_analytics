@@ -38,6 +38,7 @@ import { CACHE_TIMES } from '../../../common/constants/cacheTimes.ts';
 import { USER_QUERY_KEYS } from '../userQueryKeys.ts';
 import { TENANT_QUERY_KEYS } from '../../tenants/tenantQueryKeys.ts';
 import { ROLE_QUERY_KEYS } from '../../roles/roleQueryKeys.ts';
+import { useUserManagementStore } from '../stores/userManagementStore';
 
 type UserFormProps = {
   user?: User | null;
@@ -77,6 +78,7 @@ const UserForm: React.FC<UserFormProps> = ({ user, onClose }) => {
   const theme = useTheme();
   const queryClient = useQueryClient();
   const { enqueueSnackbar } = useSnackbar();
+  const { setIsSubmitting } = useUserManagementStore();
 
   const userRolesAuth = useUserRoles();
   const isSuperAdmin = userRolesAuth.includes(ROLES.SUPER_ADMIN);
@@ -115,9 +117,11 @@ const UserForm: React.FC<UserFormProps> = ({ user, onClose }) => {
         : createUser(data.payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [USER_QUERY_KEYS.GET_USERS] });
+      setIsSubmitting(false);
       onClose();
     },
     onError: (error: Error) => {
+      setIsSubmitting(false);
       enqueueSnackbar(error.message || 'Failed to update user', {
         variant: 'error',
       });
@@ -128,9 +132,11 @@ const UserForm: React.FC<UserFormProps> = ({ user, onClose }) => {
     mutationFn: updateUser,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [USER_QUERY_KEYS.GET_USERS] });
+      setIsSubmitting(false);
       onClose();
     },
     onError: (error: Error) => {
+      setIsSubmitting(false);
       enqueueSnackbar(error.message || 'Failed to update user', {
         variant: 'error',
       });
@@ -159,6 +165,9 @@ const UserForm: React.FC<UserFormProps> = ({ user, onClose }) => {
   );
 
   const handleSubmit = async (values: UserFormValues): Promise<void> => {
+    // Set loading state at the start of submission
+    setIsSubmitting(true);
+
     if (isEditing && user) {
       const updateData: UpdateUserInput = {
         email: values.email,
@@ -174,6 +183,7 @@ const UserForm: React.FC<UserFormProps> = ({ user, onClose }) => {
         const superAdminRoleSelected = values.roleIds.includes(superAdminRole?.id ?? '');
 
         if (!superAdminRoleSelected && values.tenantId === undefined) {
+          setIsSubmitting(false);
           throw new Error('Tenant ID is required unless Super Admin role is selected.');
         }
 

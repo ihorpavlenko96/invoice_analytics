@@ -74,6 +74,7 @@ const UserManagementPage: React.FC<UserManagementPageProps> = () => {
     isConfirmToggleStatusDialogOpen,
     userToToggleStatus,
     columnOrder,
+    isSubmitting,
     openCreateForm,
     openEditForm,
     closeForm,
@@ -285,11 +286,19 @@ const UserManagementPage: React.FC<UserManagementPageProps> = () => {
               <Button
                 variant="contained"
                 onClick={openCreateForm}
+                disabled={isSubmitting}
                 sx={{
                   backgroundColor: '#8B5CF6',
                   '&:hover': { backgroundColor: '#7C3AED' },
                 }}>
-                + Add User
+                {isSubmitting ? (
+                  <>
+                    <CircularProgress size={20} sx={{ mr: 1, color: 'inherit' }} />
+                    Adding User...
+                  </>
+                ) : (
+                  '+ Add User'
+                )}
               </Button>
             </Stack>
           }

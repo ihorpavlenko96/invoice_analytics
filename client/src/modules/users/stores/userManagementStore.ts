@@ -11,6 +11,7 @@ interface UserManagementState {
   isConfirmToggleStatusDialogOpen: boolean;
   userToToggleStatus: User | null;
   columnOrder: string[];
+  isSubmitting: boolean;
 
   openCreateForm: () => void;
   openEditForm: (user: User) => void;
@@ -26,6 +27,7 @@ interface UserManagementState {
 
   setColumnOrder: (order: string[]) => void;
   loadColumnOrder: () => void;
+  setIsSubmitting: (isSubmitting: boolean) => void;
 }
 
 export const useUserManagementStore = create<UserManagementState>((set) => ({
@@ -37,10 +39,11 @@ export const useUserManagementStore = create<UserManagementState>((set) => ({
   isConfirmToggleStatusDialogOpen: false,
   userToToggleStatus: null,
   columnOrder: [],
+  isSubmitting: false,
 
   openCreateForm: (): void => set({ isFormOpen: true, selectedUser: null }),
   openEditForm: (user: User): void => set({ isFormOpen: true, selectedUser: user }),
-  closeForm: (): void => set({ isFormOpen: false, selectedUser: null }),
+  closeForm: (): void => set({ isFormOpen: false, selectedUser: null, isSubmitting: false }),
 
   openConfirmDeleteDialog: (id: string): void =>
     set({ isConfirmDeleteDialogOpen: true, userToDeleteId: id }),
@@ -73,4 +76,6 @@ export const useUserManagementStore = create<UserManagementState>((set) => ({
       }
     }
   },
+
+  setIsSubmitting: (isSubmitting: boolean): void => set({ isSubmitting }),
 }));
