@@ -41,6 +41,36 @@ export class InvoiceRepository {
         });
     }
 
+    /**
+     * Find all invoices for export (without pagination)
+     * @param tenantId - Tenant ID
+     * @param paginationParams - Filter parameters (status, includeArchived) without pagination
+     * @returns Promise<Invoice[]> - All invoices matching the filters
+     */
+    async findAllForExport(
+        tenantId: string,
+        paginationParams: PaginationParamsDto,
+    ): Promise<Invoice[]> {
+        // Build where clause with optional status filter
+        const whereClause: any = { tenantId };
+        if (paginationParams.status) {
+            whereClause.status = paginationParams.status;
+        }
+
+        // By default, exclude archived invoices unless explicitly requested
+        if (!paginationParams.includeArchived) {
+            whereClause.isArchived = false;
+        }
+
+        // Return all invoices without pagination
+        return this.invoiceRepository.find({
+            where: whereClause,
+            order: {
+                issueDate: 'DESC',
+            },
+        });
+    }
+
     async findById(id: string, tenantId: string): Promise<Invoice | null> {
         return this.invoiceRepository.findOne({
             where: { id, tenantId },
