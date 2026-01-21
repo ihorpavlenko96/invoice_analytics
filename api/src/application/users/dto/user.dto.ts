@@ -26,6 +26,13 @@ export class UserDto {
     lastName?: string;
 
     @ApiProperty({
+        description: 'URL of the user avatar image',
+        required: false,
+        example: 'https://bucket.s3.region.amazonaws.com/avatars/user-id/avatar.jpg',
+    })
+    avatarUrl?: string;
+
+    @ApiProperty({
         description: 'Tenant the user belongs to',
         example: { id: '123e4567-e89b-12d3-a456-426614174000', name: 'Company Name' },
     })

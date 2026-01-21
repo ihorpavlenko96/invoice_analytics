@@ -11,7 +11,11 @@ import {
     HttpStatus,
     Inject,
     ForbiddenException,
+    UploadedFile,
+    UseInterceptors,
+    BadRequestException,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 import {
     IUserCommands,
@@ -41,11 +45,21 @@ import {
     ApiUnauthorizedResponse,
     ApiForbiddenResponse,
     ApiNotFoundResponse,
+    ApiConsumes,
 } from '@nestjs/swagger';
 
 interface RequestingUserContext {
     isSuperAdmin: boolean;
     tenantId?: string;
+}
+
+interface MulterFile {
+    fieldname: string;
+    originalname: string;
+    encoding: string;
+    mimetype: string;
+    size: number;
+    buffer: Buffer;
 }
 
 @ApiTags('Users')
@@ -239,5 +253,71 @@ export class UserController {
             this._getRequestingUserContext(req);
 
         return this.userCommands.deactivateUser(id, tenantId, isSuperAdmin);
+    }
+
+    @Post(':id/avatar')
+    @UseInterceptors(FileInterceptor('file'))
+    @ApiOperation({
+        summary: 'Upload user avatar',
+        description: 'Uploads a custom avatar image for the user (jpg, png, gif, max 2MB)',
+    })
+    @ApiParam({
+        name: 'id',
+        description: 'User ID',
+        example: '123e4567-e89b-12d3-a456-426614174000',
+    })
+    @ApiConsumes('multipart/form-data')
+    @ApiBody({
+        schema: {
+            type: 'object',
+            properties: {
+                file: {
+                    type: 'string',
+                    format: 'binary',
+                    description: 'Avatar image file (jpg, png, gif, max 2MB)',
+                },
+            },
+        },
+    })
+    @ApiResponse({
+        status: HttpStatus.OK,
+        description: 'Avatar uploaded successfully',
+        type: UserDto,
+    })
+    @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+    @ApiForbiddenResponse({ description: 'Forbidden - can only upload own avatar' })
+    @ApiNotFoundResponse({ description: 'User not found' })
+    async uploadAvatar(
+        @Param('id') id: string,
+        @UploadedFile() file: MulterFile,
+        @Req() req: RequestWithTenant,
+    ): Promise<UserDto> {
+        if (!file) {
+            throw new BadRequestException('No file uploaded');
+        }
+
+        // Validate file type
+        const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/gif'];
+        if (!allowedMimeTypes.includes(file.mimetype)) {
+            throw new BadRequestException(
+                'Invalid file type. Only JPG, PNG, and GIF images are allowed.',
+            );
+        }
+
+        // Validate file size (2MB = 2 * 1024 * 1024 bytes)
+        const maxSize = 2 * 1024 * 1024;
+        if (file.size > maxSize) {
+            throw new BadRequestException('File size exceeds 2MB limit.');
+        }
+
+        const requestingUserId = req.userId!;
+
+        return this.userCommands.uploadAvatar(
+            id,
+            file.buffer,
+            file.originalname,
+            file.mimetype,
+            requestingUserId,
+        );
     }
 }
