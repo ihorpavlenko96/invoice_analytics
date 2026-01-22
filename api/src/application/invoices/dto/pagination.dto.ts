@@ -48,17 +48,6 @@ export class PaginationParamsDto {
     @IsOptional()
     @Transform(({ value }) => value === 'true' || value === true)
     includeArchived?: boolean = false;
-
-    @ApiProperty({
-        description: 'Export all invoices without pagination limits (for export operations)',
-        example: false,
-        default: false,
-        required: false,
-    })
-    @IsBoolean()
-    @IsOptional()
-    @Transform(({ value }) => value === 'true' || value === true)
-    exportAll?: boolean = false;
 }
 
 export class PaginatedResponseDto<T> {

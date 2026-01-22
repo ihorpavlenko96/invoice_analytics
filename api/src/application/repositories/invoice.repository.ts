@@ -31,21 +31,14 @@ export class InvoiceRepository {
             whereClause.isArchived = false;
         }
 
-        // Build query options
-        const queryOptions: any = {
+        return this.invoiceRepository.findAndCount({
             where: whereClause,
+            skip,
+            take: limit,
             order: {
                 issueDate: 'DESC',
             },
-        };
-
-        // Only apply pagination if exportAll is not true
-        if (!paginationParams.exportAll) {
-            queryOptions.skip = skip;
-            queryOptions.take = limit;
-        }
-
-        return this.invoiceRepository.findAndCount(queryOptions);
+        });
     }
 
     async findById(id: string, tenantId: string): Promise<Invoice | null> {
