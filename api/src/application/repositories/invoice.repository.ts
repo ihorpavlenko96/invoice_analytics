@@ -31,22 +31,14 @@ export class InvoiceRepository {
             whereClause.isArchived = false;
         }
 
-        // Build query options
-        const queryOptions: any = {
+        return this.invoiceRepository.findAndCount({
             where: whereClause,
+            skip,
+            take: limit,
             order: {
                 issueDate: 'DESC',
             },
-        };
-
-        // Only apply pagination if both page and limit are provided
-        // This allows exports to fetch all records by omitting pagination
-        if (paginationParams.page !== undefined && paginationParams.limit !== undefined) {
-            queryOptions.skip = skip;
-            queryOptions.take = limit;
-        }
-
-        return this.invoiceRepository.findAndCount(queryOptions);
+        });
     }
 
     async findById(id: string, tenantId: string): Promise<Invoice | null> {
