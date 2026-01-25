@@ -86,10 +86,10 @@ export const pinkGreyTheme = createTheme({
           },
         },
         contained: {
-          backgroundColor: '#FFC0CB',
-          color: '#000000',
+          backgroundColor: '#003366', // Navy blue
+          color: '#FFFFFF',
           '&:hover': {
-            backgroundColor: darken('#FFC0CB', 0.15),
+            backgroundColor: '#004080', // Lighter navy on hover
           },
         },
         outlined: {
