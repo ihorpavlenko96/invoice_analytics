@@ -210,4 +210,24 @@ export class InvoiceRepository {
             .limit(5)
             .getRawMany();
     }
+
+    async getOverdueMonthlyStatistics(tenantId: string) {
+        // Get the last 12 months of overdue invoice statistics
+        // An invoice is considered overdue if: dueDate < CURRENT_DATE AND status != 'PAID'
+        // Group by the month when the invoice became overdue (based on dueDate)
+        return this.invoiceRepository.createQueryBuilder('invoice')
+            .select([
+                'EXTRACT(YEAR FROM invoice.dueDate) as year',
+                'EXTRACT(MONTH FROM invoice.dueDate) as month',
+                'COUNT(invoice.id) as count'
+            ])
+            .where('invoice.tenantId = :tenantId', { tenantId })
+            .andWhere('invoice.dueDate < CURRENT_DATE')
+            .andWhere('invoice.status != :status', { status: 'PAID' })
+            .andWhere('invoice.dueDate >= CURRENT_DATE - INTERVAL \'12 months\'')
+            .groupBy('EXTRACT(YEAR FROM invoice.dueDate), EXTRACT(MONTH FROM invoice.dueDate)')
+            .orderBy('year', 'ASC')
+            .addOrderBy('month', 'ASC')
+            .getRawMany();
+    }
 }
