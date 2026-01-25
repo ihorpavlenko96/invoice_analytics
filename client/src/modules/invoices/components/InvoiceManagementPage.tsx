@@ -501,25 +501,43 @@ const InvoiceManagementPage: React.FC = () => {
                 <>
                   <Button
                     variant="contained"
-                    startIcon={includeArchived ? <UnarchiveIcon /> : <ArchiveIcon />}
+                    startIcon={
+                      (archiveInvoicesMutation.isPending || unarchiveInvoicesMutation.isPending) ? (
+                        <CircularProgress size={20} sx={{ color: 'inherit' }} />
+                      ) : (
+                        includeArchived ? <UnarchiveIcon /> : <ArchiveIcon />
+                      )
+                    }
                     onClick={includeArchived ? handleBulkUnarchive : handleBulkArchive}
+                    disabled={archiveInvoicesMutation.isPending || unarchiveInvoicesMutation.isPending || deleteMultipleInvoicesMutation.isPending}
                     sx={{
                       backgroundColor: theme.palette.secondary.main,
                       color: theme.palette.secondary.contrastText,
                       '&:hover': { backgroundColor: theme.palette.secondary.dark },
                     }}>
-                    {includeArchived ? 'Unarchive' : 'Archive'} ({selectedInvoiceIds.length})
+                    {(archiveInvoicesMutation.isPending || unarchiveInvoicesMutation.isPending)
+                      ? (includeArchived ? 'Unarchiving...' : 'Archiving...')
+                      : (includeArchived ? 'Unarchive' : 'Archive') + ` (${selectedInvoiceIds.length})`}
                   </Button>
                   <Button
                     variant="contained"
-                    startIcon={<DeleteIcon />}
+                    startIcon={
+                      deleteMultipleInvoicesMutation.isPending ? (
+                        <CircularProgress size={20} sx={{ color: 'inherit' }} />
+                      ) : (
+                        <DeleteIcon />
+                      )
+                    }
                     onClick={() => setIsConfirmBulkDeleteDialogOpen(true)}
+                    disabled={deleteMultipleInvoicesMutation.isPending || archiveInvoicesMutation.isPending || unarchiveInvoicesMutation.isPending}
                     sx={{
                       backgroundColor: theme.palette.primary.main,
                       color: theme.palette.primary.contrastText,
                       '&:hover': { backgroundColor: theme.palette.primary.dark },
                     }}>
-                    Delete ({selectedInvoiceIds.length})
+                    {deleteMultipleInvoicesMutation.isPending
+                      ? 'Deleting...'
+                      : `Delete (${selectedInvoiceIds.length})`}
                   </Button>
                 </>
               )}
@@ -588,10 +606,10 @@ const InvoiceManagementPage: React.FC = () => {
         onConfirm={handleBulkDelete}
         title="Confirm Bulk Deletion"
         message={`Are you sure you want to delete ${selectedInvoiceIds.length} selected invoice(s)? This action cannot be undone.`}
-        confirmText={deleteMultipleInvoicesMutation.isPending ? 'Deleting...' : 'Delete'}
+        confirmText="Delete"
+        isLoading={deleteMultipleInvoicesMutation.isPending}
         confirmButtonProps={{
           variant: 'contained',
-          disabled: deleteMultipleInvoicesMutation.isPending,
           sx: {
             backgroundColor: theme.palette.primary.main,
             color: theme.palette.primary.contrastText,
