@@ -25,6 +25,7 @@ import {
   InputLabel,
   Select,
   MenuItem,
+  Avatar,
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -42,6 +43,7 @@ import { CACHE_TIMES } from '../../../common/constants/cacheTimes.ts';
 import { useUserManagementStore } from '../stores/userManagementStore';
 import { USER_QUERY_KEYS } from '../userQueryKeys.ts';
 import DraggableTableHead from '../components/DraggableTableHead';
+import { stringAvatar } from '../../../common/utils/avatarUtils';
 
 type UserManagementPageProps = Record<string, unknown>;
 
@@ -120,6 +122,7 @@ const UserManagementPage: React.FC<UserManagementPageProps> = () => {
 
   const columns = useMemo(() => {
     const baseColumns = [
+      { id: 'avatar', label: 'Avatar', sortable: false },
       { id: 'email', label: 'Email', sortable: true },
       { id: 'name', label: 'Name', sortable: true },
       { id: 'roles', label: 'Roles', sortable: false },
@@ -129,7 +132,7 @@ const UserManagementPage: React.FC<UserManagementPageProps> = () => {
     ];
 
     if (isSuperAdmin) {
-      baseColumns.splice(2, 0, { id: 'tenant', label: 'Tenant', sortable: true });
+      baseColumns.splice(3, 0, { id: 'tenant', label: 'Tenant', sortable: true });
     }
 
     return baseColumns;
@@ -352,6 +355,23 @@ const UserManagementPage: React.FC<UserManagementPageProps> = () => {
                           if (!column) return null;
 
                           switch (column.id) {
+                            case 'avatar':
+                              const userName = `${user.firstName ?? '-'} ${user.lastName ?? ''}`.trim();
+                              const avatarProps = user.avatarUrl
+                                ? { src: user.avatarUrl }
+                                : stringAvatar(userName);
+                              return (
+                                <TableCell key={column.id}>
+                                  <Avatar
+                                    {...avatarProps}
+                                    sx={{
+                                      width: 40,
+                                      height: 40,
+                                      ...avatarProps.sx,
+                                    }}
+                                  />
+                                </TableCell>
+                              );
                             case 'email':
                               return (
                                 <TableCell key={column.id} component="th" scope="row">

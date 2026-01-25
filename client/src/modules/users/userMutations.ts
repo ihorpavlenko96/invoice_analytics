@@ -39,3 +39,13 @@ export const deleteUser = (id: string) => axios.delete(`/users/${id}`);
 export const activateUser = (id: string) => axios.patch(`/users/${id}/activate`);
 
 export const deactivateUser = (id: string) => axios.patch(`/users/${id}/deactivate`);
+
+export const uploadAvatar = (userId: string, file: File) => {
+  const formData = new FormData();
+  formData.append('file', file);
+  return axios.post<User>(`/users/${userId}/avatar`, formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
+};
