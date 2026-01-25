@@ -92,6 +92,7 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({
     | 'customerName'
     | 'issueDate'
     | 'dueDate'
+    | 'discount'
     | 'totalAmount'
     | 'currency'
     | 'daysOverdue'
@@ -181,6 +182,7 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({
           result = compareDates(a[sortBy], b[sortBy]);
           break;
         case 'totalAmount':
+        case 'discount':
         case 'daysOverdue':
           result = compareNumbers(
             Number(a[sortBy] as number | string),
@@ -376,6 +378,16 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({
                   Due Date
                 </TableSortLabel>
               </TableCell>
+              <TableCell sortDirection={sortBy === 'discount' ? sortOrder : false}>
+                <TableSortLabel
+                  active={sortBy === 'discount'}
+                  direction={sortBy === 'discount' ? sortOrder : 'asc'}
+                  onClick={() => handleSort('discount')}
+                  sx={sortLabelSx}
+                >
+                  Discount
+                </TableSortLabel>
+              </TableCell>
               <TableCell sortDirection={sortBy === 'totalAmount' ? sortOrder : false}>
                 <TableSortLabel
                   active={sortBy === 'totalAmount'}
@@ -440,7 +452,7 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({
                   <TableCell padding="checkbox">
                     <Skeleton animation="wave" variant="rectangular" width={18} height={18} />
                   </TableCell>
-                  {Array.from(new Array(10)).map((_, cellIndex) => (
+                  {Array.from(new Array(11)).map((_, cellIndex) => (
                     <TableCell key={`cell-${index}-${cellIndex}`}>
                       <Skeleton animation="wave" />
                     </TableCell>
@@ -500,6 +512,7 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({
                   <TableCell>{invoice.customerName}</TableCell>
                   <TableCell>{formatDate(invoice.issueDate)}</TableCell>
                   <TableCell>{formatDate(invoice.dueDate)}</TableCell>
+                  <TableCell>{formatCurrency(invoice.discount, invoice.currency)}</TableCell>
                   <TableCell>{formatCurrency(invoice.totalAmount, invoice.currency)}</TableCell>
                   <TableCell>{invoice.currency}</TableCell>
                   <TableCell>{formatDaysOverdue(invoice.daysOverdue)}</TableCell>
@@ -534,7 +547,7 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({
               })
             ) : (
               <TableRow>
-                <TableCell colSpan={11} align="center" sx={{ py: 3 }}>
+                <TableCell colSpan={12} align="center" sx={{ py: 3 }}>
                   No invoices found.
                 </TableCell>
               </TableRow>
@@ -549,7 +562,7 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({
                     borderTop: theme => `2px solid ${theme.palette.divider}`,
                   },
                 }}>
-                <TableCell colSpan={6}>
+                <TableCell colSpan={7}>
                   <Typography variant="body1" fontWeight="bold">
                     Page Total ({invoices.length} invoices)
                   </Typography>
