@@ -153,7 +153,7 @@ const TenantManagementPage: React.FC<TenantManagementPageProps> = () => {
                 backgroundColor: theme.palette.primary.main,
                 '&:hover': { backgroundColor: theme.palette.primary.dark },
               }}>
-              + Add Tenant
+              One shot of tequila please
             </Button>
           }
         />
