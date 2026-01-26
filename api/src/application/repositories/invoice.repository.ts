@@ -41,22 +41,6 @@ export class InvoiceRepository {
         });
     }
 
-    /**
-     * Find all invoices for export without pagination
-     * Excludes archived invoices by default
-     */
-    async findAllForExport(tenantId: string): Promise<Invoice[]> {
-        return this.invoiceRepository.find({
-            where: {
-                tenantId,
-                isArchived: false,
-            },
-            order: {
-                issueDate: 'DESC',
-            },
-        });
-    }
-
     async findById(id: string, tenantId: string): Promise<Invoice | null> {
         return this.invoiceRepository.findOne({
             where: { id, tenantId },
