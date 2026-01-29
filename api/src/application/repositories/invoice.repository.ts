@@ -194,4 +194,18 @@ export class InvoiceRepository {
             .limit(5)
             .getRawMany();
     }
+
+    async findAllWithoutPagination(tenantId: string): Promise<Invoice[]> {
+        // Fetch all non-archived invoices for export
+        // Note: Excludes archived invoices by default for export use case
+        return this.invoiceRepository.find({
+            where: {
+                tenantId,
+                isArchived: false,
+            },
+            order: {
+                issueDate: 'DESC',
+            },
+        });
+    }
 }
