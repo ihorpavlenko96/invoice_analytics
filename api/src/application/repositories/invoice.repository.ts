@@ -41,6 +41,27 @@ export class InvoiceRepository {
         });
     }
 
+    async findAllWithoutPagination(
+        tenantId: string,
+        status?: string,
+    ): Promise<Invoice[]> {
+        // Build where clause with optional status filter
+        const whereClause: any = { tenantId };
+        if (status) {
+            whereClause.status = status;
+        }
+
+        // By default, exclude archived invoices for export
+        whereClause.isArchived = false;
+
+        return this.invoiceRepository.find({
+            where: whereClause,
+            order: {
+                issueDate: 'DESC',
+            },
+        });
+    }
+
     async findById(id: string, tenantId: string): Promise<Invoice | null> {
         return this.invoiceRepository.findOne({
             where: { id, tenantId },
