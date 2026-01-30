@@ -18,8 +18,6 @@ export interface IInvoiceService {
 
     exportToExcel(tenantId: string, paginationParams: PaginationParamsDto): Promise<Buffer>;
 
-    exportAllToExcel(tenantId: string): Promise<Buffer>;
-
     archiveInvoices(ids: string[], tenantId: string): Promise<void>;
 
     unarchiveInvoices(ids: string[], tenantId: string): Promise<void>;
