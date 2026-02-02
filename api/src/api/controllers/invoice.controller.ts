@@ -192,25 +192,19 @@ export class InvoiceController {
     @Authorize(RoleName.SUPER_ADMIN)
     @ApiOperation({
         summary: 'Export invoices to Excel',
-        description: 'Exports all invoices to an Excel file based on pagination and filters',
-    })
-    @ApiQuery({
-        name: 'page',
-        required: false,
-        type: Number,
-        description: 'Page number (starts from 1)',
-    })
-    @ApiQuery({
-        name: 'limit',
-        required: false,
-        type: Number,
-        description: 'Number of items per page',
+        description: 'Exports ALL invoices to an Excel file. Pagination parameters are ignored. Status and archived filters are still applied.',
     })
     @ApiQuery({
         name: 'status',
         required: false,
         enum: ['PAID', 'UNPAID', 'OVERDUE'],
         description: 'Filter invoices by status',
+    })
+    @ApiQuery({
+        name: 'includeArchived',
+        required: false,
+        type: Boolean,
+        description: 'Include archived invoices in export',
     })
     @ApiResponse({
         status: HttpStatus.OK,
@@ -224,6 +218,8 @@ export class InvoiceController {
         @Query() paginationParams: PaginationParamsDto,
     ): Promise<void> {
         const tenantId = request.tenantId!;
+        // Note: paginationParams.page and paginationParams.limit are ignored for export
+        // Only status and includeArchived filters are applied
         const buffer = await this.invoiceService.exportToExcel(tenantId, paginationParams);
 
         response.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
