@@ -262,8 +262,7 @@ const InvoiceManagementPage: React.FC = () => {
   const handleExportToExcel = async () => {
     setIsExporting(true);
     try {
-      // Export ALL invoices matching current filters (no pagination)
-      const blob = await invoiceService.exportInvoices(statusFilter || undefined, includeArchived);
+      const blob = await invoiceService.exportInvoices(page, limit, statusFilter || undefined);
 
       // Create download link
       const url = window.URL.createObjectURL(blob);
