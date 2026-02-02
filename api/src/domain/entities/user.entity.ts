@@ -29,9 +29,6 @@ export class User {
     @Column({ length: 100, nullable: true })
     lastName?: string;
 
-    @Column({ type: 'text', nullable: true })
-    avatarUrl?: string;
-
     @Column({ default: true })
     isActive: boolean;
 
