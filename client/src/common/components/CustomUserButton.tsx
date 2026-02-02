@@ -16,12 +16,6 @@ import {
 import SettingsIcon from '@mui/icons-material/Settings';
 import LogoutIcon from '@mui/icons-material/Logout';
 import { useClerk, useUser } from '@clerk/clerk-react';
-import { useNavigate } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
-import { fetchUsers } from '../../modules/users/userQueries';
-import { userQueryKeys } from '../../modules/users/userQueryKeys';
-import { stringAvatar } from '../utils/avatarUtils';
-import { User } from '../../modules/users/types/user';
 
 type CustomUserButtonProps = {
   afterSignOutUrl: string;
@@ -31,19 +25,8 @@ const CustomUserButton: React.FC<CustomUserButtonProps> = ({ afterSignOutUrl }) 
   const [anchorEl, setAnchorEl] = useState<HTMLDivElement | null>(null);
   const buttonRef = useRef<HTMLDivElement>(null);
   const { signOut } = useClerk();
-  const { user: clerkUser } = useUser();
-  const navigate = useNavigate();
+  const { user } = useUser();
   const theme = useTheme();
-
-  // Fetch the user data from our backend to get custom avatar
-  const { data: users } = useQuery({
-    queryKey: userQueryKeys.users(),
-    queryFn: () => fetchUsers(),
-  });
-
-  const currentUser = users?.find(
-    (u: User) => u.email === clerkUser?.emailAddresses[0]?.emailAddress,
-  );
 
   const handleClick = (): void => {
     setAnchorEl(buttonRef.current);
@@ -61,18 +44,10 @@ const CustomUserButton: React.FC<CustomUserButtonProps> = ({ afterSignOutUrl }) 
   };
 
   const handleManageAccount = (): void => {
-    navigate('/profile');
     handleClose();
   };
 
   const open = Boolean(anchorEl);
-
-  // Determine which avatar to show
-  const userName = clerkUser?.fullName || clerkUser?.firstName || 'User';
-  const avatarProps =
-    currentUser?.avatarUrl || clerkUser?.imageUrl
-      ? { src: currentUser?.avatarUrl || clerkUser?.imageUrl }
-      : stringAvatar(userName);
 
   return (
     <>
@@ -93,13 +68,12 @@ const CustomUserButton: React.FC<CustomUserButtonProps> = ({ afterSignOutUrl }) 
           },
         }}>
         <Avatar
-          {...avatarProps}
-          alt={clerkUser?.firstName || 'User'}
+          src={user?.imageUrl}
+          alt={user?.firstName || 'User'}
           sx={{
             width: 36,
             height: 36,
             border: `2px solid ${theme.palette.primary.main}`,
-            ...avatarProps.sx,
           }}
         />
       </Box>
@@ -136,18 +110,17 @@ const CustomUserButton: React.FC<CustomUserButtonProps> = ({ afterSignOutUrl }) 
             pl: 2,
           }}>
           <Avatar
-            {...avatarProps}
-            alt={clerkUser?.firstName || 'User'}
+            src={user?.imageUrl}
+            alt={user?.firstName || 'User'}
             sx={{
               width: 40,
               height: 40,
               mr: 1.5,
               border: `2px solid ${theme.palette.primary.main}`,
-              ...avatarProps.sx,
             }}
           />
           <Box>
-            <Tooltip title={clerkUser?.emailAddresses[0]?.emailAddress || ''}>
+            <Tooltip title={user?.emailAddresses[0]?.emailAddress || ''}>
               <Typography
                 variant="body1"
                 sx={{
@@ -159,7 +132,7 @@ const CustomUserButton: React.FC<CustomUserButtonProps> = ({ afterSignOutUrl }) 
                   fontWeight: 500,
                   textShadow: 'none',
                 }}>
-                {clerkUser?.emailAddresses[0]?.emailAddress}
+                {user?.emailAddresses[0]?.emailAddress}
               </Typography>
             </Tooltip>
           </Box>

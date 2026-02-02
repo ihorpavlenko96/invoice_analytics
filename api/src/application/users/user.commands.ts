@@ -19,7 +19,6 @@ import { RoleDto } from '../roles/dto/role.dto';
 import { TenantDto } from '../tenants/dto/tenant.dto';
 import { clerkClient } from '@clerk/clerk-sdk-node';
 import { extractErrorInfo } from '../../domain/utils/error.utils';
-import { S3StorageService } from '../../infrastructure/storage/s3-storage.service';
 
 @Injectable()
 export class UserCommands implements IUserCommands {
@@ -30,7 +29,6 @@ export class UserCommands implements IUserCommands {
         private readonly userRepository: IUserRepository,
         @Inject(ROLE_REPOSITORY)
         private readonly roleRepository: IRoleRepository,
-        private readonly s3StorageService: S3StorageService,
     ) {}
 
     private mapToDto(user: User | null): UserDto | null {
@@ -45,7 +43,6 @@ export class UserCommands implements IUserCommands {
         dto.subId = user.subId;
         dto.firstName = user.firstName;
         dto.lastName = user.lastName;
-        dto.avatarUrl = user.avatarUrl;
         dto.createdAt = user.createdAt;
         dto.updatedAt = user.updatedAt;
 
@@ -480,56 +477,6 @@ export class UserCommands implements IUserCommands {
 
             throw error;
         }
-    }
-
-    async uploadAvatar(
-        userId: string,
-        file: Buffer,
-        originalFilename: string,
-        contentType: string,
-        requestingUserId: string,
-    ): Promise<UserDto> {
-        // Users can only upload their own avatar
-        if (userId !== requestingUserId) {
-            throw new ForbiddenException('You can only upload your own avatar.');
-        }
-
-        const user = await this.userRepository.findById(userId);
-
-        if (!user) {
-            throw new NotFoundException(`User with ID ${userId} not found.`);
-        }
-
-        // Upload new avatar to S3
-        const avatarUrl = await this.s3StorageService.uploadAvatar(
-            userId,
-            file,
-            originalFilename,
-            contentType,
-        );
-
-        // Delete old avatar if it exists
-        if (user.avatarUrl) {
-            await this.s3StorageService.deleteAvatar(user.avatarUrl);
-        }
-
-        // Update user with new avatar URL
-        const updatedUser = await this.userRepository.update(userId, { avatarUrl });
-
-        if (!updatedUser) {
-            this.logger.error(`Failed to update user ${userId} with new avatar URL.`);
-            throw new InternalServerErrorException('Failed to update user avatar.');
-        }
-
-        const userDto = this.mapToDto(updatedUser);
-
-        if (!userDto) {
-            this.logger.error(`Failed to map user ${userId} to DTO after avatar upload.`);
-            throw new InternalServerErrorException('Failed to map updated user.');
-        }
-
-        this.logger.log(`Successfully uploaded avatar for user ${userId}`);
-        return userDto;
     }
 
     private async validateUserDoesNotExist(email: string): Promise<void> {

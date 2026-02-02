@@ -22,13 +22,6 @@ export interface IUserCommands {
         requestingUserTenantId?: string,
         isSuperAdmin?: boolean,
     ): Promise<void>;
-    uploadAvatar(
-        userId: string,
-        file: Buffer,
-        originalFilename: string,
-        contentType: string,
-        requestingUserId: string,
-    ): Promise<UserDto>;
 }
 
 export const USER_COMMANDS = 'IUserCommands';

@@ -2,7 +2,6 @@ import React from 'react';
 import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import TenantManagementPage from '../modules/tenants/tenant-management/TenantManagementPage';
 import UserManagementPage from '../modules/users/user-management/UserManagementPage';
-import UserProfilePage from '../modules/users/user-profile/UserProfilePage';
 import MainLayout from '../common/components/MainLayout';
 import SecretsPage from '../modules/secrets/components/SecretsPage';
 import ProtectedRoute from '../common/components/ProtectedRoute';
@@ -28,7 +27,6 @@ const AppRoutes: React.FC = () => {
           <Route element={<ProtectedRoute requiredRoles={[ROLES.ADMIN]} />}>
             <Route path="/secrets" element={<SecretsPage />} />
           </Route>
-          <Route path="/profile" element={<UserProfilePage />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Route>
       </Routes>
