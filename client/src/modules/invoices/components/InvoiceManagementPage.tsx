@@ -259,24 +259,29 @@ const InvoiceManagementPage: React.FC = () => {
   };
 
   // Handle export to Excel
+  // Exports ALL invoices regardless of pagination, status, or archived state
   const handleExportToExcel = async () => {
     setIsExporting(true);
     try {
-      const blob = await invoiceService.exportInvoices(page, limit, statusFilter || undefined);
+      const blob = await invoiceService.exportInvoices();
 
       // Create download link
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
-      link.setAttribute('download', `invoices-${Date.now()}.xlsx`);
+      link.setAttribute('download', `invoices-export-${Date.now()}.xlsx`);
       document.body.appendChild(link);
       link.click();
 
       // Cleanup
       link.parentNode?.removeChild(link);
       window.URL.revokeObjectURL(url);
+
+      // Show success notification
+      enqueueSnackbar('All invoices exported successfully', { variant: 'success' });
     } catch (error) {
       console.error('Error exporting invoices:', error);
+      enqueueSnackbar('Failed to export invoices', { variant: 'error' });
     } finally {
       setIsExporting(false);
     }
