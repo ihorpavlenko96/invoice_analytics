@@ -194,4 +194,32 @@ export class InvoiceRepository {
             .limit(5)
             .getRawMany();
     }
+
+    /**
+     * Find all invoices for export without pagination
+     * Only applies status and archived filters
+     * Used for exporting all invoices matching current filters
+     */
+    async findAllForExport(
+        tenantId: string,
+        paginationParams: PaginationParamsDto,
+    ): Promise<Invoice[]> {
+        // Build where clause with optional status filter
+        const whereClause: any = { tenantId };
+        if (paginationParams.status) {
+            whereClause.status = paginationParams.status;
+        }
+
+        // By default, exclude archived invoices unless explicitly requested
+        if (!paginationParams.includeArchived) {
+            whereClause.isArchived = false;
+        }
+
+        return this.invoiceRepository.find({
+            where: whereClause,
+            order: {
+                issueDate: 'DESC',
+            },
+        });
+    }
 }
