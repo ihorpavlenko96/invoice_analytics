@@ -66,7 +66,7 @@ const MainLayout: React.FC = () => {
 
   const drawer = (
     <Box onClick={handleDrawerToggle} sx={{ textAlign: 'center' }}>
-      <img src="/icon.svg" alt="App Logo" style={{ height: 32, margin: '16px 0' }} />
+      <img src="/icon.png" alt="App Logo" style={{ height: 32, margin: '16px 0' }} />
       <List>
         {filteredNavItems.map((item) => (
           <ListItem key={item.path} disablePadding>
@@ -130,7 +130,7 @@ const MainLayout: React.FC = () => {
                 color: 'inherit',
               }}>
               <img
-                src="/icon.svg"
+                src="/icon.png"
                 alt="App Logo"
                 style={{ height: 32, marginRight: theme.spacing(1) }}
               />
