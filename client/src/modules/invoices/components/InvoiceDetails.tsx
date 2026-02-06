@@ -29,9 +29,72 @@ import {
 import { useTheme } from '@mui/material/styles';
 import { format } from 'date-fns';
 import { Invoice } from '../types/invoice';
+import { styled, keyframes } from '@mui/material/styles';
 
 // Use Grid from @mui/material with correct props
 const Grid = MuiGrid;
+
+// Keyframes for neon glow animation with pink and purple tones
+const neonGlow = keyframes`
+  0% {
+    box-shadow:
+      0 0 5px rgba(255, 107, 157, 0.4),
+      0 0 10px rgba(255, 107, 157, 0.3),
+      0 0 15px rgba(255, 107, 157, 0.2),
+      0 0 20px rgba(157, 78, 221, 0.1);
+  }
+  25% {
+    box-shadow:
+      0 0 5px rgba(255, 142, 199, 0.5),
+      0 0 10px rgba(255, 142, 199, 0.4),
+      0 0 15px rgba(255, 107, 157, 0.3),
+      0 0 20px rgba(157, 78, 221, 0.2);
+  }
+  50% {
+    box-shadow:
+      0 0 5px rgba(157, 78, 221, 0.5),
+      0 0 10px rgba(157, 78, 221, 0.4),
+      0 0 15px rgba(157, 78, 221, 0.3),
+      0 0 20px rgba(123, 44, 191, 0.2);
+  }
+  75% {
+    box-shadow:
+      0 0 5px rgba(123, 44, 191, 0.5),
+      0 0 10px rgba(157, 78, 221, 0.4),
+      0 0 15px rgba(157, 78, 221, 0.3),
+      0 0 20px rgba(255, 107, 157, 0.2);
+  }
+  100% {
+    box-shadow:
+      0 0 5px rgba(255, 107, 157, 0.4),
+      0 0 10px rgba(255, 107, 157, 0.3),
+      0 0 15px rgba(255, 107, 157, 0.2),
+      0 0 20px rgba(157, 78, 221, 0.1);
+  }
+`;
+
+// Styled button component with animated neon glow
+const GlowingButton = styled(Button)(({ theme }) => ({
+  position: 'relative',
+  animation: `${neonGlow} 4s ease-in-out infinite`,
+  transition: 'all 0.3s ease',
+
+  // Respect user's motion preferences for accessibility
+  '@media (prefers-reduced-motion: reduce)': {
+    animation: 'none',
+    boxShadow: '0 0 8px rgba(255, 107, 157, 0.3), 0 0 12px rgba(157, 78, 221, 0.2)',
+  },
+
+  '&:hover': {
+    animation: `${neonGlow} 2s ease-in-out infinite`, // Speed up animation on hover
+    transform: 'translateY(-1px)',
+
+    '@media (prefers-reduced-motion: reduce)': {
+      animation: 'none',
+      boxShadow: '0 0 12px rgba(255, 107, 157, 0.5), 0 0 18px rgba(157, 78, 221, 0.3)',
+    },
+  },
+}));
 
 interface InvoiceDetailsProps {
   invoice: Invoice | undefined;
@@ -199,14 +262,14 @@ const InvoiceDetails: React.FC<InvoiceDetailsProps> = ({
             Download
           </Button>
           {onToggleAIAssistant && (
-            <Button
+            <GlowingButton
               variant="outlined"
               color="primary"
               startIcon={<AIIcon />}
               onClick={onToggleAIAssistant}
               size="small">
               AI Assistant
-            </Button>
+            </GlowingButton>
           )}
         </Stack>
       </Box>
