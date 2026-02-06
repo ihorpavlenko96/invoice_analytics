@@ -155,7 +155,7 @@ const Login: React.FC<LoginProps> = () => {
               }}>
               <Box sx={{ mb: 4, display: 'flex', alignItems: 'center' }}>
                 <img
-                  src="/icon.png"
+                  src="/icon.svg"
                   alt="Logo"
                   style={{ height: 24, width: 24, marginRight: '8px' }}
                 />
