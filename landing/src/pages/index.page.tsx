@@ -131,7 +131,7 @@ export default function LandingPage({ appUrl = '/app' }: LandingPageProps): Reac
       {/* Header */}
       <header className="container mx-auto px-4 py-6 flex justify-between items-center">
         <div className="flex items-center">
-          <img src="/icon.svg" alt="Invoice Analytics" className="h-8" />
+          <img src="/icon.png" alt="Invoice Analytics" className="h-8" />
           <h1 className="text-2xl font-bold text-white">Invoice Analytics</h1>
           <nav className="hidden md:flex ml-12">
             <a href="#dashboard" className="text-slate-300 hover:text-teal-400 px-4">
