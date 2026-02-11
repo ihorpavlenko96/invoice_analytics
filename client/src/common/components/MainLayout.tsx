@@ -78,8 +78,7 @@ const MainLayout: React.FC = () => {
                 border: '2px solid transparent',
                 transition: 'all 0.2s ease',
                 '&:hover': {
-                  borderColor: theme.palette.primary.main,
-                  backgroundColor: theme.palette.action.hover,
+                  borderColor: '#90CAF9',
                 },
                 '&.active': {
                   fontWeight: 'bold',
@@ -157,8 +156,7 @@ const MainLayout: React.FC = () => {
                     border: '2px solid transparent',
                     transition: 'all 0.2s ease',
                     '&:hover': {
-                      borderColor: theme.palette.primary.main,
-                      backgroundColor: theme.palette.action.hover,
+                      borderColor: '#90CAF9',
                     },
                     '&.active': {
                       fontWeight: 'bold',
