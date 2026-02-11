@@ -48,6 +48,15 @@ export class PaginationParamsDto {
     @IsOptional()
     @Transform(({ value }) => value === 'true' || value === true)
     includeArchived?: boolean = false;
+
+    @ApiProperty({
+        description: 'Search query to filter by vendor or customer name',
+        example: 'Acme Corp',
+        required: false,
+    })
+    @IsString()
+    @IsOptional()
+    search?: string;
 }
 
 export class PaginatedResponseDto<T> {
