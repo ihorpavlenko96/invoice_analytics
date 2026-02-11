@@ -4,7 +4,7 @@ import { invoiceService } from './services/invoiceService';
 
 /**
  * Hook to fetch all invoices
- * @param searchQuery - Optional search term for vendor or customer name
+ * @param searchQuery - Optional search term for vendor or customer name (now handled by backend)
  * @param page - Page number (starts at 1)
  * @param limit - Number of items per page
  * @param status - Optional status filter (PAID, UNPAID, OVERDUE)
@@ -20,27 +20,17 @@ export const useInvoices = (
   return useQuery({
     queryKey: invoiceKeys.list(searchQuery, page, limit, status, includeArchived),
     queryFn: async () => {
-      const paginatedResponse = await invoiceService.getInvoices(page, limit, status, includeArchived);
+      // Pass search query to backend for server-side filtering
+      const paginatedResponse = await invoiceService.getInvoices(
+        page,
+        limit,
+        status,
+        includeArchived,
+        searchQuery || undefined,
+      );
 
-      // Apply filters if any are specified
-      let filteredItems = paginatedResponse.items;
-
-      if (searchQuery) {
-        const lowerCaseSearchQuery = searchQuery.toLowerCase();
-        filteredItems = filteredItems.filter(
-          (invoice) =>
-            invoice.vendorName.toLowerCase().includes(lowerCaseSearchQuery) ||
-            invoice.customerName.toLowerCase().includes(lowerCaseSearchQuery),
-        );
-      }
-
-      // Return filtered items with updated counts
-      return {
-        ...paginatedResponse,
-        items: filteredItems,
-        total: filteredItems.length,
-        totalPages: Math.ceil(filteredItems.length / limit),
-      };
+      // Return the response as-is since filtering is now done on the backend
+      return paginatedResponse;
     },
   });
 };
