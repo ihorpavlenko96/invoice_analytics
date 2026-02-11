@@ -16,7 +16,6 @@ export const invoiceService = {
    * @param limit - Number of items per page
    * @param status - Optional status filter (PAID, UNPAID, OVERDUE)
    * @param includeArchived - Include archived invoices in results (default: false)
-   * @param search - Optional search query for vendor or customer name
    * @returns Promise<PaginatedResponseDto<Invoice>>
    */
   getInvoices: async (
@@ -24,7 +23,6 @@ export const invoiceService = {
     limit: number = 10,
     status?: string,
     includeArchived: boolean = false,
-    search?: string,
   ): Promise<PaginatedResponseDto<Invoice>> => {
     const response = await axios.get<PaginatedResponseDto<Invoice>>('/invoices', {
       params: {
@@ -32,7 +30,6 @@ export const invoiceService = {
         limit,
         ...(status && { status }),
         includeArchived,
-        ...(search && { search }),
       },
     });
     return response.data;
@@ -87,24 +84,18 @@ export const invoiceService = {
    * @param page - Page number (starts at 1)
    * @param limit - Number of items per page
    * @param status - Optional status filter (PAID, UNPAID, OVERDUE)
-   * @param includeArchived - Include archived invoices in export (default: false)
-   * @param search - Optional search query for vendor or customer name
    * @returns Promise<Blob>
    */
   exportInvoices: async (
     page: number = 1,
     limit: number = 10,
     status?: string,
-    includeArchived: boolean = false,
-    search?: string,
   ): Promise<Blob> => {
     const response = await axios.get('/invoices/export/excel', {
       params: {
         page,
         limit,
         ...(status && { status }),
-        includeArchived,
-        ...(search && { search }),
       },
       responseType: 'blob',
     });
