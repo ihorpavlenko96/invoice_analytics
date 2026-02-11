@@ -66,7 +66,7 @@ export class InvoiceController {
     @Authorize(RoleName.SUPER_ADMIN)
     @ApiOperation({
         summary: 'Get all invoices',
-        description: 'Retrieves all invoices with pagination and optional filters',
+        description: 'Retrieves all invoices with pagination',
     })
     @ApiQuery({
         name: 'page',
@@ -91,12 +91,6 @@ export class InvoiceController {
         required: false,
         type: Boolean,
         description: 'Include archived invoices in results',
-    })
-    @ApiQuery({
-        name: 'search',
-        required: false,
-        type: String,
-        description: 'Search query to filter by vendor or customer name',
     })
     @ApiResponse({
         status: HttpStatus.OK,
@@ -198,7 +192,7 @@ export class InvoiceController {
     @Authorize(RoleName.SUPER_ADMIN)
     @ApiOperation({
         summary: 'Export invoices to Excel',
-        description: 'Exports all invoices to an Excel file based on pagination and filters. Use a high limit value to export all matching invoices.',
+        description: 'Exports all invoices to an Excel file based on pagination and filters',
     })
     @ApiQuery({
         name: 'page',
@@ -210,25 +204,13 @@ export class InvoiceController {
         name: 'limit',
         required: false,
         type: Number,
-        description: 'Number of items to export (use high value like 100000 to export all)',
+        description: 'Number of items per page',
     })
     @ApiQuery({
         name: 'status',
         required: false,
         enum: ['PAID', 'UNPAID', 'OVERDUE'],
         description: 'Filter invoices by status',
-    })
-    @ApiQuery({
-        name: 'includeArchived',
-        required: false,
-        type: Boolean,
-        description: 'Include archived invoices in export',
-    })
-    @ApiQuery({
-        name: 'search',
-        required: false,
-        type: String,
-        description: 'Search query to filter by vendor or customer name',
     })
     @ApiResponse({
         status: HttpStatus.OK,

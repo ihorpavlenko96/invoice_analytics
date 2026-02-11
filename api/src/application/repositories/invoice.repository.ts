@@ -20,36 +20,25 @@ export class InvoiceRepository {
         const limit = paginationParams.limit ?? 10;
         const skip = (page - 1) * limit;
 
-        // Build query with QueryBuilder for search support
-        const queryBuilder = this.invoiceRepository.createQueryBuilder('invoice')
-            .where('invoice.tenantId = :tenantId', { tenantId });
-
-        // Apply status filter if provided
+        // Build where clause with optional status filter
+        const whereClause: any = { tenantId };
         if (paginationParams.status) {
-            queryBuilder.andWhere('invoice.status = :status', { status: paginationParams.status });
+            whereClause.status = paginationParams.status;
         }
 
         // By default, exclude archived invoices unless explicitly requested
         if (!paginationParams.includeArchived) {
-            queryBuilder.andWhere('invoice.isArchived = :isArchived', { isArchived: false });
+            whereClause.isArchived = false;
         }
 
-        // Apply search filter if provided
-        if (paginationParams.search && paginationParams.search.trim()) {
-            const searchTerm = `%${paginationParams.search.toLowerCase()}%`;
-            queryBuilder.andWhere(
-                '(LOWER(invoice.vendorName) LIKE :search OR LOWER(invoice.customerName) LIKE :search)',
-                { search: searchTerm }
-            );
-        }
-
-        // Apply ordering
-        queryBuilder.orderBy('invoice.issueDate', 'DESC');
-
-        // Apply pagination
-        queryBuilder.skip(skip).take(limit);
-
-        return queryBuilder.getManyAndCount();
+        return this.invoiceRepository.findAndCount({
+            where: whereClause,
+            skip,
+            take: limit,
+            order: {
+                issueDate: 'DESC',
+            },
+        });
     }
 
     async findById(id: string, tenantId: string): Promise<Invoice | null> {
