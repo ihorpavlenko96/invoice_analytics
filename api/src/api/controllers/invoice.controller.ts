@@ -191,40 +191,28 @@ export class InvoiceController {
     @Get('export/excel')
     @Authorize(RoleName.SUPER_ADMIN)
     @ApiOperation({
-        summary: 'Export invoices to Excel',
-        description: 'Exports all invoices to an Excel file based on pagination and filters',
+        summary: 'Export all invoices to Excel',
+        description: 'Exports ALL invoices to an Excel file regardless of pagination. By default, excludes archived invoices unless explicitly requested.',
     })
     @ApiQuery({
-        name: 'page',
+        name: 'includeArchived',
         required: false,
-        type: Number,
-        description: 'Page number (starts from 1)',
-    })
-    @ApiQuery({
-        name: 'limit',
-        required: false,
-        type: Number,
-        description: 'Number of items per page',
-    })
-    @ApiQuery({
-        name: 'status',
-        required: false,
-        enum: ['PAID', 'UNPAID', 'OVERDUE'],
-        description: 'Filter invoices by status',
+        type: Boolean,
+        description: 'Include archived invoices in export (default: false)',
     })
     @ApiResponse({
         status: HttpStatus.OK,
-        description: 'Excel file generated successfully',
+        description: 'Excel file generated successfully with all invoices',
     })
     @ApiUnauthorizedResponse({ description: 'Unauthorized' })
     @ApiForbiddenResponse({ description: 'Forbidden - requires SUPER_ADMIN role' })
     async exportToExcel(
         @Req() request: RequestWithTenant,
         @Res() response: Response,
-        @Query() paginationParams: PaginationParamsDto,
+        @Query('includeArchived') includeArchived?: boolean,
     ): Promise<void> {
         const tenantId = request.tenantId!;
-        const buffer = await this.invoiceService.exportToExcel(tenantId, paginationParams);
+        const buffer = await this.invoiceService.exportToExcel(tenantId, includeArchived);
 
         response.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
         response.setHeader('Content-Disposition', `attachment; filename=invoices-${Date.now()}.xlsx`);
