@@ -194,23 +194,4 @@ export class InvoiceRepository {
             .limit(5)
             .getRawMany();
     }
-
-    /**
-     * Find all invoices for export without pagination limits
-     * Used for exporting all invoices regardless of pagination
-     * @param tenantId - Tenant ID to filter by
-     * @returns Promise<Invoice[]> - Array of all invoices for the tenant
-     */
-    async findAllForExport(tenantId: string): Promise<Invoice[]> {
-        // Export only non-archived invoices by default (consistent with list view)
-        return this.invoiceRepository.find({
-            where: {
-                tenantId,
-                isArchived: false
-            },
-            order: {
-                issueDate: 'DESC',
-            },
-        });
-    }
 }
