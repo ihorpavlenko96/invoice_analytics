@@ -15,10 +15,10 @@ const ThemeToggle: React.FC = () => {
       <IconButton
         onClick={toggleTheme}
         sx={{
-          color: themeMode === 'pinkGrey' ? '#FFC0CB' : '#90CAF9',
+          color: themeMode === 'pinkGrey' ? '#90CAF9' : '#90CAF9',
           '&:hover': {
             backgroundColor: themeMode === 'pinkGrey'
-              ? 'rgba(255, 192, 203, 0.08)'
+              ? 'rgba(144, 202, 249, 0.08)'
               : 'rgba(144, 202, 249, 0.08)',
           },
         }}
