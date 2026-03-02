@@ -384,13 +384,7 @@ const UserForm: React.FC<UserFormProps> = ({ user, onClose }) => {
                   type="submit"
                   variant="contained"
                   disabled={formIsSubmittingOverall || !dirty}>
-                  {formIsSubmittingOverall ? (
-                    <CircularProgress size={24} />
-                  ) : isEditing ? (
-                    'Update User'
-                  ) : (
-                    'Create User'
-                  )}
+                  {formIsSubmittingOverall ? <CircularProgress size={24} /> : 'Save'}
                 </Button>
               </Box>
             </Box>
