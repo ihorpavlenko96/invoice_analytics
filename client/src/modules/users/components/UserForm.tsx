@@ -168,44 +168,53 @@ const UserForm: React.FC<UserFormProps> = ({ user, onClose }) => {
     // Set loading state at the start of submission
     setIsSubmitting(true);
 
-    if (isEditing && user) {
-      const updateData: UpdateUserInput = {
-        email: values.email,
-        firstName: values.firstName,
-        lastName: values.lastName || undefined,
-        roleIds: values.roleIds,
-      };
-
-      const updatePayload: UpdateUserPayload = { id: user.id, data: updateData };
-      await updateUserMutate(updatePayload);
-    } else {
-      if (isSuperAdmin) {
-        const superAdminRoleSelected = values.roleIds.includes(superAdminRole?.id ?? '');
-
-        if (!superAdminRoleSelected && values.tenantId === undefined) {
-          setIsSubmitting(false);
-          throw new Error('Tenant ID is required unless Super Admin role is selected.');
-        }
-
-        const createPayload: CreateUserSuperAdminInput = {
+    try {
+      if (isEditing && user) {
+        const updateData: UpdateUserInput = {
           email: values.email,
           firstName: values.firstName,
           lastName: values.lastName || undefined,
           roleIds: values.roleIds,
-          tenantId: values.tenantId,
         };
 
-        await createUserMutate({ payload: createPayload, isSuper: true });
+        const updatePayload: UpdateUserPayload = { id: user.id, data: updateData };
+        await updateUserMutate(updatePayload);
       } else {
-        const createPayload: CreateUserInput = {
-          email: values.email,
-          firstName: values.firstName,
-          lastName: values.lastName || undefined,
-          roleIds: values.roleIds,
-        };
+        if (isSuperAdmin) {
+          const superAdminRoleSelected = values.roleIds.includes(superAdminRole?.id ?? '');
 
-        await createUserMutate({ payload: createPayload, isSuper: false });
+          if (!superAdminRoleSelected && values.tenantId === undefined) {
+            setIsSubmitting(false);
+            throw new Error('Tenant ID is required unless Super Admin role is selected.');
+          }
+
+          const createPayload: CreateUserSuperAdminInput = {
+            email: values.email,
+            firstName: values.firstName,
+            lastName: values.lastName || undefined,
+            roleIds: values.roleIds,
+            tenantId: values.tenantId,
+          };
+
+          await createUserMutate({ payload: createPayload, isSuper: true });
+        } else {
+          const createPayload: CreateUserInput = {
+            email: values.email,
+            firstName: values.firstName,
+            lastName: values.lastName || undefined,
+            roleIds: values.roleIds,
+          };
+
+          await createUserMutate({ payload: createPayload, isSuper: false });
+        }
       }
+    } catch (error) {
+      setIsSubmitting(false);
+      enqueueSnackbar(
+        error instanceof Error ? error.message : 'An error occurred while submitting the form',
+        { variant: 'error' },
+      );
+      throw error;
     }
   };
 
@@ -384,7 +393,7 @@ const UserForm: React.FC<UserFormProps> = ({ user, onClose }) => {
                   type="submit"
                   variant="contained"
                   disabled={formIsSubmittingOverall || !dirty}>
-                  {formIsSubmittingOverall ? <CircularProgress size={24} /> : 'Save'}
+                  {formIsSubmittingOverall ? <CircularProgress size={24} /> : 'Confirm'}
                 </Button>
               </Box>
             </Box>
