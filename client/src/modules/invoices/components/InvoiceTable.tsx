@@ -413,7 +413,7 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({
                   onClick={() => handleSort('status')}
                   sx={sortLabelSx}
                 >
-                  Status
+                  Invoice Status
                 </TableSortLabel>
               </TableCell>
               <TableCell align="right">Actions</TableCell>
