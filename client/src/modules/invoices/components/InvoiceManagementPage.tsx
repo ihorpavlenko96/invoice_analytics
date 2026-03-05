@@ -259,12 +259,10 @@ const InvoiceManagementPage: React.FC = () => {
   };
 
   // Handle export to Excel
-  // Exports ALL invoices for the tenant regardless of the current pagination or
-  // status filter, so the download always contains the complete dataset.
   const handleExportToExcel = async () => {
     setIsExporting(true);
     try {
-      const blob = await invoiceService.exportInvoices(includeArchived);
+      const blob = await invoiceService.exportInvoices(page, limit, statusFilter || undefined);
 
       // Create download link
       const url = window.URL.createObjectURL(blob);
