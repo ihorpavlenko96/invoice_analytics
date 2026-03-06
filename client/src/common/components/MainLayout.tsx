@@ -22,6 +22,11 @@ import { Theme } from '@mui/material/styles';
 import MenuIcon from '@mui/icons-material/Menu';
 import PaletteIcon from '@mui/icons-material/Palette';
 import CircleIcon from '@mui/icons-material/Circle';
+import DashboardIcon from '@mui/icons-material/Dashboard';
+import Receipt from '@mui/icons-material/Receipt';
+import Business from '@mui/icons-material/Business';
+import Group from '@mui/icons-material/Group';
+import VpnKey from '@mui/icons-material/VpnKey';
 import CustomUserButton from './CustomUserButton';
 import useUserRoles from '../hooks/useUserRoles';
 import { ROLES } from '../constants/roles';
@@ -49,11 +54,11 @@ const MainLayout: React.FC = () => {
   };
 
   const navItems: NavItem[] = [
-    { label: 'Dashboard', path: '/dashboard', roles: [ROLES.SUPER_ADMIN] },
-    { label: 'Invoices', path: '/invoice-management', roles: [ROLES.SUPER_ADMIN] },
-    { label: 'Tenants', path: '/tenant-management', roles: [ROLES.SUPER_ADMIN] },
-    { label: 'Users', path: '/user-management', roles: [ROLES.ADMIN, ROLES.SUPER_ADMIN] },
-    { label: 'Secrets', path: '/secrets', roles: [ROLES.ADMIN] },
+    { label: 'Dashboard', path: '/dashboard', icon: <DashboardIcon />, roles: [ROLES.SUPER_ADMIN] },
+    { label: 'Invoices', path: '/invoice-management', icon: <Receipt />, roles: [ROLES.SUPER_ADMIN] },
+    { label: 'Tenants', path: '/tenant-management', icon: <Business />, roles: [ROLES.SUPER_ADMIN] },
+    { label: 'Users', path: '/user-management', icon: <Group />, roles: [ROLES.ADMIN, ROLES.SUPER_ADMIN] },
+    { label: 'Secrets', path: '/secrets', icon: <VpnKey />, roles: [ROLES.ADMIN] },
   ];
 
   const filteredNavItems = navItems.filter((item) => {
