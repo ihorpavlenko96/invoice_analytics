@@ -5,7 +5,6 @@ import { InvoiceRepository } from '../repositories/invoice.repository';
 import { InvoiceMapper } from './invoice.mapper';
 import { InvoiceDto } from './dto/invoice.dto';
 import { PaginatedResponseDto, PaginationParamsDto } from './dto/pagination.dto';
-import { ExportFiltersDto } from './dto/export-filters.dto';
 import { Invoice } from '../../domain/entities/invoice.entity';
 import { InvoiceItem } from '../../domain/entities/invoice-item.entity';
 
@@ -107,9 +106,9 @@ export class InvoiceService implements IInvoiceService {
 
     async exportToExcel(
         tenantId: string,
-        filters: ExportFiltersDto,
+        paginationParams: PaginationParamsDto,
     ): Promise<Buffer> {
-        const invoices = await this.invoiceRepository.findAllForExport(tenantId, filters);
+        const [invoices] = await this.invoiceRepository.findAll(tenantId, paginationParams);
 
         const workbook = new ExcelJS.Workbook();
         const worksheet = workbook.addWorksheet('Invoices');
