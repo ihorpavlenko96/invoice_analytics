@@ -16,12 +16,7 @@ export interface IInvoiceService {
 
     remove(id: string, tenantId: string): Promise<void>;
 
-    /**
-     * Exports ALL invoices for the given tenant to an Excel buffer.
-     * Pagination, status filters, and archive state are intentionally ignored so that
-     * the exported file always reflects the complete dataset.
-     */
-    exportToExcel(tenantId: string): Promise<Buffer>;
+    exportToExcel(tenantId: string, paginationParams: PaginationParamsDto): Promise<Buffer>;
 
     archiveInvoices(ids: string[], tenantId: string): Promise<void>;
 
