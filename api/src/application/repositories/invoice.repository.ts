@@ -41,23 +41,6 @@ export class InvoiceRepository {
         });
     }
 
-    /**
-     * Fetches all invoices for a tenant without any pagination, status, or archive filters.
-     * Used exclusively for the export-to-Excel feature so that the exported file always
-     * contains the complete dataset regardless of what the user currently sees on screen.
-     *
-     * @param tenantId - The tenant whose invoices should be exported
-     * @returns All Invoice entities for the tenant ordered by issue date descending
-     */
-    async findAllForExport(tenantId: string): Promise<Invoice[]> {
-        return this.invoiceRepository.find({
-            where: { tenantId },
-            order: {
-                issueDate: 'DESC',
-            },
-        });
-    }
-
     async findById(id: string, tenantId: string): Promise<Invoice | null> {
         return this.invoiceRepository.findOne({
             where: { id, tenantId },
