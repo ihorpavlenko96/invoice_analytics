@@ -1,4 +1,11 @@
-import { Controller, Get, Query, Req, Inject, HttpStatus } from '@nestjs/common';
+import {
+    Controller,
+    Get,
+    Query,
+    Req,
+    Inject,
+    HttpStatus,
+} from '@nestjs/common';
 import {
     ApiTags,
     ApiOperation,
@@ -30,8 +37,7 @@ export class AnalyticsController {
     @Authorize(RoleName.ADMIN, RoleName.SUPER_ADMIN)
     @ApiOperation({
         summary: 'Get summary analytics',
-        description:
-            'Returns totals (number of invoices, total invoiced amount, total overdue, total paid)',
+        description: 'Returns totals (number of invoices, total invoiced amount, total overdue, total paid)',
     })
     @ApiResponse({
         status: HttpStatus.OK,

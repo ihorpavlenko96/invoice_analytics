@@ -9,19 +9,19 @@ export class SummaryAnalyticsDto {
 
     @ApiProperty({
         description: 'Total invoiced amount across all invoices',
-        example: 125000.5,
+        example: 125000.50,
     })
     totalInvoicedAmount!: number;
 
     @ApiProperty({
         description: 'Total amount of overdue invoices',
-        example: 15000.0,
+        example: 15000.00,
     })
     totalOverdueAmount!: number;
 
     @ApiProperty({
         description: 'Total amount of paid invoices',
-        example: 85000.5,
+        example: 85000.50,
     })
     totalPaidAmount!: number;
 

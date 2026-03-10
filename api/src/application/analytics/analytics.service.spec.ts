@@ -50,16 +50,13 @@ describe('AnalyticsService', () => {
 
             expect(result).toEqual({
                 totalInvoices: 10,
-                totalInvoicedAmount: 5000.5,
+                totalInvoicedAmount: 5000.50,
                 totalPaidAmount: 3000.25,
                 totalOverdueAmount: 1500.75,
                 paidCount: 8,
                 overdueCount: 2,
             });
-            expect(mockInvoiceRepository.getSummaryAnalytics).toHaveBeenCalledWith(
-                'tenant-1',
-                undefined,
-            );
+            expect(mockInvoiceRepository.getSummaryAnalytics).toHaveBeenCalledWith('tenant-1', undefined);
         });
 
         it('should handle null values gracefully', async () => {
@@ -101,7 +98,7 @@ describe('AnalyticsService', () => {
 
             expect(result).toEqual({
                 distribution: [
-                    { status: 'PAID', count: 5, totalAmount: 3000.5 },
+                    { status: 'PAID', count: 5, totalAmount: 3000.50 },
                     { status: 'UNPAID', count: 3, totalAmount: 1500.25 },
                     { status: 'OVERDUE', count: 2, totalAmount: 500.75 },
                 ],
@@ -122,7 +119,7 @@ describe('AnalyticsService', () => {
 
             expect(result).toEqual({
                 trends: [
-                    { year: 2023, month: 12, totalAmount: 5000.5, invoiceCount: 10 },
+                    { year: 2023, month: 12, totalAmount: 5000.50, invoiceCount: 10 },
                     { year: 2023, month: 11, totalAmount: 3000.25, invoiceCount: 8 },
                 ],
             });
@@ -142,7 +139,7 @@ describe('AnalyticsService', () => {
 
             expect(result).toEqual({
                 topVendors: [
-                    { name: 'Vendor A', totalAmount: 5000.5, invoiceCount: 5 },
+                    { name: 'Vendor A', totalAmount: 5000.50, invoiceCount: 5 },
                     { name: 'Vendor B', totalAmount: 3000.25, invoiceCount: 3 },
                 ],
             });
@@ -163,7 +160,7 @@ describe('AnalyticsService', () => {
             expect(result).toEqual({
                 topCustomers: [
                     { name: 'Customer A', totalAmount: 4000.75, invoiceCount: 4 },
-                    { name: 'Customer B', totalAmount: 2500.5, invoiceCount: 2 },
+                    { name: 'Customer B', totalAmount: 2500.50, invoiceCount: 2 },
                 ],
             });
         });
@@ -184,10 +181,7 @@ describe('AnalyticsService', () => {
 
             await service.getSummaryAnalytics('tenant-1', filters);
 
-            expect(mockInvoiceRepository.getSummaryAnalytics).toHaveBeenCalledWith(
-                'tenant-1',
-                filters,
-            );
+            expect(mockInvoiceRepository.getSummaryAnalytics).toHaveBeenCalledWith('tenant-1', filters);
         });
     });
 });
