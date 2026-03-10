@@ -258,11 +258,12 @@ const InvoiceManagementPage: React.FC = () => {
     setPage(1); // Reset to first page when changing limit
   };
 
-  // Handle export to Excel
+  // Handle export to Excel — exports ALL non-archived invoices regardless of the
+  // current page, limit, or status filter active in the UI (IA-388).
   const handleExportToExcel = async () => {
     setIsExporting(true);
     try {
-      const blob = await invoiceService.exportInvoices(page, limit, statusFilter || undefined);
+      const blob = await invoiceService.exportInvoices();
 
       // Create download link
       const url = window.URL.createObjectURL(blob);
