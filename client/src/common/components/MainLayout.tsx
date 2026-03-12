@@ -22,11 +22,14 @@ import { Theme } from '@mui/material/styles';
 import MenuIcon from '@mui/icons-material/Menu';
 import PaletteIcon from '@mui/icons-material/Palette';
 import CircleIcon from '@mui/icons-material/Circle';
+import RateReviewIcon from '@mui/icons-material/RateReview';
 import CustomUserButton from './CustomUserButton';
 import useUserRoles from '../hooks/useUserRoles';
 import { ROLES } from '../constants/roles';
 import InvoiceFileUpload from '../../modules/invoices/components/InvoiceFileUpload';
 import { useThemeMode } from '../../themes/ThemeContext';
+import FeedbackDialog from '../../modules/feedback/components/FeedbackDialog';
+import { useFeedbackDialogStore } from '../../modules/feedback/stores/feedbackDialogStore';
 
 const drawerWidth = 240;
 
@@ -43,6 +46,7 @@ const MainLayout: React.FC = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const userRoles = useUserRoles();
   const { toggleTheme, currentThemeInfo } = useThemeMode();
+  const openFeedbackDialog = useFeedbackDialogStore((state) => state.openDialog);
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
@@ -185,6 +189,18 @@ const MainLayout: React.FC = () => {
                   )}
                 </IconButton>
               </Tooltip>
+              {userRoles.includes(ROLES.SUPER_ADMIN) && (
+                <Tooltip title="Submit Feedback">
+                  <IconButton
+                    onClick={openFeedbackDialog}
+                    color="inherit"
+                    size="small"
+                    aria-label="submit feedback"
+                    sx={{ display: { xs: 'none', md: 'inline-flex' } }}>
+                    <RateReviewIcon />
+                  </IconButton>
+                </Tooltip>
+              )}
               <CustomUserButton afterSignOutUrl="/" />
             </Box>
           </Toolbar>
@@ -232,6 +248,8 @@ const MainLayout: React.FC = () => {
           </Typography>
         </Container>
       </Box>
+
+      <FeedbackDialog />
     </Box>
   );
 };
