@@ -35,7 +35,6 @@ import { InvoiceDto } from '../../application/invoices/dto/invoice.dto';
 import {
     PaginatedResponseDto,
     PaginationParamsDto,
-    ExportFiltersDto,
 } from '../../application/invoices/dto/pagination.dto';
 import { Authorize } from '../../infrastructure/auth/decorators/authorize.decorator';
 import { RoleName } from '../../domain/enums/role-name.enum';
@@ -106,43 +105,6 @@ export class InvoiceController {
     ): Promise<PaginatedResponseDto<InvoiceDto>> {
         const tenantId = request.tenantId!;
         return this.invoiceService.findAll(tenantId, paginationParams);
-    }
-
-    @Get('export/excel')
-    @Authorize(RoleName.SUPER_ADMIN)
-    @ApiOperation({
-        summary: 'Export invoices to Excel',
-        description: 'Exports ALL invoices to an Excel file respecting status and archived filters, but bypassing pagination',
-    })
-    @ApiQuery({
-        name: 'status',
-        required: false,
-        enum: ['PAID', 'UNPAID', 'OVERDUE'],
-        description: 'Filter invoices by status',
-    })
-    @ApiQuery({
-        name: 'includeArchived',
-        required: false,
-        type: Boolean,
-        description: 'Include archived invoices in export',
-    })
-    @ApiResponse({
-        status: HttpStatus.OK,
-        description: 'Excel file generated successfully',
-    })
-    @ApiUnauthorizedResponse({ description: 'Unauthorized' })
-    @ApiForbiddenResponse({ description: 'Forbidden - requires SUPER_ADMIN role' })
-    async exportToExcel(
-        @Req() request: RequestWithTenant,
-        @Res() response: Response,
-        @Query() exportFilters: ExportFiltersDto,
-    ): Promise<void> {
-        const tenantId = request.tenantId!;
-        const buffer = await this.invoiceService.exportToExcel(tenantId, exportFilters);
-
-        response.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-        response.setHeader('Content-Disposition', `attachment; filename=invoices-${Date.now()}.xlsx`);
-        response.send(buffer);
     }
 
     @Get(':id')
@@ -224,6 +186,49 @@ export class InvoiceController {
     async remove(@Param('id') id: string, @Req() request: RequestWithTenant): Promise<void> {
         const tenantId = request.tenantId!;
         await this.invoiceService.remove(id, tenantId);
+    }
+
+    @Get('export/excel')
+    @Authorize(RoleName.SUPER_ADMIN)
+    @ApiOperation({
+        summary: 'Export invoices to Excel',
+        description: 'Exports all invoices to an Excel file based on pagination and filters',
+    })
+    @ApiQuery({
+        name: 'page',
+        required: false,
+        type: Number,
+        description: 'Page number (starts from 1)',
+    })
+    @ApiQuery({
+        name: 'limit',
+        required: false,
+        type: Number,
+        description: 'Number of items per page',
+    })
+    @ApiQuery({
+        name: 'status',
+        required: false,
+        enum: ['PAID', 'UNPAID', 'OVERDUE'],
+        description: 'Filter invoices by status',
+    })
+    @ApiResponse({
+        status: HttpStatus.OK,
+        description: 'Excel file generated successfully',
+    })
+    @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+    @ApiForbiddenResponse({ description: 'Forbidden - requires SUPER_ADMIN role' })
+    async exportToExcel(
+        @Req() request: RequestWithTenant,
+        @Res() response: Response,
+        @Query() paginationParams: PaginationParamsDto,
+    ): Promise<void> {
+        const tenantId = request.tenantId!;
+        const buffer = await this.invoiceService.exportToExcel(tenantId, paginationParams);
+
+        response.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        response.setHeader('Content-Disposition', `attachment; filename=invoices-${Date.now()}.xlsx`);
+        response.send(buffer);
     }
 
     @Patch('archive')
