@@ -120,7 +120,7 @@ const UserManagementPage: React.FC<UserManagementPageProps> = () => {
 
   const columns = useMemo(() => {
     const baseColumns = [
-      { id: 'email', label: 'Email', sortable: true },
+      { id: 'email', label: 'User Email', sortable: true },
       { id: 'name', label: 'Name', sortable: true },
       { id: 'roles', label: 'Roles', sortable: false },
       { id: 'status', label: 'Status', sortable: true },
