@@ -50,6 +50,34 @@ export class PaginationParamsDto {
     includeArchived?: boolean = false;
 }
 
+/**
+ * DTO for export-only filter parameters (no pagination).
+ * Used by the export endpoint to retrieve all matching invoices.
+ */
+export class ExportFiltersDto {
+    @ApiProperty({
+        description: 'Filter invoices by status',
+        example: 'PAID',
+        enum: ['PAID', 'UNPAID', 'OVERDUE'],
+        required: false,
+    })
+    @IsString()
+    @IsIn(['PAID', 'UNPAID', 'OVERDUE'])
+    @IsOptional()
+    status?: string;
+
+    @ApiProperty({
+        description: 'Include archived invoices in results',
+        example: false,
+        default: false,
+        required: false,
+    })
+    @IsBoolean()
+    @IsOptional()
+    @Transform(({ value }) => value === 'true' || value === true)
+    includeArchived?: boolean = false;
+}
+
 export class PaginatedResponseDto<T> {
     @ApiProperty({
         description: 'Array of items for the current page',
