@@ -4,7 +4,7 @@ import { IInvoiceService } from './interfaces/invoice.service.interface';
 import { InvoiceRepository } from '../repositories/invoice.repository';
 import { InvoiceMapper } from './invoice.mapper';
 import { InvoiceDto } from './dto/invoice.dto';
-import { PaginatedResponseDto, PaginationParamsDto, ExportFiltersDto } from './dto/pagination.dto';
+import { PaginatedResponseDto, PaginationParamsDto } from './dto/pagination.dto';
 import { Invoice } from '../../domain/entities/invoice.entity';
 import { InvoiceItem } from '../../domain/entities/invoice-item.entity';
 
@@ -106,10 +106,9 @@ export class InvoiceService implements IInvoiceService {
 
     async exportToExcel(
         tenantId: string,
-        filters: ExportFiltersDto,
+        paginationParams: PaginationParamsDto,
     ): Promise<Buffer> {
-        // Retrieve ALL matching invoices without pagination to ensure complete export
-        const invoices = await this.invoiceRepository.findAllWithoutPagination(tenantId, filters);
+        const [invoices] = await this.invoiceRepository.findAll(tenantId, paginationParams);
 
         const workbook = new ExcelJS.Workbook();
         const worksheet = workbook.addWorksheet('Invoices');
