@@ -86,7 +86,7 @@ const HomePage: React.FC = () => {
   });
 
   const userGreeting = user?.firstName ? `Welcome back, ${user.firstName}!` : 'Welcome back!';
-  
+
   const getRoleDisplay = () => {
     if (isSuperAdmin) return 'Super Administrator';
     if (isAdmin) return 'Administrator';
@@ -95,21 +95,21 @@ const HomePage: React.FC = () => {
 
   return (
     <Container maxWidth="lg">
-      <Box sx={{ 
-        mb: 6, 
-        textAlign: 'center',
-        pt: 4 
-      }}>
+      <Box
+        sx={{
+          mb: 6,
+          textAlign: 'center',
+          pt: 4,
+        }}>
         <Typography variant="h3" gutterBottom fontWeight="bold">
           {userGreeting}
         </Typography>
-        <Stack 
-          direction="row" 
-          spacing={1} 
-          alignItems="center" 
+        <Stack
+          direction="row"
+          spacing={1}
+          alignItems="center"
           justifyContent="center"
-          sx={{ mt: 2 }}
-        >
+          sx={{ mt: 2 }}>
           <AdminIcon color="action" />
           <Typography variant="h6" color="text.secondary">
             {getRoleDisplay()}
@@ -128,12 +128,7 @@ const HomePage: React.FC = () => {
             </Typography>
           </Box>
 
-          <Grid 
-            container 
-            spacing={3} 
-            justifyContent="center"
-            sx={{ mb: 6 }}
-          >
+          <Grid container spacing={3} justifyContent="center" sx={{ mb: 6 }}>
             {filteredQuickActions.map((action) => (
               <Grid item xs={12} sm={6} md={4} lg={3} key={action.path}>
                 <Card
@@ -147,12 +142,8 @@ const HomePage: React.FC = () => {
                       boxShadow: theme.shadows[4],
                       borderColor: action.color,
                     },
-                  }}
-                >
-                  <CardActionArea
-                    onClick={() => navigate(action.path)}
-                    sx={{ height: '100%' }}
-                  >
+                  }}>
+                  <CardActionArea onClick={() => navigate(action.path)} sx={{ height: '100%' }}>
                     <CardContent sx={{ textAlign: 'center', py: 4 }}>
                       <Box
                         sx={{
@@ -166,8 +157,7 @@ const HomePage: React.FC = () => {
                           justifyContent: 'center',
                           backgroundColor: alpha(action.color, 0.1),
                           color: action.color,
-                        }}
-                      >
+                        }}>
                         {action.icon}
                       </Box>
                       <Typography variant="h6" gutterBottom fontWeight="medium">
@@ -186,11 +176,12 @@ const HomePage: React.FC = () => {
       )}
 
       {!isSuperAdmin && !isAdmin && (
-        <Box sx={{ 
-          display: 'flex', 
-          justifyContent: 'center',
-          mt: 6 
-        }}>
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'center',
+            mt: 6,
+          }}>
           <Paper
             elevation={0}
             sx={{
@@ -199,8 +190,7 @@ const HomePage: React.FC = () => {
               textAlign: 'center',
               border: `1px solid ${theme.palette.divider}`,
               background: `linear-gradient(135deg, ${alpha(theme.palette.primary.main, 0.05)} 0%, ${alpha(theme.palette.secondary.main, 0.05)} 100%)`,
-            }}
-          >
+            }}>
             <InvoiceIcon sx={{ fontSize: 72, color: 'primary.main', mb: 3 }} />
             <Typography variant="h5" gutterBottom fontWeight="medium">
               Invoice Processing
@@ -214,11 +204,12 @@ const HomePage: React.FC = () => {
       )}
 
       {isSuperAdmin && (
-        <Box sx={{ 
-          display: 'flex', 
-          justifyContent: 'center',
-          mt: 6 
-        }}>
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'center',
+            mt: 6,
+          }}>
           <Paper
             elevation={0}
             sx={{
@@ -227,44 +218,26 @@ const HomePage: React.FC = () => {
               width: '100%',
               border: `1px solid ${theme.palette.divider}`,
               backgroundColor: alpha(theme.palette.info.main, 0.05),
-            }}
-          >
-            <Stack 
-              direction="row" 
-              alignItems="center" 
-              spacing={2} 
-              mb={3}
-              justifyContent="center"
-            >
+            }}>
+            <Stack direction="row" alignItems="center" spacing={2} mb={3} justifyContent="center">
               <SecurityIcon color="info" fontSize="large" />
               <Typography variant="h5" fontWeight="medium">
                 Administrator Tools
               </Typography>
             </Stack>
-            <Typography 
-              variant="body1" 
-              color="text.secondary" 
+            <Typography
+              variant="body1"
+              color="text.secondary"
               gutterBottom
               textAlign="center"
-              sx={{ mb: 3 }}
-            >
+              sx={{ mb: 3 }}>
               As a Super Administrator, you have full access to all system features and settings.
             </Typography>
-            <Stack 
-              direction="row" 
-              spacing={2} 
-              justifyContent="center"
-            >
-              <Button
-                variant="outlined"
-                onClick={() => navigate('/tenant-management')}
-              >
+            <Stack direction="row" spacing={2} justifyContent="center">
+              <Button variant="outlined" onClick={() => navigate('/tenant-management')}>
                 Manage Tenants
               </Button>
-              <Button
-                variant="outlined"
-                onClick={() => navigate('/invoice-management')}
-              >
+              <Button variant="outlined" onClick={() => navigate('/invoice-management')}>
                 Process Invoices
               </Button>
             </Stack>

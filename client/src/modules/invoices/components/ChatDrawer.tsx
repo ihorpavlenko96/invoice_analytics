@@ -176,7 +176,6 @@ const ChatDrawer: React.FC<ChatDrawerProps> = ({
         onQuerySent();
       }
     }
-     
   }, [initialQuery, open, onQuerySent]);
 
   // Add click event listeners to db-object spans

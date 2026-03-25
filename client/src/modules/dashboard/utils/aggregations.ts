@@ -1,5 +1,11 @@
 import { Invoice } from '../../invoices/types/invoice';
-import { VendorData, CustomerData, MonthlyData, VendorDetails, CustomerDetails } from '../types/dashboard';
+import {
+  VendorData,
+  CustomerData,
+  MonthlyData,
+  VendorDetails,
+  CustomerDetails,
+} from '../types/dashboard';
 import { subDays, isAfter, format, parseISO } from 'date-fns';
 
 /**
@@ -29,10 +35,12 @@ export const aggregateByVendor = (invoices: Invoice[]): VendorData[] => {
     vendorMap.set(invoice.vendorName, currentTotal + invoice.totalAmount);
   });
 
-  const vendorData: VendorData[] = Array.from(vendorMap.entries()).map(([vendorName, totalAmount]) => ({
-    vendorName,
-    totalAmount,
-  }));
+  const vendorData: VendorData[] = Array.from(vendorMap.entries()).map(
+    ([vendorName, totalAmount]) => ({
+      vendorName,
+      totalAmount,
+    }),
+  );
 
   // Sort by total amount descending
   vendorData.sort((a, b) => b.totalAmount - a.totalAmount);
@@ -51,10 +59,12 @@ export const aggregateByCustomer = (invoices: Invoice[]): CustomerData[] => {
     customerMap.set(invoice.customerName, currentTotal + invoice.totalAmount);
   });
 
-  const customerData: CustomerData[] = Array.from(customerMap.entries()).map(([customerName, totalAmount]) => ({
-    customerName,
-    totalAmount,
-  }));
+  const customerData: CustomerData[] = Array.from(customerMap.entries()).map(
+    ([customerName, totalAmount]) => ({
+      customerName,
+      totalAmount,
+    }),
+  );
 
   // Sort by total amount descending
   customerData.sort((a, b) => b.totalAmount - a.totalAmount);

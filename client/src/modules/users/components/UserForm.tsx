@@ -249,7 +249,7 @@ const UserForm: React.FC<UserFormProps> = ({ user, onClose }) => {
               <Field
                 as={TextField}
                 name="email"
-                label="Email"
+                label="User E-mail"
                 type="email"
                 fullWidth
                 required

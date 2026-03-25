@@ -120,7 +120,7 @@ const UserManagementPage: React.FC<UserManagementPageProps> = () => {
 
   const columns = useMemo(() => {
     const baseColumns = [
-      { id: 'email', label: 'Email', sortable: true },
+      { id: 'email', label: 'User E-mail', sortable: true },
       { id: 'name', label: 'Name', sortable: true },
       { id: 'roles', label: 'Roles', sortable: false },
       { id: 'status', label: 'Status', sortable: true },
@@ -137,7 +137,7 @@ const UserManagementPage: React.FC<UserManagementPageProps> = () => {
 
   useEffect(() => {
     if (columnOrder.length === 0 && columns.length > 0) {
-      setColumnOrder(columns.map(col => col.id));
+      setColumnOrder(columns.map((col) => col.id));
     }
   }, [columns, columnOrder.length, setColumnOrder]);
 
@@ -342,9 +342,12 @@ const UserManagementPage: React.FC<UserManagementPageProps> = () => {
                     </TableRow>
                   )}
                   {sortedUsers.map((user) => {
-                    const orderedColumns = columnOrder.length > 0
-                      ? columnOrder.map(id => columns.find(col => col.id === id)).filter(Boolean)
-                      : columns;
+                    const orderedColumns =
+                      columnOrder.length > 0
+                        ? columnOrder
+                            .map((id) => columns.find((col) => col.id === id))
+                            .filter(Boolean)
+                        : columns;
 
                     return (
                       <TableRow key={user.id}>
@@ -366,21 +369,23 @@ const UserManagementPage: React.FC<UserManagementPageProps> = () => {
                               );
                             case 'tenant':
                               return (
-                                <TableCell key={column.id}>
-                                  {user.tenant?.name ?? '-'}
-                                </TableCell>
+                                <TableCell key={column.id}>{user.tenant?.name ?? '-'}</TableCell>
                               );
                             case 'roles':
                               return (
-                                <TableCell key={column.id}>
-                                  {formatRoles(user.roles)}
-                                </TableCell>
+                                <TableCell key={column.id}>{formatRoles(user.roles)}</TableCell>
                               );
                             case 'status':
                               return (
                                 <TableCell key={column.id}>
                                   <Chip
-                                    icon={user.isActive ? <CheckCircleOutlineIcon /> : <HighlightOffIcon />}
+                                    icon={
+                                      user.isActive ? (
+                                        <CheckCircleOutlineIcon />
+                                      ) : (
+                                        <HighlightOffIcon />
+                                      )
+                                    }
                                     label={user.isActive ? 'Active' : 'Inactive'}
                                     color={user.isActive ? 'success' : 'error'}
                                     size="small"
@@ -390,21 +395,26 @@ const UserManagementPage: React.FC<UserManagementPageProps> = () => {
                               );
                             case 'createdAt':
                               return (
-                                <TableCell key={column.id}>
-                                  {formatDate(user.createdAt)}
-                                </TableCell>
+                                <TableCell key={column.id}>{formatDate(user.createdAt)}</TableCell>
                               );
                             case 'actions':
                               return (
                                 <TableCell key={column.id} align="right">
-                                  <Tooltip title={user.isActive ? 'Deactivate User' : 'Activate User'}>
+                                  <Tooltip
+                                    title={user.isActive ? 'Deactivate User' : 'Activate User'}>
                                     <IconButton
                                       onClick={() => openConfirmToggleStatusDialog(user)}
                                       size="small"
                                       color={user.isActive ? 'warning' : 'success'}
                                       sx={{ mr: 0.5 }}
-                                      disabled={isTogglingStatus && userToToggleStatus?.id === user.id}>
-                                      {user.isActive ? <HighlightOffIcon /> : <CheckCircleOutlineIcon />}
+                                      disabled={
+                                        isTogglingStatus && userToToggleStatus?.id === user.id
+                                      }>
+                                      {user.isActive ? (
+                                        <HighlightOffIcon />
+                                      ) : (
+                                        <CheckCircleOutlineIcon />
+                                      )}
                                     </IconButton>
                                   </Tooltip>
                                   <Tooltip title="Edit User">
