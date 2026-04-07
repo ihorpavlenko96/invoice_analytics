@@ -35,7 +35,6 @@ import { InvoiceDto } from '../../application/invoices/dto/invoice.dto';
 import {
     PaginatedResponseDto,
     PaginationParamsDto,
-    ExportFiltersDto,
 } from '../../application/invoices/dto/pagination.dto';
 import { Authorize } from '../../infrastructure/auth/decorators/authorize.decorator';
 import { RoleName } from '../../domain/enums/role-name.enum';
@@ -193,21 +192,25 @@ export class InvoiceController {
     @Authorize(RoleName.SUPER_ADMIN)
     @ApiOperation({
         summary: 'Export invoices to Excel',
-        description:
-            'Exports ALL invoices (across all pages) to an Excel file. ' +
-            'Optional filters (status, includeArchived) can be used to narrow the result set.',
+        description: 'Exports all invoices to an Excel file based on pagination and filters',
+    })
+    @ApiQuery({
+        name: 'page',
+        required: false,
+        type: Number,
+        description: 'Page number (starts from 1)',
+    })
+    @ApiQuery({
+        name: 'limit',
+        required: false,
+        type: Number,
+        description: 'Number of items per page',
     })
     @ApiQuery({
         name: 'status',
         required: false,
         enum: ['PAID', 'UNPAID', 'OVERDUE'],
-        description: 'Filter exported invoices by status',
-    })
-    @ApiQuery({
-        name: 'includeArchived',
-        required: false,
-        type: Boolean,
-        description: 'Include archived invoices in the export (default: false)',
+        description: 'Filter invoices by status',
     })
     @ApiResponse({
         status: HttpStatus.OK,
@@ -218,10 +221,10 @@ export class InvoiceController {
     async exportToExcel(
         @Req() request: RequestWithTenant,
         @Res() response: Response,
-        @Query() filters: ExportFiltersDto,
+        @Query() paginationParams: PaginationParamsDto,
     ): Promise<void> {
         const tenantId = request.tenantId!;
-        const buffer = await this.invoiceService.exportToExcel(tenantId, filters);
+        const buffer = await this.invoiceService.exportToExcel(tenantId, paginationParams);
 
         response.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
         response.setHeader('Content-Disposition', `attachment; filename=invoices-${Date.now()}.xlsx`);

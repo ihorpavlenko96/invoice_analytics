@@ -1,5 +1,6 @@
 import { InvoiceDto } from '../dto/invoice.dto';
-import { PaginatedResponseDto, PaginationParamsDto, ExportFiltersDto } from '../dto/pagination.dto';
+import { PaginatedResponseDto } from '../dto/pagination.dto';
+import { PaginationParamsDto } from '../dto/pagination.dto';
 
 export const INVOICE_SERVICE = 'INVOICE_SERVICE';
 
@@ -15,12 +16,7 @@ export interface IInvoiceService {
 
     remove(id: string, tenantId: string): Promise<void>;
 
-    /**
-     * Exports all invoices (ignoring pagination) for the given tenant to an
-     * Excel buffer.  Optional filters (status, includeArchived) may be applied
-     * to narrow the result set.
-     */
-    exportToExcel(tenantId: string, filters?: ExportFiltersDto): Promise<Buffer>;
+    exportToExcel(tenantId: string, paginationParams: PaginationParamsDto): Promise<Buffer>;
 
     archiveInvoices(ids: string[], tenantId: string): Promise<void>;
 
