@@ -41,19 +41,6 @@ export class InvoiceRepository {
         });
     }
 
-    /**
-     * Retrieves all invoices for a tenant without any pagination or filters.
-     * Used for export operations where the full dataset is required.
-     */
-    async findAllWithoutPagination(tenantId: string): Promise<Invoice[]> {
-        return this.invoiceRepository.find({
-            where: { tenantId },
-            order: {
-                issueDate: 'DESC',
-            },
-        });
-    }
-
     async findById(id: string, tenantId: string): Promise<Invoice | null> {
         return this.invoiceRepository.findOne({
             where: { id, tenantId },
