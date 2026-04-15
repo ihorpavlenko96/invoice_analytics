@@ -27,6 +27,7 @@ import {
   Visibility as ViewIcon,
   Delete as DeleteIcon,
   Archive as ArchiveIcon,
+  NotificationImportant as NotificationImportantIcon,
 } from '@mui/icons-material';
 import { useTheme } from '@mui/material/styles';
 import { Invoice } from '../types/invoice';
@@ -468,6 +469,13 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({
                         opacity: 0.6,
                         backgroundColor: theme => `${theme.palette.action.disabled}20`,
                       }),
+                      '& .actions-cell .MuiIconButton-root': {
+                        opacity: 0,
+                        transition: 'opacity 0.2s ease-in-out',
+                      },
+                      '&:hover .actions-cell .MuiIconButton-root': {
+                        opacity: 1,
+                      },
                     }}>
                     <TableCell padding="checkbox">
                       <Checkbox
@@ -503,8 +511,23 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({
                   <TableCell>{formatCurrency(invoice.totalAmount, invoice.currency)}</TableCell>
                   <TableCell>{invoice.currency}</TableCell>
                   <TableCell>{formatDaysOverdue(invoice.daysOverdue)}</TableCell>
-                  <TableCell>{getInvoiceStatus(invoice)}</TableCell>
-                  <TableCell align="right">
+                  <TableCell>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      {getInvoiceStatus(invoice)}
+                      {invoice.daysOverdue >= 120 && (
+                        <Tooltip title="120+ days overdue" arrow>
+                          <NotificationImportantIcon
+                            sx={{
+                              color: theme.palette.error.main,
+                              fontSize: '1.2rem',
+                            }}
+                            aria-label="Critically overdue invoice"
+                          />
+                        </Tooltip>
+                      )}
+                    </Box>
+                  </TableCell>
+                  <TableCell align="right" className="actions-cell">
                     <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
                       <Tooltip title="View Details">
                         <IconButton
