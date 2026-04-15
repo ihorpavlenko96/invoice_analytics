@@ -1,5 +1,17 @@
 import React, { useState, useMemo } from 'react';
-import { Box, Container, Typography, CircularProgress, Alert, Tabs, Tab, Select, MenuItem, FormControl, InputLabel } from '@mui/material';
+import {
+  Box,
+  Container,
+  Typography,
+  CircularProgress,
+  Alert,
+  Tabs,
+  Tab,
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel,
+} from '@mui/material';
 import { useInvoices } from '../../invoices/invoiceQueries';
 import VendorChart from './VendorChart';
 import CustomerChart from './CustomerChart';

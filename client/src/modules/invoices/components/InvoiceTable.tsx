@@ -224,11 +224,7 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({
   // Format days overdue with visual alert for invoices overdue by more than 85 days
   const formatDaysOverdue = (daysOverdue: number) => {
     if (daysOverdue === 0) {
-      return (
-        <Typography color="text.secondary">
-          –
-        </Typography>
-      );
+      return <Typography color="text.secondary">–</Typography>;
     }
 
     // Display invoices overdue by more than 85 days
@@ -236,15 +232,14 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({
       return (
         <Typography
           fontWeight="medium"
-          sx={theme => ({
+          sx={(theme) => ({
             color: theme.palette.invoiceStatus.overdue,
             backgroundColor: `${theme.palette.invoiceStatus.overdue}20`,
             px: 1,
             py: 0.5,
             borderRadius: 1,
             display: 'inline-block',
-          })}
-        >
+          })}>
           {daysOverdue} days
         </Typography>
       );
@@ -253,15 +248,14 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({
     return (
       <Typography
         fontWeight="medium"
-        sx={theme => ({
+        sx={(theme) => ({
           color: theme.palette.invoiceStatus.overdue,
           backgroundColor: `${theme.palette.invoiceStatus.overdue}20`,
           px: 1,
           py: 0.5,
           borderRadius: 1,
           display: 'inline-block',
-        })}
-      >
+        })}>
         {daysOverdue} days
       </Typography>
     );
@@ -307,10 +301,10 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({
             <TableRow
               sx={{
                 '& th': {
-                  backgroundColor: theme => theme.palette.action.hover,
-                  color: theme => theme.palette.text.secondary,
+                  backgroundColor: (theme) => theme.palette.action.hover,
+                  color: (theme) => theme.palette.text.secondary,
                   fontWeight: 'bold',
-                  borderBottom: theme => `1px solid ${theme.palette.divider}`,
+                  borderBottom: (theme) => `1px solid ${theme.palette.divider}`,
                 },
               }}>
               <TableCell padding="checkbox">
@@ -331,8 +325,7 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({
                   active={sortBy === 'invoiceNumber'}
                   direction={sortBy === 'invoiceNumber' ? sortOrder : 'asc'}
                   onClick={() => handleSort('invoiceNumber')}
-                  sx={sortLabelSx}
-                >
+                  sx={sortLabelSx}>
                   Invoice #
                 </TableSortLabel>
               </TableCell>
@@ -341,8 +334,7 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({
                   active={sortBy === 'vendorName'}
                   direction={sortBy === 'vendorName' ? sortOrder : 'asc'}
                   onClick={() => handleSort('vendorName')}
-                  sx={sortLabelSx}
-                >
+                  sx={sortLabelSx}>
                   Vendor
                 </TableSortLabel>
               </TableCell>
@@ -351,8 +343,7 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({
                   active={sortBy === 'customerName'}
                   direction={sortBy === 'customerName' ? sortOrder : 'asc'}
                   onClick={() => handleSort('customerName')}
-                  sx={sortLabelSx}
-                >
+                  sx={sortLabelSx}>
                   Customer
                 </TableSortLabel>
               </TableCell>
@@ -361,8 +352,7 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({
                   active={sortBy === 'issueDate'}
                   direction={sortBy === 'issueDate' ? sortOrder : 'asc'}
                   onClick={() => handleSort('issueDate')}
-                  sx={sortLabelSx}
-                >
+                  sx={sortLabelSx}>
                   Issue Date
                 </TableSortLabel>
               </TableCell>
@@ -371,8 +361,7 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({
                   active={sortBy === 'dueDate'}
                   direction={sortBy === 'dueDate' ? sortOrder : 'asc'}
                   onClick={() => handleSort('dueDate')}
-                  sx={sortLabelSx}
-                >
+                  sx={sortLabelSx}>
                   Due Date
                 </TableSortLabel>
               </TableCell>
@@ -381,8 +370,7 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({
                   active={sortBy === 'totalAmount'}
                   direction={sortBy === 'totalAmount' ? sortOrder : 'asc'}
                   onClick={() => handleSort('totalAmount')}
-                  sx={sortLabelSx}
-                >
+                  sx={sortLabelSx}>
                   Total Amount
                 </TableSortLabel>
               </TableCell>
@@ -391,8 +379,7 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({
                   active={sortBy === 'currency'}
                   direction={sortBy === 'currency' ? sortOrder : 'asc'}
                   onClick={() => handleSort('currency')}
-                  sx={sortLabelSx}
-                >
+                  sx={sortLabelSx}>
                   Currency
                 </TableSortLabel>
               </TableCell>
@@ -401,8 +388,7 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({
                   active={sortBy === 'daysOverdue'}
                   direction={sortBy === 'daysOverdue' ? sortOrder : 'asc'}
                   onClick={() => handleSort('daysOverdue')}
-                  sx={sortLabelSx}
-                >
+                  sx={sortLabelSx}>
                   Days Overdue
                 </TableSortLabel>
               </TableCell>
@@ -411,8 +397,7 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({
                   active={sortBy === 'status'}
                   direction={sortBy === 'status' ? sortOrder : 'asc'}
                   onClick={() => handleSort('status')}
-                  sx={sortLabelSx}
-                >
+                  sx={sortLabelSx}>
                   Status
                 </TableSortLabel>
               </TableCell>
@@ -425,8 +410,8 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({
                 '&:hover': {},
               },
               '& td, & th': {
-                color: theme => theme.palette.text.primary,
-                borderBottom: theme => `1px solid ${theme.palette.divider}`,
+                color: (theme) => theme.palette.text.primary,
+                borderBottom: (theme) => `1px solid ${theme.palette.divider}`,
                 py: 1,
               },
               '& tr:last-child td, & tr:last-child th': {
@@ -466,7 +451,7 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({
                       }),
                       ...(invoice.isArchived && {
                         opacity: 0.6,
-                        backgroundColor: theme => `${theme.palette.action.disabled}20`,
+                        backgroundColor: (theme) => `${theme.palette.action.disabled}20`,
                       }),
                     }}>
                     <TableCell padding="checkbox">
@@ -489,7 +474,7 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({
                             sx={{
                               height: 20,
                               fontSize: '0.7rem',
-                              backgroundColor: theme => theme.palette.grey[500],
+                              backgroundColor: (theme) => theme.palette.grey[500],
                               color: 'white',
                             }}
                           />
@@ -497,38 +482,41 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({
                       </Box>
                     </TableCell>
                     <TableCell>{invoice.vendorName}</TableCell>
-                  <TableCell>{invoice.customerName}</TableCell>
-                  <TableCell>{formatDate(invoice.issueDate)}</TableCell>
-                  <TableCell>{formatDate(invoice.dueDate)}</TableCell>
-                  <TableCell>{formatCurrency(invoice.totalAmount, invoice.currency)}</TableCell>
-                  <TableCell>{invoice.currency}</TableCell>
-                  <TableCell>{formatDaysOverdue(invoice.daysOverdue)}</TableCell>
-                  <TableCell>{getInvoiceStatus(invoice)}</TableCell>
-                  <TableCell align="right">
-                    <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-                      <Tooltip title="View Details">
-                        <IconButton
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            onViewInvoice(invoice.id);
-                          }}
-                          size="small">
-                          <ViewIcon />
-                        </IconButton>
-                      </Tooltip>
-                      <Tooltip title="Delete Invoice">
-                        <IconButton
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleDeleteClick(invoice.id);
-                          }}
-                          size="small"
-                          sx={{ color: theme.palette.error.main, '&:hover': { color: theme.palette.error.dark } }}>
-                          <DeleteIcon />
-                        </IconButton>
-                      </Tooltip>
-                    </Box>
-                  </TableCell>
+                    <TableCell>{invoice.customerName}</TableCell>
+                    <TableCell>{formatDate(invoice.issueDate)}</TableCell>
+                    <TableCell>{formatDate(invoice.dueDate)}</TableCell>
+                    <TableCell>{formatCurrency(invoice.totalAmount, invoice.currency)}</TableCell>
+                    <TableCell>{invoice.currency}</TableCell>
+                    <TableCell>{formatDaysOverdue(invoice.daysOverdue)}</TableCell>
+                    <TableCell>{getInvoiceStatus(invoice)}</TableCell>
+                    <TableCell align="right">
+                      <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+                        <Tooltip title="View Details">
+                          <IconButton
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              onViewInvoice(invoice.id);
+                            }}
+                            size="small">
+                            <ViewIcon />
+                          </IconButton>
+                        </Tooltip>
+                        <Tooltip title="Delete Invoice">
+                          <IconButton
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDeleteClick(invoice.id);
+                            }}
+                            size="small"
+                            sx={{
+                              color: theme.palette.error.main,
+                              '&:hover': { color: theme.palette.error.dark },
+                            }}>
+                            <DeleteIcon />
+                          </IconButton>
+                        </Tooltip>
+                      </Box>
+                    </TableCell>
                   </TableRow>
                 );
               })
@@ -543,10 +531,10 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({
             {!isLoading && invoices.length > 0 && (
               <TableRow
                 sx={{
-                  backgroundColor: theme => theme.palette.action.hover,
+                  backgroundColor: (theme) => theme.palette.action.hover,
                   '& td': {
                     fontWeight: 'bold',
-                    borderTop: theme => `2px solid ${theme.palette.divider}`,
+                    borderTop: (theme) => `2px solid ${theme.palette.divider}`,
                   },
                 }}>
                 <TableCell colSpan={6}>

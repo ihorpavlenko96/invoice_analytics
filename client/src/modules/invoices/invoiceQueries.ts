@@ -20,7 +20,12 @@ export const useInvoices = (
   return useQuery({
     queryKey: invoiceKeys.list(searchQuery, page, limit, status, includeArchived),
     queryFn: async () => {
-      const paginatedResponse = await invoiceService.getInvoices(page, limit, status, includeArchived);
+      const paginatedResponse = await invoiceService.getInvoices(
+        page,
+        limit,
+        status,
+        includeArchived,
+      );
 
       // Apply filters if any are specified
       let filteredItems = paginatedResponse.items;

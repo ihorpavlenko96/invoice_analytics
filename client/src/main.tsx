@@ -89,7 +89,6 @@ const queryClient = new QueryClient({
   },
 });
 
- 
 const RootComponent: React.FC = () => {
   return (
     <ThemeProvider>

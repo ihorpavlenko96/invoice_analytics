@@ -41,7 +41,11 @@ import { useInvoice } from '../invoiceQueries';
 import { useUser } from '@clerk/clerk-react';
 import { PaginatedResponseDto, invoiceService } from '../services/invoiceService';
 import { Invoice } from '../types/invoice';
-import { useDeleteMultipleInvoices, useArchiveInvoices, useUnarchiveInvoices } from '../invoiceMutations';
+import {
+  useDeleteMultipleInvoices,
+  useArchiveInvoices,
+  useUnarchiveInvoices,
+} from '../invoiceMutations';
 import ConfirmationDialog from '../../../common/components/ConfirmationDialog';
 import { useSnackbar } from 'notistack';
 
@@ -416,8 +420,7 @@ const InvoiceManagementPage: React.FC = () => {
                     aria-label="Clear date filter"
                     onClick={() => setDateFilter(null)}
                     size="small"
-                    sx={{ color: theme.palette.primary.main }}
-                  >
+                    sx={{ color: theme.palette.primary.main }}>
                     <ClearIcon />
                   </IconButton>
                 )}
@@ -428,8 +431,7 @@ const InvoiceManagementPage: React.FC = () => {
                       '&.Mui-focused': {
                         color: theme.palette.primary.main,
                       },
-                    }}
-                  >
+                    }}>
                     Status
                   </InputLabel>
                   <Select
@@ -448,8 +450,7 @@ const InvoiceManagementPage: React.FC = () => {
                       '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
                         borderColor: theme.palette.primary.main,
                       },
-                    }}
-                  >
+                    }}>
                     <MenuItem value="">All Statuses</MenuItem>
                     <MenuItem value="PAID">Paid</MenuItem>
                     <MenuItem value="UNPAID">Unpaid</MenuItem>
@@ -461,8 +462,7 @@ const InvoiceManagementPage: React.FC = () => {
                     aria-label="Clear status filter"
                     onClick={() => setStatusFilter('')}
                     size="small"
-                    sx={{ color: theme.palette.primary.main }}
-                  >
+                    sx={{ color: theme.palette.primary.main }}>
                     <ClearIcon />
                   </IconButton>
                 )}

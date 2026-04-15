@@ -86,11 +86,7 @@ export const invoiceService = {
    * @param status - Optional status filter (PAID, UNPAID, OVERDUE)
    * @returns Promise<Blob>
    */
-  exportInvoices: async (
-    page: number = 1,
-    limit: number = 10,
-    status?: string,
-  ): Promise<Blob> => {
+  exportInvoices: async (page: number = 1, limit: number = 10, status?: string): Promise<Blob> => {
     const response = await axios.get('/invoices/export/excel', {
       params: {
         page,

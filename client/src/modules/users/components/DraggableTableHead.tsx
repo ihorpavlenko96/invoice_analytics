@@ -14,9 +14,7 @@ import {
   sortableKeyboardCoordinates,
   horizontalListSortingStrategy,
 } from '@dnd-kit/sortable';
-import {
-  useSortable,
-} from '@dnd-kit/sortable';
+import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { TableCell, TableHead, TableRow, TableSortLabel } from '@mui/material';
 import { useTheme } from '@mui/material';
@@ -36,15 +34,15 @@ interface DraggableTableCellProps {
   onSort?: (columnId: string) => void;
 }
 
-const DraggableTableCell: React.FC<DraggableTableCellProps> = ({ column, sortBy, sortOrder, onSort }) => {
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({ id: column.id });
+const DraggableTableCell: React.FC<DraggableTableCellProps> = ({
+  column,
+  sortBy,
+  sortOrder,
+  onSort,
+}) => {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+    id: column.id,
+  });
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -61,14 +59,12 @@ const DraggableTableCell: React.FC<DraggableTableCellProps> = ({ column, sortBy,
       align={column.align}
       width={column.width}
       {...attributes}
-      {...listeners}
-    >
+      {...listeners}>
       {column.sortable ? (
         <TableSortLabel
           active={sortBy === column.id}
           direction={sortBy === column.id ? sortOrder : 'asc'}
-          onClick={() => onSort?.(column.id)}
-        >
+          onClick={() => onSort?.(column.id)}>
           {column.label}
         </TableSortLabel>
       ) : (
@@ -104,7 +100,7 @@ const DraggableTableHead: React.FC<DraggableTableHeadProps> = ({
     }),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
-    })
+    }),
   );
 
   const handleDragEnd = (event: DragEndEvent) => {
@@ -118,16 +114,13 @@ const DraggableTableHead: React.FC<DraggableTableHeadProps> = ({
     }
   };
 
-  const orderedColumns = columnOrder.length > 0
-    ? columnOrder.map(id => columns.find(col => col.id === id)).filter(Boolean) as Column[]
-    : columns;
+  const orderedColumns =
+    columnOrder.length > 0
+      ? (columnOrder.map((id) => columns.find((col) => col.id === id)).filter(Boolean) as Column[])
+      : columns;
 
   return (
-    <DndContext
-      sensors={sensors}
-      collisionDetection={closestCenter}
-      onDragEnd={handleDragEnd}
-    >
+    <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
       <TableHead>
         <TableRow
           sx={{
@@ -137,12 +130,10 @@ const DraggableTableHead: React.FC<DraggableTableHeadProps> = ({
               fontWeight: 'bold',
               borderBottom: `1px solid ${theme.palette.divider}`,
             },
-          }}
-        >
+          }}>
           <SortableContext
-            items={columnOrder.length > 0 ? columnOrder : columns.map(c => c.id)}
-            strategy={horizontalListSortingStrategy}
-          >
+            items={columnOrder.length > 0 ? columnOrder : columns.map((c) => c.id)}
+            strategy={horizontalListSortingStrategy}>
             {orderedColumns.map((column) => (
               <DraggableTableCell
                 key={column.id}

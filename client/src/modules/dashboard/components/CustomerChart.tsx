@@ -9,7 +9,11 @@ interface CustomerChartProps {
   timePeriodLabel: string;
 }
 
-const CustomerChart: React.FC<CustomerChartProps> = ({ data, onCustomerClick, timePeriodLabel }) => {
+const CustomerChart: React.FC<CustomerChartProps> = ({
+  data,
+  onCustomerClick,
+  timePeriodLabel,
+}) => {
   if (data.length === 0) {
     return (
       <Paper

@@ -139,12 +139,14 @@ const Login: React.FC<LoginProps> = () => {
         p: 2,
       }}>
       <Container component="main" maxWidth="md" disableGutters>
-        <Paper elevation={0} sx={{ 
-          borderRadius: '16px', 
-          overflow: 'hidden',
-          boxShadow: '0 4px 6px rgba(0, 0, 0, 0.07), 0 2px 4px rgba(0, 0, 0, 0.05)',
-          border: '1px solid #E5E7EB'
-        }}>
+        <Paper
+          elevation={0}
+          sx={{
+            borderRadius: '16px',
+            overflow: 'hidden',
+            boxShadow: '0 4px 6px rgba(0, 0, 0, 0.07), 0 2px 4px rgba(0, 0, 0, 0.05)',
+            border: '1px solid #E5E7EB',
+          }}>
           <Grid container spacing={0}>
             <Grid
               size={{ xs: 12, md: 6 }}

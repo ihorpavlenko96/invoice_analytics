@@ -216,12 +216,15 @@ const InvoiceDetails: React.FC<InvoiceDetailsProps> = ({
       {/* Summary Row */}
       <Grid container spacing={1} sx={{ mb: 1 }}>
         <Grid size={{ xs: 3 }}>
-          <Box sx={{ p: 1, border: 1, borderColor: 'divider', borderRadius: 1, bgcolor: 'background.paper' }}>
-            <Typography
-              variant="caption"
-              color="text.secondary"
-              display="block"
-              fontSize="0.7rem">
+          <Box
+            sx={{
+              p: 1,
+              border: 1,
+              borderColor: 'divider',
+              borderRadius: 1,
+              bgcolor: 'background.paper',
+            }}>
+            <Typography variant="caption" color="text.secondary" display="block" fontSize="0.7rem">
               Issue Date
             </Typography>
             <Typography variant="body2" fontWeight="medium" fontSize="0.85rem">
@@ -230,12 +233,15 @@ const InvoiceDetails: React.FC<InvoiceDetailsProps> = ({
           </Box>
         </Grid>
         <Grid size={{ xs: 3 }}>
-          <Box sx={{ p: 1, border: 1, borderColor: 'divider', borderRadius: 1, bgcolor: 'background.paper' }}>
-            <Typography
-              variant="caption"
-              color="text.secondary"
-              display="block"
-              fontSize="0.7rem">
+          <Box
+            sx={{
+              p: 1,
+              border: 1,
+              borderColor: 'divider',
+              borderRadius: 1,
+              bgcolor: 'background.paper',
+            }}>
+            <Typography variant="caption" color="text.secondary" display="block" fontSize="0.7rem">
               Due Date
             </Typography>
             <Typography
@@ -248,12 +254,15 @@ const InvoiceDetails: React.FC<InvoiceDetailsProps> = ({
           </Box>
         </Grid>
         <Grid size={{ xs: 3 }}>
-          <Box sx={{ p: 1, border: 1, borderColor: 'divider', borderRadius: 1, bgcolor: 'background.paper' }}>
-            <Typography
-              variant="caption"
-              color="text.secondary"
-              display="block"
-              fontSize="0.7rem">
+          <Box
+            sx={{
+              p: 1,
+              border: 1,
+              borderColor: 'divider',
+              borderRadius: 1,
+              bgcolor: 'background.paper',
+            }}>
+            <Typography variant="caption" color="text.secondary" display="block" fontSize="0.7rem">
               Subtotal
             </Typography>
             <Typography variant="body2" fontWeight="medium" fontSize="0.85rem">
@@ -262,7 +271,8 @@ const InvoiceDetails: React.FC<InvoiceDetailsProps> = ({
           </Box>
         </Grid>
         <Grid size={{ xs: 3 }}>
-          <Box sx={{ p: 1, borderRadius: 1, bgcolor: 'primary.dark', color: 'primary.contrastText' }}>
+          <Box
+            sx={{ p: 1, borderRadius: 1, bgcolor: 'primary.dark', color: 'primary.contrastText' }}>
             <Typography
               variant="caption"
               sx={{ color: 'rgba(255, 255, 255, 0.7)' }}
