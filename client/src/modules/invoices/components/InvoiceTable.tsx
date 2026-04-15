@@ -11,12 +11,6 @@ import {
   TablePagination,
   Typography,
   Box,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogContentText,
-  DialogTitle,
-  Button,
   Chip,
   TableSortLabel,
   Skeleton,
@@ -34,6 +28,7 @@ import { useDeleteInvoice } from '../invoiceMutations';
 import { format } from 'date-fns';
 import { useSnackbar } from 'notistack';
 import { PaginatedResponseDto } from '../services/invoiceService';
+import ConfirmationDialog from '../../../common/components/ConfirmationDialog';
 
 // Define the pulse animation
 const pulseAnimation = keyframes`
@@ -580,30 +575,23 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({
       />
 
       {/* Confirmation Dialog for Delete */}
-      <Dialog open={deleteDialogOpen} onClose={handleDeleteCancel}>
-        <DialogTitle>Delete Invoice</DialogTitle>
-        <DialogContent>
-          <DialogContentText>
-            Are you sure you want to delete this invoice? This action cannot be undone.
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleDeleteCancel} color="primary">
-            Cancel
-          </Button>
-          <Button
-            onClick={handleDeleteConfirm}
-            variant="contained"
-            disabled={deleteInvoiceMutation.isPending}
-            sx={{
-              backgroundColor: theme.palette.error.main,
-              color: theme.palette.primary.contrastText,
-              '&:hover': { backgroundColor: theme.palette.error.dark },
-            }}>
-            {deleteInvoiceMutation.isPending ? 'Deleting...' : 'Delete'}
-          </Button>
-        </DialogActions>
-      </Dialog>
+      <ConfirmationDialog
+        open={deleteDialogOpen}
+        onClose={handleDeleteCancel}
+        onConfirm={handleDeleteConfirm}
+        title="Delete Invoice"
+        message="Are you sure you want to delete this invoice? This action cannot be undone."
+        confirmText="Delete"
+        isLoading={deleteInvoiceMutation.isPending}
+        confirmButtonProps={{
+          variant: 'contained',
+          sx: {
+            backgroundColor: theme.palette.error.main,
+            color: theme.palette.primary.contrastText,
+            '&:hover': { backgroundColor: theme.palette.error.dark },
+          },
+        }}
+      />
     </>
   );
 };
