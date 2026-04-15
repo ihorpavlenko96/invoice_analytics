@@ -157,7 +157,7 @@ export default function LandingPage({ appUrl = '/app' }: LandingPageProps): Reac
           </a>
           <a
             href={appUrl}
-            className="bg-gradient-to-r from-teal-500 to-emerald-600 hover:from-teal-600 hover:to-emerald-700 text-black font-medium px-4 py-2 rounded-md transition-colors">
+            className="bg-[#FFC0CB] hover:bg-[#FFB6C1] text-black font-medium px-4 py-2 rounded-md transition-colors">
             Login
           </a>
         </div>
@@ -181,12 +181,12 @@ export default function LandingPage({ appUrl = '/app' }: LandingPageProps): Reac
               <div className="flex flex-wrap gap-4">
                 <a
                   href={appUrl}
-                  className="bg-gradient-to-r from-teal-500 to-emerald-600 hover:from-teal-600 hover:to-emerald-700 text-black font-bold px-6 py-3 rounded-md transition-colors">
+                  className="bg-[#FFC0CB] hover:bg-[#FFB6C1] text-black font-bold px-6 py-3 rounded-md transition-colors">
                   Login
                 </a>
                 <a
                   href="#learn"
-                  className="bg-transparent border border-teal-500 text-teal-400 hover:text-teal-300 hover:border-teal-400 font-bold px-6 py-3 rounded-md transition-colors">
+                  className="bg-transparent border border-[#FFC0CB] text-[#FFC0CB] hover:text-[#FFB6C1] hover:border-[#FFB6C1] font-bold px-6 py-3 rounded-md transition-colors">
                   Learn More
                 </a>
               </div>
@@ -312,12 +312,12 @@ export default function LandingPage({ appUrl = '/app' }: LandingPageProps): Reac
             <div className="flex flex-wrap justify-center gap-4">
               <a
                 href={appUrl}
-                className="bg-gradient-to-r from-teal-500 to-emerald-600 hover:from-teal-600 hover:to-emerald-700 text-black font-bold px-6 py-3 rounded-md transition-colors">
+                className="bg-[#FFC0CB] hover:bg-[#FFB6C1] text-black font-bold px-6 py-3 rounded-md transition-colors">
                 Get Started
               </a>
               <a
                 href="#learn"
-                className="bg-transparent border border-teal-500 text-teal-400 hover:text-teal-300 hover:border-teal-400 font-bold px-6 py-3 rounded-md transition-colors">
+                className="bg-transparent border border-[#FFC0CB] text-[#FFC0CB] hover:text-[#FFB6C1] hover:border-[#FFB6C1] font-bold px-6 py-3 rounded-md transition-colors">
                 Learn More
               </a>
             </div>
