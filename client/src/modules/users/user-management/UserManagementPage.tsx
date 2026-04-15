@@ -288,8 +288,8 @@ const UserManagementPage: React.FC<UserManagementPageProps> = () => {
                 onClick={openCreateForm}
                 disabled={isSubmitting}
                 sx={{
-                  backgroundColor: '#8B5CF6',
-                  '&:hover': { backgroundColor: '#7C3AED' },
+                  backgroundColor: '#003934',
+                  '&:hover': { backgroundColor: '#002822' },
                 }}>
                 {isSubmitting ? (
                   <>
