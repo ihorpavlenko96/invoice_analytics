@@ -6,10 +6,10 @@ export const charcoalCitrusTheme = createTheme({
   palette: {
     mode: 'dark',
     primary: {
-      main: '#F4F4A1', // Light Lemon
-      light: lighten('#F4F4A1', 0.1),
-      dark: darken('#F4F4A1', 0.15),
-      contrastText: '#000000',
+      main: '#000000', // Black
+      light: lighten('#000000', 0.1),
+      dark: darken('#000000', 0.15),
+      contrastText: '#FFFFFF',
     },
     secondary: {
       main: '#9CA3AF',
@@ -86,10 +86,10 @@ export const charcoalCitrusTheme = createTheme({
           },
         },
         contained: {
-          backgroundColor: '#F4F4A1',
-          color: '#000000',
+          backgroundColor: '#000000',
+          color: '#FFFFFF',
           '&:hover': {
-            backgroundColor: darken('#F4F4A1', 0.15),
+            backgroundColor: lighten('#000000', 0.15),
           },
         },
         outlined: {
