@@ -1,4 +1,21 @@
 import { createTheme } from '@mui/material';
+import { darken } from '@mui/material/styles';
+
+// Constants for button colors with validation
+const BUTTON_PRIMARY_COLOR = '#334D49';
+const BUTTON_TEXT_COLOR = '#F0F0F0';
+const BUTTON_HOVER_DARKEN_AMOUNT = 0.15;
+
+// Safe color manipulation with error handling
+const safelyDarkenColor = (color: string, amount: number): string => {
+  try {
+    return darken(color, amount);
+  } catch (error) {
+    console.error(`Failed to darken color ${color}:`, error);
+    // Fallback to a slightly darker version using a fixed dark color
+    return '#2A3D39';
+  }
+};
 
 // Clean Black & White Theme (Light Mode)
 export const darkTheme = createTheme({
@@ -85,10 +102,10 @@ export const darkTheme = createTheme({
           },
         },
         contained: {
-          backgroundColor: '#90CAF9',
-          color: '#000000',
+          backgroundColor: BUTTON_PRIMARY_COLOR,
+          color: BUTTON_TEXT_COLOR,
           '&:hover': {
-            backgroundColor: '#42A5F5',
+            backgroundColor: safelyDarkenColor(BUTTON_PRIMARY_COLOR, BUTTON_HOVER_DARKEN_AMOUNT),
           },
         },
         outlined: {
