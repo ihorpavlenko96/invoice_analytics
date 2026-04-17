@@ -41,17 +41,6 @@ export class InvoiceRepository {
         });
     }
 
-    /**
-     * Fetch all non-archived invoices for a tenant without pagination constraints.
-     * Used for full exports so that all records are included regardless of page size.
-     */
-    async findAllForExport(tenantId: string): Promise<Invoice[]> {
-        return this.invoiceRepository.find({
-            where: { tenantId, isArchived: false },
-            order: { issueDate: 'DESC' },
-        });
-    }
-
     async findById(id: string, tenantId: string): Promise<Invoice | null> {
         return this.invoiceRepository.findOne({
             where: { id, tenantId },
