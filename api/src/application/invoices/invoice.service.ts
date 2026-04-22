@@ -5,6 +5,7 @@ import { InvoiceRepository } from '../repositories/invoice.repository';
 import { InvoiceMapper } from './invoice.mapper';
 import { InvoiceDto } from './dto/invoice.dto';
 import { PaginatedResponseDto, PaginationParamsDto } from './dto/pagination.dto';
+import { ExportFilterDto } from './dto/export-filter.dto';
 import { Invoice } from '../../domain/entities/invoice.entity';
 import { InvoiceItem } from '../../domain/entities/invoice-item.entity';
 
@@ -106,9 +107,11 @@ export class InvoiceService implements IInvoiceService {
 
     async exportToExcel(
         tenantId: string,
-        paginationParams: PaginationParamsDto,
+        filters: ExportFilterDto,
     ): Promise<Buffer> {
-        const [invoices] = await this.invoiceRepository.findAll(tenantId, paginationParams);
+        // Use findAllForExport to retrieve every matching invoice without pagination,
+        // ensuring the exported file contains all records rather than a single page.
+        const invoices = await this.invoiceRepository.findAllForExport(tenantId, filters);
 
         const workbook = new ExcelJS.Workbook();
         const worksheet = workbook.addWorksheet('Invoices');

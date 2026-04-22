@@ -41,6 +41,34 @@ export class InvoiceRepository {
         });
     }
 
+    /**
+     * Retrieves all invoices for a tenant without pagination, intended for export operations.
+     * Supports optional status and includeArchived filters so the export mirrors
+     * the user's current view, but always returns every matching record.
+     */
+    async findAllForExport(
+        tenantId: string,
+        filters: { status?: string; includeArchived?: boolean },
+    ): Promise<Invoice[]> {
+        const whereClause: any = { tenantId };
+
+        if (filters.status) {
+            whereClause.status = filters.status;
+        }
+
+        // Exclude archived invoices unless explicitly requested
+        if (!filters.includeArchived) {
+            whereClause.isArchived = false;
+        }
+
+        return this.invoiceRepository.find({
+            where: whereClause,
+            order: {
+                issueDate: 'DESC',
+            },
+        });
+    }
+
     async findById(id: string, tenantId: string): Promise<Invoice | null> {
         return this.invoiceRepository.findOne({
             where: { id, tenantId },
