@@ -50,6 +50,62 @@ export class PaginationParamsDto {
     includeArchived?: boolean = false;
 }
 
+/**
+ * DTO for export-specific query parameters.
+ * Unlike PaginationParamsDto, this does not include page/limit fields —
+ * exports always return all matching records regardless of pagination.
+ */
+export class ExportInvoicesParamsDto {
+    @ApiProperty({
+        description: 'Filter exported invoices by status',
+        example: 'PAID',
+        enum: ['PAID', 'UNPAID', 'OVERDUE'],
+        required: false,
+    })
+    @IsString()
+    @IsIn(['PAID', 'UNPAID', 'OVERDUE'])
+    @IsOptional()
+    status?: string;
+
+    @ApiProperty({
+        description: 'Include archived invoices in the export',
+        example: false,
+        default: false,
+        required: false,
+    })
+    @IsBoolean()
+    @IsOptional()
+    @Transform(({ value }) => value === 'true' || value === true)
+    includeArchived?: boolean = false;
+
+    @ApiProperty({
+        description: 'Search term to filter by vendor name or customer name (case-insensitive)',
+        example: 'Acme Corp',
+        required: false,
+    })
+    @IsString()
+    @IsOptional()
+    search?: string;
+
+    @ApiProperty({
+        description: 'Start date for date range filter (YYYY-MM-DD). Matches invoices whose issueDate or dueDate falls within [dateFrom, dateTo].',
+        example: '2024-01-01',
+        required: false,
+    })
+    @IsString()
+    @IsOptional()
+    dateFrom?: string;
+
+    @ApiProperty({
+        description: 'End date for date range filter (YYYY-MM-DD). Matches invoices whose issueDate or dueDate falls within [dateFrom, dateTo].',
+        example: '2024-12-31',
+        required: false,
+    })
+    @IsString()
+    @IsOptional()
+    dateTo?: string;
+}
+
 export class PaginatedResponseDto<T> {
     @ApiProperty({
         description: 'Array of items for the current page',
