@@ -41,38 +41,6 @@ export class InvoiceRepository {
         });
     }
 
-    /**
-     * Retrieves ALL invoices for a tenant without pagination constraints.
-     * Intended exclusively for export operations so that every matching
-     * record is included regardless of current page/limit settings.
-     *
-     * @param tenantId - The tenant whose invoices should be exported
-     * @param status   - Optional status filter (PAID | UNPAID | OVERDUE)
-     * @param includeArchived - When false (default), archived invoices are excluded
-     */
-    async findAllForExport(
-        tenantId: string,
-        status?: string,
-        includeArchived: boolean = false,
-    ): Promise<Invoice[]> {
-        const whereClause: any = { tenantId };
-
-        if (status) {
-            whereClause.status = status;
-        }
-
-        if (!includeArchived) {
-            whereClause.isArchived = false;
-        }
-
-        return this.invoiceRepository.find({
-            where: whereClause,
-            order: {
-                issueDate: 'DESC',
-            },
-        });
-    }
-
     async findById(id: string, tenantId: string): Promise<Invoice | null> {
         return this.invoiceRepository.findOne({
             where: { id, tenantId },
