@@ -57,8 +57,15 @@ const ChangePasswordDialog: React.FC<ChangePasswordDialogProps> = ({ open, onClo
     validationSchema,
     onSubmit: async (values, { setSubmitting, resetForm }) => {
       setErrorMessage(null);
+
+      if (!user) {
+        setErrorMessage('User session not found. Please refresh the page and try again.');
+        setSubmitting(false);
+        return;
+      }
+
       try {
-        await user?.updatePassword({
+        await user.updatePassword({
           currentPassword: values.currentPassword,
           newPassword: values.newPassword,
         });
@@ -70,6 +77,7 @@ const ChangePasswordDialog: React.FC<ChangePasswordDialogProps> = ({ open, onClo
         const message =
           clerkError?.errors?.[0]?.longMessage ||
           clerkError?.errors?.[0]?.message ||
+          (err instanceof Error ? err.message : null) ||
           'Failed to change password. Please try again.';
         setErrorMessage(message);
       } finally {
