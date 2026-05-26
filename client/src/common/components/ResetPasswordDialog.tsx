@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useUser } from '@clerk/clerk-react';
 import { Formik, Form, Field } from 'formik';
 import * as Yup from 'yup';
@@ -34,7 +34,14 @@ const resetPasswordSchema = Yup.object().shape({
   currentPassword: Yup.string().required('Current password is required'),
   newPassword: Yup.string()
     .min(8, 'Password must be at least 8 characters')
-    .required('New password is required'),
+    .required('New password is required')
+    .test(
+      'not-same-as-current',
+      'New password must be different from current password',
+      function (value) {
+        return value !== this.parent.currentPassword;
+      },
+    ),
   confirmPassword: Yup.string()
     .oneOf([Yup.ref('newPassword')], 'Passwords must match')
     .required('Please confirm your new password'),
@@ -55,8 +62,23 @@ const ResetPasswordDialog: React.FC<ResetPasswordDialogProps> = ({ open, onClose
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [apiError, setApiError] = useState<string | null>(null);
+  const autoCloseTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Clean up pending auto-close timer when component unmounts
+  useEffect(() => {
+    return () => {
+      if (autoCloseTimerRef.current !== null) {
+        clearTimeout(autoCloseTimerRef.current);
+      }
+    };
+  }, []);
 
   const handleClose = (): void => {
+    // Cancel any pending auto-close to avoid calling onClose twice
+    if (autoCloseTimerRef.current !== null) {
+      clearTimeout(autoCloseTimerRef.current);
+      autoCloseTimerRef.current = null;
+    }
     setSuccessMessage(null);
     setApiError(null);
     onClose();
@@ -69,8 +91,14 @@ const ResetPasswordDialog: React.FC<ResetPasswordDialogProps> = ({ open, onClose
     setApiError(null);
     setSuccessMessage(null);
 
+    // Guard: user must be loaded before attempting password update
+    if (!user) {
+      setApiError('Unable to update password. Please try again later.');
+      return;
+    }
+
     try {
-      await user?.updatePassword({
+      await user.updatePassword({
         currentPassword: values.currentPassword,
         newPassword: values.newPassword,
       });
@@ -78,8 +106,9 @@ const ResetPasswordDialog: React.FC<ResetPasswordDialogProps> = ({ open, onClose
       setSuccessMessage('Password updated successfully.');
       resetForm();
 
-      // Auto-close dialog after showing success message
-      setTimeout(() => {
+      // Auto-close dialog after showing success message; store timer to allow cancellation
+      autoCloseTimerRef.current = setTimeout(() => {
+        autoCloseTimerRef.current = null;
         handleClose();
       }, 1500);
     } catch (err: unknown) {
