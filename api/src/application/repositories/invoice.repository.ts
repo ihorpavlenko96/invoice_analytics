@@ -41,35 +41,6 @@ export class InvoiceRepository {
         });
     }
 
-    /**
-     * Fetch all invoices matching the given filters without any pagination.
-     * Used exclusively by the export endpoint so that the exported file always
-     * contains every matching invoice regardless of the current page/limit the
-     * caller is browsing.
-     */
-    async findAllForExport(
-        tenantId: string,
-        filters: Pick<PaginationParamsDto, 'status' | 'includeArchived'>,
-    ): Promise<Invoice[]> {
-        const whereClause: any = { tenantId };
-
-        if (filters.status) {
-            whereClause.status = filters.status;
-        }
-
-        // By default, exclude archived invoices unless explicitly requested
-        if (!filters.includeArchived) {
-            whereClause.isArchived = false;
-        }
-
-        return this.invoiceRepository.find({
-            where: whereClause,
-            order: {
-                issueDate: 'DESC',
-            },
-        });
-    }
-
     async findById(id: string, tenantId: string): Promise<Invoice | null> {
         return this.invoiceRepository.findOne({
             where: { id, tenantId },
