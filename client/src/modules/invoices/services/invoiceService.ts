@@ -80,22 +80,22 @@ export const invoiceService = {
   },
 
   /**
-   * Export invoices to Excel file
-   * @param page - Page number (starts at 1)
-   * @param limit - Number of items per page
+   * Export ALL invoices matching the given filters to an Excel file.
+   * Pagination params are intentionally omitted so every matching invoice is
+   * included in the downloaded file, regardless of what page the user is on.
+   *
    * @param status - Optional status filter (PAID, UNPAID, OVERDUE)
+   * @param includeArchived - Whether to include archived invoices (default: false)
    * @returns Promise<Blob>
    */
   exportInvoices: async (
-    page: number = 1,
-    limit: number = 10,
     status?: string,
+    includeArchived: boolean = false,
   ): Promise<Blob> => {
     const response = await axios.get('/invoices/export/excel', {
       params: {
-        page,
-        limit,
         ...(status && { status }),
+        includeArchived,
       },
       responseType: 'blob',
     });
