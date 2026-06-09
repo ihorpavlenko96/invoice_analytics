@@ -15,6 +15,7 @@ import {
 } from '@mui/material';
 import SettingsIcon from '@mui/icons-material/Settings';
 import LogoutIcon from '@mui/icons-material/Logout';
+import VpnKeyIcon from '@mui/icons-material/VpnKey';
 import { useClerk, useUser } from '@clerk/clerk-react';
 
 type CustomUserButtonProps = {
@@ -24,7 +25,7 @@ type CustomUserButtonProps = {
 const CustomUserButton: React.FC<CustomUserButtonProps> = ({ afterSignOutUrl }) => {
   const [anchorEl, setAnchorEl] = useState<HTMLDivElement | null>(null);
   const buttonRef = useRef<HTMLDivElement>(null);
-  const { signOut } = useClerk();
+  const { signOut, openUserProfile } = useClerk();
   const { user } = useUser();
   const theme = useTheme();
 
@@ -47,7 +48,14 @@ const CustomUserButton: React.FC<CustomUserButtonProps> = ({ afterSignOutUrl }) 
     handleClose();
   };
 
+  const handleResetPassword = (): void => {
+    handleClose();
+    openUserProfile();
+  };
+
   const open = Boolean(anchorEl);
+  // Clerk sets passwordEnabled to false for OAuth-only / email-code-only accounts
+  const canResetPassword = user?.passwordEnabled ?? false;
 
   return (
     <>
@@ -155,6 +163,35 @@ const CustomUserButton: React.FC<CustomUserButtonProps> = ({ afterSignOutUrl }) 
               </ListItemIcon>
               <ListItemText primary="Manage account" />
             </ListItemButton>
+          </ListItem>
+
+          <ListItem disablePadding>
+            <Tooltip
+              title={
+                !canResetPassword
+                  ? 'Password reset is not available for accounts using social login or email code'
+                  : ''
+              }
+              placement="left">
+              {/* span wrapper ensures the Tooltip works even when the button is disabled */}
+              <span style={{ width: '100%' }}>
+                <ListItemButton
+                  onClick={handleResetPassword}
+                  disabled={!canResetPassword}
+                  sx={{
+                    px: 2,
+                    width: '100%',
+                    '&:hover': {
+                      backgroundColor: theme.palette.action.hover,
+                    },
+                  }}>
+                  <ListItemIcon sx={{ minWidth: 36, color: theme.palette.primary.main }}>
+                    <VpnKeyIcon fontSize="small" />
+                  </ListItemIcon>
+                  <ListItemText primary="Reset password" />
+                </ListItemButton>
+              </span>
+            </Tooltip>
           </ListItem>
 
           <ListItem disablePadding>
