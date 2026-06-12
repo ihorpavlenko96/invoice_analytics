@@ -27,6 +27,7 @@ import {
   Visibility as ViewIcon,
   Delete as DeleteIcon,
   Archive as ArchiveIcon,
+  NotificationsActive as BellIcon,
 } from '@mui/icons-material';
 import { useTheme } from '@mui/material/styles';
 import { Invoice } from '../types/invoice';
@@ -221,50 +222,21 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({
     }
   };
 
-  // Format days overdue with visual alert for invoices overdue by more than 85 days
+  // Show a red bell icon when an invoice is overdue by at least 270 days; blank otherwise
   const formatDaysOverdue = (daysOverdue: number) => {
-    if (daysOverdue === 0) {
+    if (daysOverdue >= 270) {
+      const label = `Overdue by ${daysOverdue} days`;
       return (
-        <Typography color="text.secondary">
-          –
-        </Typography>
+        <Tooltip title={label}>
+          <BellIcon
+            aria-label={label}
+            sx={{ color: theme.palette.error.main }}
+          />
+        </Tooltip>
       );
     }
 
-    // Display invoices overdue by more than 85 days
-    if (daysOverdue > 85) {
-      return (
-        <Typography
-          fontWeight="medium"
-          sx={theme => ({
-            color: theme.palette.invoiceStatus.overdue,
-            backgroundColor: `${theme.palette.invoiceStatus.overdue}20`,
-            px: 1,
-            py: 0.5,
-            borderRadius: 1,
-            display: 'inline-block',
-          })}
-        >
-          {daysOverdue} days
-        </Typography>
-      );
-    }
-
-    return (
-      <Typography
-        fontWeight="medium"
-        sx={theme => ({
-          color: theme.palette.invoiceStatus.overdue,
-          backgroundColor: `${theme.palette.invoiceStatus.overdue}20`,
-          px: 1,
-          py: 0.5,
-          borderRadius: 1,
-          display: 'inline-block',
-        })}
-      >
-        {daysOverdue} days
-      </Typography>
-    );
+    return null;
   };
 
   // Calculate and display the status of an invoice
