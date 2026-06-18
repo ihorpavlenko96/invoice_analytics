@@ -1,46 +1,57 @@
 import { createTheme } from '@mui/material';
 import { darken, lighten } from '@mui/material/styles';
 
-// Charcoal Citrus Theme - Dark Grey with Light Lemon
+const orange = '#FF8C00';
+const orangeLight = '#FFB347';
+const orangeDark = '#C75F00';
+const black = '#080808';
+const charcoal = '#141414';
+const charcoalRaised = '#1F1F1F';
+const borderGlow = 'rgba(255, 140, 0, 0.28)';
+
+// Orange Charcoal Theme - Black surfaces with glossy orange accents
 export const charcoalCitrusTheme = createTheme({
   palette: {
     mode: 'dark',
     primary: {
-      main: '#F4F4A1', // Light Lemon
-      light: lighten('#F4F4A1', 0.1),
-      dark: darken('#F4F4A1', 0.15),
-      contrastText: '#000000',
+      main: orange,
+      light: orangeLight,
+      dark: orangeDark,
+      contrastText: '#050505',
     },
     secondary: {
-      main: '#9CA3AF',
-      light: '#D1D5DB',
-      dark: '#6B7280',
-      contrastText: '#000000',
+      main: '#A3A3A3',
+      light: '#E5E5E5',
+      dark: '#737373',
+      contrastText: '#050505',
     },
     background: {
-      default: '#2C2C2C', // Dark Grey
-      paper: '#3A3A3A', // Slightly lighter grey for cards
+      default: black,
+      paper: charcoal,
     },
     text: {
       primary: '#FFFFFF',
-      secondary: '#B3B3B3',
+      secondary: '#C7C7C7',
     },
     error: {
-      main: '#F87171',
+      main: '#FFB4A2',
+      dark: '#D97706',
     },
     warning: {
-      main: '#FBBF24',
+      main: orangeLight,
+      dark: orangeDark,
     },
     info: {
-      main: '#60A5FA',
+      main: '#F5A524',
     },
     success: {
-      main: '#34D399',
+      main: orange,
+      dark: orangeDark,
     },
     invoiceStatus: {
-      paid: lighten('#F4F4A1', 0.1), // Lighter lemon for paid
-      unpaid: '#F4F4A1', // Mid lemon for unpaid
-      overdue: darken('#F4F4A1', 0.3), // Darker lemon for overdue
+      paid: orangeLight,
+      unpaid: orange,
+      overdue: orangeDark,
     },
     divider: 'rgba(255, 255, 255, 0.12)',
   },
@@ -77,27 +88,31 @@ export const charcoalCitrusTheme = createTheme({
       styleOverrides: {
         root: {
           borderRadius: 8,
-          boxShadow: '0 1px 2px rgba(0, 0, 0, 0.25)',
+          boxShadow:
+            '0 1px 2px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.14)',
           padding: '8px 16px',
           transition: 'all 0.2s ease',
           '&:hover': {
-            boxShadow: '0 4px 6px rgba(0, 0, 0, 0.3)',
+            boxShadow:
+              '0 8px 18px rgba(255, 140, 0, 0.24), inset 0 1px 0 rgba(255, 255, 255, 0.18)',
             transform: 'translateY(-1px)',
           },
         },
         contained: {
-          backgroundColor: '#F4F4A1',
-          color: '#000000',
+          backgroundImage: `linear-gradient(180deg, ${orangeLight} 0%, ${orange} 58%, ${orangeDark} 100%)`,
+          backgroundColor: orange,
+          color: '#050505',
           '&:hover': {
-            backgroundColor: darken('#F4F4A1', 0.15),
+            backgroundImage: `linear-gradient(180deg, ${lighten(orangeLight, 0.08)} 0%, ${orange} 48%, ${darken(orangeDark, 0.08)} 100%)`,
+            backgroundColor: orangeDark,
           },
         },
         outlined: {
-          borderColor: lighten('#F4F4A1', 0.1),
-          color: '#F4F4A1',
+          borderColor: borderGlow,
+          color: orangeLight,
           '&:hover': {
-            borderColor: '#F4F4A1',
-            backgroundColor: 'rgba(244, 244, 161, 0.08)',
+            borderColor: orange,
+            backgroundColor: 'rgba(255, 140, 0, 0.10)',
           },
         },
       },
@@ -106,10 +121,11 @@ export const charcoalCitrusTheme = createTheme({
       styleOverrides: {
         root: {
           '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-            borderColor: '#F4F4A1',
+            borderColor: orange,
+            boxShadow: '0 0 0 2px rgba(255, 140, 0, 0.16)',
           },
           '&:hover .MuiOutlinedInput-notchedOutline': {
-            borderColor: 'rgba(255, 255, 255, 0.23)',
+            borderColor: borderGlow,
           },
         },
       },
@@ -118,13 +134,13 @@ export const charcoalCitrusTheme = createTheme({
       styleOverrides: {
         root: {
           '&.Mui-selected': {
-            backgroundColor: 'rgba(244, 244, 161, 0.16)',
+            backgroundColor: 'rgba(255, 140, 0, 0.18)',
           },
           '&.Mui-selected:hover': {
-            backgroundColor: 'rgba(244, 244, 161, 0.24)',
+            backgroundColor: 'rgba(255, 140, 0, 0.28)',
           },
           '&:hover': {
-            backgroundColor: 'rgba(255, 255, 255, 0.08)',
+            backgroundColor: 'rgba(255, 140, 0, 0.10)',
           },
         },
       },
@@ -133,17 +149,19 @@ export const charcoalCitrusTheme = createTheme({
       styleOverrides: {
         root: {
           borderRadius: 12,
-          boxShadow: '0 1px 3px rgba(0, 0, 0, 0.5), 0 1px 2px rgba(0, 0, 0, 0.3)',
-          border: '1px solid rgba(255, 255, 255, 0.12)',
-          backgroundImage: 'none',
+          boxShadow:
+            '0 18px 45px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.06)',
+          border: `1px solid ${borderGlow}`,
+          backgroundImage: `linear-gradient(180deg, ${charcoalRaised} 0%, ${charcoal} 100%)`,
         },
       },
     },
     MuiPaper: {
       styleOverrides: {
         root: {
-          backgroundImage: 'none',
-          boxShadow: '0 1px 3px rgba(0, 0, 0, 0.5), 0 1px 2px rgba(0, 0, 0, 0.3)',
+          backgroundImage: `linear-gradient(180deg, ${charcoalRaised} 0%, ${charcoal} 100%)`,
+          boxShadow:
+            '0 18px 45px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.06)',
         },
       },
     },
@@ -151,9 +169,9 @@ export const charcoalCitrusTheme = createTheme({
       styleOverrides: {
         root: {
           boxShadow: '0 1px 3px rgba(0, 0, 0, 0.5)',
-          backgroundImage: 'none',
-          backgroundColor: '#3A3A3A',
-          borderBottom: '1px solid rgba(255, 255, 255, 0.12)',
+          backgroundImage: `linear-gradient(180deg, ${charcoalRaised} 0%, ${black} 100%)`,
+          backgroundColor: charcoal,
+          borderBottom: `1px solid ${borderGlow}`,
         },
       },
     },
@@ -161,10 +179,10 @@ export const charcoalCitrusTheme = createTheme({
       styleOverrides: {
         root: {
           '& .MuiTableCell-root': {
-            fontWeight: 600,
+            fontWeight: 700,
             color: '#FFFFFF',
-            backgroundColor: '#3A3A3A',
-            borderBottom: '2px solid rgba(255, 255, 255, 0.12)',
+            backgroundColor: '#171717',
+            borderBottom: `2px solid ${borderGlow}`,
           },
         },
       },
@@ -174,14 +192,18 @@ export const charcoalCitrusTheme = createTheme({
         root: {
           '& .MuiOutlinedInput-root': {
             '& fieldset': {
-              borderColor: 'rgba(255, 255, 255, 0.23)',
+              borderColor: 'rgba(255, 255, 255, 0.18)',
             },
             '&:hover fieldset': {
-              borderColor: 'rgba(255, 255, 255, 0.4)',
+              borderColor: borderGlow,
             },
             '&.Mui-focused fieldset': {
-              borderColor: '#F4F4A1',
+              borderColor: orange,
+              boxShadow: '0 0 0 2px rgba(255, 140, 0, 0.16)',
             },
+          },
+          '& .MuiInputLabel-root.Mui-focused': {
+            color: orangeLight,
           },
         },
       },
@@ -189,7 +211,8 @@ export const charcoalCitrusTheme = createTheme({
     MuiChip: {
       styleOverrides: {
         root: {
-          fontWeight: 500,
+          fontWeight: 600,
+          borderColor: borderGlow,
         },
       },
     },
