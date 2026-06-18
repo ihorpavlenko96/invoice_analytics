@@ -31,6 +31,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import HighlightOffIcon from '@mui/icons-material/HighlightOff';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { Theme } from '@mui/material/styles';
 import { User } from '../types/user.ts';
 import UserForm from '../components/UserForm.tsx';
 import ConfirmationDialog from '../../../common/components/ConfirmationDialog.tsx';
@@ -57,6 +58,22 @@ const formatRoles = (roles: User['roles']): React.ReactNode => {
     </Stack>
   );
 };
+
+const ghostActionSx = (theme: Theme) => ({
+  color: theme.palette.primary.light,
+  border: `1px solid ${theme.palette.divider}`,
+  backgroundColor: 'rgba(255, 140, 0, 0.06)',
+  '&:hover': {
+    color: theme.palette.primary.contrastText,
+    borderColor: theme.palette.primary.main,
+    backgroundColor: theme.palette.primary.main,
+    boxShadow: '0 0 18px rgba(255, 140, 0, 0.32)',
+  },
+  '&.Mui-disabled': {
+    color: theme.palette.text.disabled,
+    borderColor: theme.palette.divider,
+  },
+});
 
 const UserManagementPage: React.FC<UserManagementPageProps> = () => {
   const { enqueueSnackbar } = useSnackbar();
@@ -144,7 +161,7 @@ const UserManagementPage: React.FC<UserManagementPageProps> = () => {
   const filteredUsers = useMemo(() => {
     if (statusFilter === 'all') return users;
     const shouldBeActive = statusFilter === 'active';
-    return users.filter((u) => Boolean(u.isActive) === shouldBeActive);
+    return users.filter((user) => Boolean(user.isActive) === shouldBeActive);
   }, [users, statusFilter]);
 
   const sortedUsers = useMemo(() => {
@@ -262,13 +279,25 @@ const UserManagementPage: React.FC<UserManagementPageProps> = () => {
         }}>
         <CardHeader
           title={
-            <Typography variant="h5" component="h1" sx={{ fontWeight: 'bold' }}>
+            <Typography
+              variant="h5"
+              component="h1"
+              sx={{
+                fontWeight: 'bold',
+                color: theme.palette.primary.light,
+                textShadow: '0 0 18px rgba(255, 140, 0, 0.26)',
+              }}>
               User Management
             </Typography>
           }
           action={
             <Stack direction="row" spacing={2} alignItems="center">
-              <FormControl size="small" sx={{ minWidth: 160 }}>
+              <FormControl
+                size="small"
+                sx={{
+                  minWidth: 160,
+                  '& .MuiInputLabel-root.Mui-focused': { color: theme.palette.primary.light },
+                }}>
                 <InputLabel id="status-filter-label">Status</InputLabel>
                 <Select
                   labelId="status-filter-label"
@@ -277,7 +306,13 @@ const UserManagementPage: React.FC<UserManagementPageProps> = () => {
                   label="Status"
                   onChange={(e) =>
                     setStatusFilter(e.target.value as 'all' | 'active' | 'inactive')
-                  }>
+                  }
+                  sx={{
+                    backgroundColor: 'rgba(255, 140, 0, 0.05)',
+                    '& .MuiOutlinedInput-notchedOutline': {
+                      borderColor: theme.palette.divider,
+                    },
+                  }}>
                   <MenuItem value="all">All</MenuItem>
                   <MenuItem value="active">Active</MenuItem>
                   <MenuItem value="inactive">Inactive</MenuItem>
@@ -287,10 +322,7 @@ const UserManagementPage: React.FC<UserManagementPageProps> = () => {
                 variant="contained"
                 onClick={openCreateForm}
                 disabled={isSubmitting}
-                sx={{
-                  backgroundColor: '#8B5CF6',
-                  '&:hover': { backgroundColor: '#7C3AED' },
-                }}>
+                >
                 {isSubmitting ? (
                   <>
                     <CircularProgress size={20} sx={{ mr: 1, color: 'inherit' }} />
@@ -323,7 +355,11 @@ const UserManagementPage: React.FC<UserManagementPageProps> = () => {
                 <TableBody
                   sx={{
                     '& tr': {
-                      '&:hover': {},
+                      transition: 'background-color 0.2s ease, box-shadow 0.2s ease',
+                      '&:hover': {
+                        backgroundColor: 'rgba(255, 140, 0, 0.07)',
+                        boxShadow: 'inset 3px 0 0 rgba(255, 140, 0, 0.75)',
+                      },
                     },
                     '& td, & th': {
                       color: theme.palette.text.primary,
@@ -336,7 +372,10 @@ const UserManagementPage: React.FC<UserManagementPageProps> = () => {
                   }}>
                   {sortedUsers.length === 0 && !isLoading && (
                     <TableRow>
-                      <TableCell colSpan={columns.length} align="center" sx={{ py: 3 }}>
+                      <TableCell
+                        colSpan={columns.length}
+                        align="center"
+                        sx={{ py: 3, color: theme.palette.text.secondary }}>
                         No users found.
                       </TableCell>
                     </TableRow>
@@ -380,11 +419,29 @@ const UserManagementPage: React.FC<UserManagementPageProps> = () => {
                               return (
                                 <TableCell key={column.id}>
                                   <Chip
-                                    icon={user.isActive ? <CheckCircleOutlineIcon /> : <HighlightOffIcon />}
+                                    icon={
+                                      user.isActive ? <CheckCircleOutlineIcon /> : <HighlightOffIcon />
+                                    }
                                     label={user.isActive ? 'Active' : 'Inactive'}
-                                    color={user.isActive ? 'success' : 'error'}
                                     size="small"
                                     variant="outlined"
+                                    sx={{
+                                      borderColor: user.isActive
+                                        ? theme.palette.primary.main
+                                        : theme.palette.divider,
+                                      color: user.isActive
+                                        ? theme.palette.primary.light
+                                        : theme.palette.text.secondary,
+                                      backgroundColor: user.isActive
+                                        ? 'rgba(255, 140, 0, 0.12)'
+                                        : 'rgba(255, 255, 255, 0.04)',
+                                      boxShadow: user.isActive
+                                        ? 'inset 0 1px 0 rgba(255, 255, 255, 0.14)'
+                                        : 'none',
+                                      '& .MuiChip-icon': {
+                                        color: 'inherit',
+                                      },
+                                    }}
                                   />
                                 </TableCell>
                               );
@@ -401,8 +458,7 @@ const UserManagementPage: React.FC<UserManagementPageProps> = () => {
                                     <IconButton
                                       onClick={() => openConfirmToggleStatusDialog(user)}
                                       size="small"
-                                      color={user.isActive ? 'warning' : 'success'}
-                                      sx={{ mr: 0.5 }}
+                                      sx={{ mr: 0.5, ...ghostActionSx(theme) }}
                                       disabled={isTogglingStatus && userToToggleStatus?.id === user.id}>
                                       {user.isActive ? <HighlightOffIcon /> : <CheckCircleOutlineIcon />}
                                     </IconButton>
@@ -411,8 +467,7 @@ const UserManagementPage: React.FC<UserManagementPageProps> = () => {
                                     <IconButton
                                       onClick={() => openEditForm(user)}
                                       size="small"
-                                      color="primary"
-                                      sx={{ mr: 0.5 }}>
+                                      sx={{ mr: 0.5, ...ghostActionSx(theme) }}>
                                       <EditIcon />
                                     </IconButton>
                                   </Tooltip>
@@ -421,7 +476,15 @@ const UserManagementPage: React.FC<UserManagementPageProps> = () => {
                                       onClick={() => openConfirmDeleteDialog(user.id)}
                                       size="small"
                                       disabled={isDeleting && userToDeleteId === user.id}
-                                      color="primary">
+                                      sx={{
+                                        ...ghostActionSx(theme),
+                                        '&:hover': {
+                                          color: theme.palette.primary.contrastText,
+                                          borderColor: theme.palette.primary.dark,
+                                          backgroundColor: theme.palette.primary.dark,
+                                          boxShadow: '0 0 18px rgba(255, 140, 0, 0.34)',
+                                        },
+                                      }}>
                                       <DeleteIcon />
                                     </IconButton>
                                   </Tooltip>
@@ -449,10 +512,17 @@ const UserManagementPage: React.FC<UserManagementPageProps> = () => {
         PaperProps={{
           sx: {
             backgroundColor: theme.palette.background.paper,
+            backgroundImage:
+              'linear-gradient(180deg, rgba(255, 140, 0, 0.08), rgba(0, 0, 0, 0) 32%)',
             color: theme.palette.text.primary,
+            border: `1px solid ${theme.palette.divider}`,
           },
         }}>
-        <DialogTitle sx={{ borderBottom: `1px solid ${theme.palette.divider}` }}>
+        <DialogTitle
+          sx={{
+            borderBottom: `1px solid ${theme.palette.divider}`,
+            color: theme.palette.primary.light,
+          }}>
           {selectedUser ? 'Edit User' : 'Create New User'}
         </DialogTitle>
         <DialogContent sx={{ pt: 2 }}>
@@ -470,11 +540,6 @@ const UserManagementPage: React.FC<UserManagementPageProps> = () => {
         confirmButtonProps={{
           variant: 'contained',
           disabled: isDeleting,
-          sx: {
-            backgroundColor: '#F87171',
-            color: '#000000',
-            '&:hover': { backgroundColor: '#DC2626' },
-          },
         }}
       />
 
@@ -486,7 +551,7 @@ const UserManagementPage: React.FC<UserManagementPageProps> = () => {
         message={`Are you sure you want to ${userToToggleStatus?.isActive ? 'deactivate' : 'activate'} user ${userToToggleStatus?.email ?? ''}?`}
         confirmText={userToToggleStatus?.isActive ? 'Deactivate' : 'Activate'}
         confirmButtonProps={{
-          color: userToToggleStatus?.isActive ? 'warning' : 'success',
+          variant: 'contained',
           disabled: isTogglingStatus,
         }}
       />

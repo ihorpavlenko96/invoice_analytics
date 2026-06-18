@@ -153,6 +153,20 @@ const UserForm: React.FC<UserFormProps> = ({ user, onClose }) => {
 
   const formIsSubmittingOverall = isCreating || isUpdating;
 
+  const fieldSx = {
+    '& .MuiInputLabel-root.Mui-focused': { color: theme.palette.primary.light },
+  };
+
+  const checkboxSx = {
+    color: theme.palette.text.secondary,
+    '&.Mui-checked': {
+      color: theme.palette.primary.main,
+    },
+    '&.Mui-disabled': {
+      color: theme.palette.text.disabled,
+    },
+  };
+
   const initialValues = useMemo(
     (): UserFormValues => ({
       firstName: user?.firstName ?? '',
@@ -237,6 +251,7 @@ const UserForm: React.FC<UserFormProps> = ({ user, onClose }) => {
                 required
                 error={touched.firstName && !!errors.firstName}
                 helperText={touched.firstName && errors.firstName}
+                sx={fieldSx}
               />
               <Field
                 as={TextField}
@@ -245,6 +260,7 @@ const UserForm: React.FC<UserFormProps> = ({ user, onClose }) => {
                 fullWidth
                 error={touched.lastName && !!errors.lastName}
                 helperText={touched.lastName && errors.lastName}
+                sx={fieldSx}
               />
               <Field
                 as={TextField}
@@ -256,6 +272,7 @@ const UserForm: React.FC<UserFormProps> = ({ user, onClose }) => {
                 disabled={isEditing}
                 error={touched.email && !!errors.email}
                 helperText={touched.email && errors.email}
+                sx={fieldSx}
               />
 
               {isSuperAdmin && (
@@ -268,7 +285,8 @@ const UserForm: React.FC<UserFormProps> = ({ user, onClose }) => {
                     formIsSubmittingOverall ||
                     values.roleIds.includes(superAdminRole?.id ?? '')
                   }
-                  error={touched.tenantId && !!errors.tenantId}>
+                  error={touched.tenantId && !!errors.tenantId}
+                  sx={fieldSx}>
                   <InputLabel id="tenant-select-label">Tenant</InputLabel>
                   <Field
                     as={Select}
@@ -297,9 +315,14 @@ const UserForm: React.FC<UserFormProps> = ({ user, onClose }) => {
               <Box
                 sx={{
                   border: `1px solid ${theme.palette.divider}`,
+                  borderTopColor: theme.palette.primary.main,
                   borderRadius: 1,
                   p: 2,
                   mt: 1,
+                  backgroundColor: 'rgba(255, 140, 0, 0.04)',
+                  backgroundImage:
+                    'linear-gradient(180deg, rgba(255, 140, 0, 0.10), rgba(0, 0, 0, 0) 38%)',
+                  boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.08)',
                 }}>
                 <FormControl
                   component="fieldset"
@@ -315,7 +338,9 @@ const UserForm: React.FC<UserFormProps> = ({ user, onClose }) => {
                       position: 'relative',
                       transform: 'none',
                       mb: 1,
-                      fontWeight: 'medium',
+                      fontWeight: 700,
+                      color: theme.palette.primary.light,
+                      letterSpacing: 0.2,
                     }}>
                     Roles
                   </InputLabel>
@@ -340,6 +365,7 @@ const UserForm: React.FC<UserFormProps> = ({ user, onClose }) => {
                               <Checkbox
                                 checked={values.roleIds.includes(role.id)}
                                 disabled={isDisabled || rolesLoading || formIsSubmittingOverall}
+                                sx={checkboxSx}
                               />
                             }
                             label={role.name}
@@ -377,7 +403,19 @@ const UserForm: React.FC<UserFormProps> = ({ user, onClose }) => {
                 </FormControl>
               </Box>
               <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1, mt: 3 }}>
-                <Button onClick={onClose} disabled={formIsSubmittingOverall}>
+                <Button
+                  onClick={onClose}
+                  disabled={formIsSubmittingOverall}
+                  variant="outlined"
+                  sx={{
+                    borderColor: theme.palette.divider,
+                    color: theme.palette.text.secondary,
+                    '&:hover': {
+                      borderColor: theme.palette.primary.main,
+                      color: theme.palette.primary.light,
+                      backgroundColor: 'rgba(255, 140, 0, 0.08)',
+                    },
+                  }}>
                   Cancel
                 </Button>
                 <Button
