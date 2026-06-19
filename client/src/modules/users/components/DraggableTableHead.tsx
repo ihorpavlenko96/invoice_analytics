@@ -20,7 +20,6 @@ import {
 import { CSS } from '@dnd-kit/utilities';
 import { TableCell, TableHead, TableRow, TableSortLabel } from '@mui/material';
 import { useTheme } from '@mui/material';
-import { Theme } from '@mui/material/styles';
 
 interface Column {
   id: string;
@@ -35,16 +34,9 @@ interface DraggableTableCellProps {
   sortBy: string | null;
   sortOrder: 'asc' | 'desc';
   onSort?: (columnId: string) => void;
-  theme: Theme;
 }
 
-const DraggableTableCell: React.FC<DraggableTableCellProps> = ({
-  column,
-  sortBy,
-  sortOrder,
-  onSort,
-  theme,
-}) => {
+const DraggableTableCell: React.FC<DraggableTableCellProps> = ({ column, sortBy, sortOrder, onSort }) => {
   const {
     attributes,
     listeners,
@@ -76,18 +68,6 @@ const DraggableTableCell: React.FC<DraggableTableCellProps> = ({
           active={sortBy === column.id}
           direction={sortBy === column.id ? sortOrder : 'asc'}
           onClick={() => onSort?.(column.id)}
-          sx={{
-            color: sortBy === column.id ? theme.palette.primary.light : 'inherit',
-            '&:hover': {
-              color: theme.palette.primary.light,
-            },
-            '&.Mui-active': {
-              color: theme.palette.primary.light,
-            },
-            '& .MuiTableSortLabel-icon': {
-              color: `${theme.palette.primary.main} !important`,
-            },
-          }}
         >
           {column.label}
         </TableSortLabel>
@@ -152,18 +132,10 @@ const DraggableTableHead: React.FC<DraggableTableHeadProps> = ({
         <TableRow
           sx={{
             '& th': {
-              backgroundColor: '#171717',
-              backgroundImage:
-                'linear-gradient(180deg, rgba(255, 140, 0, 0.14), rgba(0, 0, 0, 0) 70%)',
-              color: theme.palette.text.primary,
-              fontWeight: 700,
-              borderBottom: `2px solid ${theme.palette.primary.main}`,
-              boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.08)',
-              transition: 'color 0.2s ease, background-color 0.2s ease',
-              '&:hover': {
-                color: theme.palette.primary.light,
-                backgroundColor: 'rgba(255, 140, 0, 0.12)',
-              },
+              backgroundColor: theme.palette.action.hover,
+              color: theme.palette.text.secondary,
+              fontWeight: 'bold',
+              borderBottom: `1px solid ${theme.palette.divider}`,
             },
           }}
         >
@@ -178,7 +150,6 @@ const DraggableTableHead: React.FC<DraggableTableHeadProps> = ({
                 sortBy={sortBy}
                 sortOrder={sortOrder}
                 onSort={onSort}
-                theme={theme}
               />
             ))}
           </SortableContext>
