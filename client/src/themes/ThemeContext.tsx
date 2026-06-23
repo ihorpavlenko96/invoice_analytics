@@ -3,8 +3,9 @@ import { ThemeProvider as MuiThemeProvider, Theme } from '@mui/material';
 import { darkTheme } from './darkTheme';
 import { pinkGreyTheme } from './pinkGreyTheme';
 import { charcoalCitrusTheme } from './charcoalCitrusTheme';
+import { sierraVanillaTheme } from './sierraVanillaTheme';
 
-type ThemeMode = 'dark' | 'pinkGrey' | 'charcoalCitrus';
+type ThemeMode = 'dark' | 'pinkGrey' | 'charcoalCitrus' | 'sierraVanilla';
 
 interface ThemeInfo {
   theme: Theme;
@@ -29,7 +30,7 @@ export const ThemeProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     // Load theme preference from localStorage
     try {
       const stored = localStorage.getItem(THEME_STORAGE_KEY);
-      if (stored === 'pinkGrey' || stored === 'charcoalCitrus') {
+      if (stored === 'pinkGrey' || stored === 'charcoalCitrus' || stored === 'sierraVanilla') {
         return stored as ThemeMode;
       }
       return 'dark';
@@ -51,6 +52,12 @@ export const ThemeProvider: React.FC<{ children: ReactNode }> = ({ children }) =
           displayName: '🍋 Charcoal Citrus',
           iconColor: '#FF8C00', // Orange icon
         };
+      case 'sierraVanilla':
+        return {
+          theme: sierraVanillaTheme,
+          displayName: 'Sierra Vanilla',
+          iconColor: '#BFDAF7',
+        };
       case 'dark':
       default:
         return {
@@ -70,6 +77,8 @@ export const ThemeProvider: React.FC<{ children: ReactNode }> = ({ children }) =
         newMode = 'pinkGrey';
       } else if (prev === 'pinkGrey') {
         newMode = 'charcoalCitrus';
+      } else if (prev === 'charcoalCitrus') {
+        newMode = 'sierraVanilla';
       } else {
         newMode = 'dark';
       }
