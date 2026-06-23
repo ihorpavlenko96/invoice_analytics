@@ -6,10 +6,10 @@ export const pinkGreyTheme = createTheme({
   palette: {
     mode: 'dark',
     primary: {
-      main: '#FFC0CB', // Light Pink
-      light: lighten('#FFC0CB', 0.1),
-      dark: darken('#FFC0CB', 0.15),
-      contrastText: '#000000',
+      main: '#000000', // Black
+      light: lighten('#000000', 0.1),
+      dark: darken('#000000', 0.15),
+      contrastText: '#FFFFFF',
     },
     secondary: {
       main: '#9CA3AF',
@@ -86,10 +86,10 @@ export const pinkGreyTheme = createTheme({
           },
         },
         contained: {
-          backgroundColor: '#FFC0CB',
-          color: '#000000',
+          backgroundColor: '#000000',
+          color: '#FFFFFF',
           '&:hover': {
-            backgroundColor: darken('#FFC0CB', 0.15),
+            backgroundColor: lighten('#000000', 0.15),
           },
         },
         outlined: {
