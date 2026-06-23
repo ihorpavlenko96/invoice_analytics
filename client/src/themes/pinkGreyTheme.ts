@@ -86,18 +86,18 @@ export const pinkGreyTheme = createTheme({
           },
         },
         contained: {
-          backgroundColor: '#FFC0CB',
+          backgroundColor: '#FF1493',
           color: '#000000',
           '&:hover': {
-            backgroundColor: darken('#FFC0CB', 0.15),
+            backgroundColor: darken('#FF1493', 0.15),
           },
         },
         outlined: {
-          borderColor: lighten('#FFC0CB', 0.1),
-          color: '#FFC0CB',
+          borderColor: lighten('#FF1493', 0.1),
+          color: '#FF1493',
           '&:hover': {
-            borderColor: '#FFC0CB',
-            backgroundColor: 'rgba(255, 192, 203, 0.08)',
+            borderColor: '#FF1493',
+            backgroundColor: 'rgba(255, 20, 147, 0.08)',
           },
         },
       },
