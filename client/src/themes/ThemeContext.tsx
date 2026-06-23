@@ -3,8 +3,9 @@ import { ThemeProvider as MuiThemeProvider, Theme } from '@mui/material';
 import { darkTheme } from './darkTheme';
 import { pinkGreyTheme } from './pinkGreyTheme';
 import { charcoalCitrusTheme } from './charcoalCitrusTheme';
+import { blackPurpleTheme } from './blackPurpleTheme';
 
-type ThemeMode = 'dark' | 'pinkGrey' | 'charcoalCitrus';
+type ThemeMode = 'dark' | 'pinkGrey' | 'charcoalCitrus' | 'blackPurple';
 
 interface ThemeInfo {
   theme: Theme;
@@ -29,7 +30,11 @@ export const ThemeProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     // Load theme preference from localStorage
     try {
       const stored = localStorage.getItem(THEME_STORAGE_KEY);
-      if (stored === 'pinkGrey' || stored === 'charcoalCitrus') {
+      if (
+        stored === 'pinkGrey' ||
+        stored === 'charcoalCitrus' ||
+        stored === 'blackPurple'
+      ) {
         return stored as ThemeMode;
       }
       return 'dark';
@@ -51,6 +56,12 @@ export const ThemeProvider: React.FC<{ children: ReactNode }> = ({ children }) =
           displayName: '🍋 Charcoal Citrus',
           iconColor: '#FF8C00', // Orange icon
         };
+      case 'blackPurple':
+        return {
+          theme: blackPurpleTheme,
+          displayName: '🟣 Black Purple',
+          iconColor: '#BB86FC', // Purple icon
+        };
       case 'dark':
       default:
         return {
@@ -70,6 +81,8 @@ export const ThemeProvider: React.FC<{ children: ReactNode }> = ({ children }) =
         newMode = 'pinkGrey';
       } else if (prev === 'pinkGrey') {
         newMode = 'charcoalCitrus';
+      } else if (prev === 'charcoalCitrus') {
+        newMode = 'blackPurple';
       } else {
         newMode = 'dark';
       }
