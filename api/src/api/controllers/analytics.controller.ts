@@ -26,6 +26,7 @@ import { SummaryAnalyticsDto } from '../../application/analytics/dto/summary-ana
 import { StatusDistributionDto } from '../../application/analytics/dto/status-distribution.dto';
 import { MonthlyTrendsDto } from '../../application/analytics/dto/monthly-trends.dto';
 import { TopVendorsDto, TopCustomersDto } from '../../application/analytics/dto/top-entities.dto';
+import { OverdueMonthlyDto } from '../../application/analytics/dto/overdue-monthly.dto';
 
 @ApiTags('Analytics')
 @ApiBearerAuth()
@@ -136,5 +137,25 @@ export class AnalyticsController {
     ): Promise<TopCustomersDto> {
         const tenantId = request.tenantId!;
         return this.analyticsService.getTopCustomers(tenantId, filters);
+    }
+
+    @Get('overdue-monthly')
+    @Authorize(RoleName.ADMIN, RoleName.SUPER_ADMIN)
+    @ApiOperation({
+        summary: 'Get monthly overdue statistics',
+        description: 'Returns count of invoices that became overdue each month for the last 12 months',
+    })
+    @ApiResponse({
+        status: HttpStatus.OK,
+        description: 'Monthly overdue statistics retrieved successfully',
+        type: OverdueMonthlyDto,
+    })
+    @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+    @ApiForbiddenResponse({ description: 'Forbidden - requires ADMIN or SUPER_ADMIN role' })
+    async getOverdueMonthlyStatistics(
+        @Req() request: RequestWithTenant,
+    ): Promise<OverdueMonthlyDto> {
+        const tenantId = request.tenantId!;
+        return this.analyticsService.getOverdueMonthlyStatistics(tenantId);
     }
 }
