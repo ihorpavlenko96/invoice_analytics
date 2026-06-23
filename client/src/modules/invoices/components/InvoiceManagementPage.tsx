@@ -351,8 +351,13 @@ const InvoiceManagementPage: React.FC = () => {
         }}>
         <CardHeader
           title={
+            <Typography variant="h5" component="h1" sx={{ fontWeight: 'bold' }}>
+              {selectedInvoiceIds.length === 0 ? 'Invoice Management' : `${selectedInvoiceIds.length} selected`}
+            </Typography>
+          }
+          subheader={
             selectedInvoiceIds.length === 0 ? (
-              <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
+              <Box sx={{ display: 'flex', gap: 2, alignItems: 'center', mt: 2 }}>
                 <Box sx={{ maxWidth: 400 }}>
                   <UnifiedSearchBar onSearch={handleSearch} onAiSearch={handleAiSearch} />
                 </Box>
@@ -485,11 +490,7 @@ const InvoiceManagementPage: React.FC = () => {
                   sx={{ ml: 1 }}
                 />
               </Box>
-            ) : (
-              <Typography variant="h5" component="h1" sx={{ fontWeight: 'bold' }}>
-                {`${selectedInvoiceIds.length} selected`}
-              </Typography>
-            )
+            ) : null
           }
           action={
             <Box sx={{ display: 'flex', flexDirection: 'row', gap: 2 }}>
