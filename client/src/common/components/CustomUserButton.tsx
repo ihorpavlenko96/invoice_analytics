@@ -15,7 +15,9 @@ import {
 } from '@mui/material';
 import SettingsIcon from '@mui/icons-material/Settings';
 import LogoutIcon from '@mui/icons-material/Logout';
+import LockIcon from '@mui/icons-material/Lock';
 import { useClerk, useUser } from '@clerk/clerk-react';
+import ChangePasswordDialog from './ChangePasswordDialog';
 
 type CustomUserButtonProps = {
   afterSignOutUrl: string;
@@ -23,6 +25,7 @@ type CustomUserButtonProps = {
 
 const CustomUserButton: React.FC<CustomUserButtonProps> = ({ afterSignOutUrl }) => {
   const [anchorEl, setAnchorEl] = useState<HTMLDivElement | null>(null);
+  const [changePasswordOpen, setChangePasswordOpen] = useState(false);
   const buttonRef = useRef<HTMLDivElement>(null);
   const { signOut } = useClerk();
   const { user } = useUser();
@@ -45,6 +48,15 @@ const CustomUserButton: React.FC<CustomUserButtonProps> = ({ afterSignOutUrl }) 
 
   const handleManageAccount = (): void => {
     handleClose();
+  };
+
+  const handleChangePasswordOpen = (): void => {
+    handleClose();
+    setChangePasswordOpen(true);
+  };
+
+  const handleChangePasswordClose = (): void => {
+    setChangePasswordOpen(false);
   };
 
   const open = Boolean(anchorEl);
@@ -159,6 +171,22 @@ const CustomUserButton: React.FC<CustomUserButtonProps> = ({ afterSignOutUrl }) 
 
           <ListItem disablePadding>
             <ListItemButton
+              onClick={handleChangePasswordOpen}
+              sx={{
+                px: 2,
+                '&:hover': {
+                  backgroundColor: theme.palette.action.hover,
+                },
+              }}>
+              <ListItemIcon sx={{ minWidth: 36, color: theme.palette.primary.main }}>
+                <LockIcon fontSize="small" />
+              </ListItemIcon>
+              <ListItemText primary="Change password" />
+            </ListItemButton>
+          </ListItem>
+
+          <ListItem disablePadding>
+            <ListItemButton
               onClick={handleSignOut}
               sx={{
                 px: 2,
@@ -174,6 +202,8 @@ const CustomUserButton: React.FC<CustomUserButtonProps> = ({ afterSignOutUrl }) 
           </ListItem>
         </List>
       </Popover>
+
+      <ChangePasswordDialog open={changePasswordOpen} onClose={handleChangePasswordClose} />
     </>
   );
 };
