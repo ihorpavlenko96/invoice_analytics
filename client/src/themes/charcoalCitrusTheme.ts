@@ -86,18 +86,18 @@ export const charcoalCitrusTheme = createTheme({
           },
         },
         contained: {
-          backgroundColor: '#F4F4A1',
+          backgroundColor: '#FFC0CB',
           color: '#000000',
           '&:hover': {
-            backgroundColor: darken('#F4F4A1', 0.15),
+            backgroundColor: darken('#FFC0CB', 0.15),
           },
         },
         outlined: {
-          borderColor: lighten('#F4F4A1', 0.1),
-          color: '#F4F4A1',
+          borderColor: lighten('#FFC0CB', 0.1),
+          color: '#FFC0CB',
           '&:hover': {
-            borderColor: '#F4F4A1',
-            backgroundColor: 'rgba(244, 244, 161, 0.08)',
+            borderColor: '#FFC0CB',
+            backgroundColor: 'rgba(255, 192, 203, 0.08)',
           },
         },
       },
