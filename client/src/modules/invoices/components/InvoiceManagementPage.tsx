@@ -350,77 +350,91 @@ const InvoiceManagementPage: React.FC = () => {
           overflow: 'hidden',
         }}>
         <CardHeader
+          sx={{
+            '& .MuiCardHeader-content': {
+              minWidth: 0,
+              flex: '1 1 auto',
+            },
+            '& .MuiCardHeader-action': {
+              alignSelf: 'center',
+              flexShrink: 0,
+            },
+          }}
           title={
             selectedInvoiceIds.length === 0 ? (
-              <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
-                <Box sx={{ maxWidth: 400 }}>
-                  <UnifiedSearchBar onSearch={handleSearch} onAiSearch={handleAiSearch} />
-                </Box>
-                <LocalizationProvider dateAdapter={AdapterDayjs}>
-                  <DatePicker
-                    label="Date Filter (±7 days)"
-                    value={dateFilter}
-                    onChange={(newValue) => setDateFilter(newValue)}
-                    slotProps={{
-                      textField: {
-                        size: 'small',
-                        placeholder: 'Select date for ±7 days range...',
-                      },
-                      day: {
-                        sx: {
-                          '&.Mui-selected': {
-                            backgroundColor: `${theme.palette.primary.main} !important`,
+              <Box sx={{ display: 'flex', gap: 2, alignItems: 'center', flexWrap: 'wrap' }}>
+                <Box sx={{ display: 'flex', gap: 2, alignItems: 'center', flexWrap: 'nowrap' }}>
+                  <Box sx={{ width: 400, flexShrink: 0 }}>
+                    <UnifiedSearchBar onSearch={handleSearch} onAiSearch={handleAiSearch} />
+                  </Box>
+                  <LocalizationProvider dateAdapter={AdapterDayjs}>
+                    <DatePicker
+                      label="Date Filter (±7 days)"
+                      value={dateFilter}
+                      onChange={(newValue) => setDateFilter(newValue)}
+                      slotProps={{
+                        textField: {
+                          size: 'small',
+                          placeholder: 'Select date for ±7 days range...',
+                        },
+                        day: {
+                          sx: {
+                            '&.Mui-selected': {
+                              backgroundColor: `${theme.palette.primary.main} !important`,
+                              '&:hover': {
+                                backgroundColor: `${theme.palette.primary.dark} !important`,
+                              },
+                            },
                             '&:hover': {
-                              backgroundColor: `${theme.palette.primary.dark} !important`,
+                              backgroundColor: theme.palette.primary.light,
                             },
                           },
-                          '&:hover': {
-                            backgroundColor: theme.palette.primary.light,
+                        },
+                        calendarHeader: {
+                          sx: {
+                            '& .MuiPickersCalendarHeader-switchViewButton': {
+                              color: theme.palette.primary.main,
+                            },
+                            '& .MuiPickersArrowSwitcher-button': {
+                              color: theme.palette.primary.main,
+                            },
                           },
                         },
-                      },
-                      calendarHeader: {
-                        sx: {
-                          '& .MuiPickersCalendarHeader-switchViewButton': {
-                            color: theme.palette.primary.main,
+                      }}
+                      sx={{
+                        width: 240,
+                        flexShrink: 0,
+                        '& .MuiOutlinedInput-root': {
+                          '&.Mui-focused fieldset': {
+                            borderColor: theme.palette.primary.main,
                           },
-                          '& .MuiPickersArrowSwitcher-button': {
-                            color: theme.palette.primary.main,
+                          '&:hover fieldset': {
+                            borderColor: theme.palette.primary.light,
                           },
                         },
-                      },
-                    }}
-                    sx={{
-                      '& .MuiOutlinedInput-root': {
-                        '&.Mui-focused fieldset': {
-                          borderColor: theme.palette.primary.main,
+                        '& .MuiInputLabel-root.Mui-focused': {
+                          color: theme.palette.primary.main,
                         },
-                        '&:hover fieldset': {
-                          borderColor: theme.palette.primary.light,
+                        '& .MuiIconButton-root': {
+                          color: theme.palette.primary.main,
                         },
-                      },
-                      '& .MuiInputLabel-root.Mui-focused': {
-                        color: theme.palette.primary.main,
-                      },
-                      '& .MuiIconButton-root': {
-                        color: theme.palette.primary.main,
-                      },
-                      '& .MuiPickersDay-root.Mui-selected': {
-                        backgroundColor: theme.palette.primary.main,
-                      },
-                    }}
-                  />
-                </LocalizationProvider>
-                {dateFilter && (
-                  <IconButton
-                    aria-label="Clear date filter"
-                    onClick={() => setDateFilter(null)}
-                    size="small"
-                    sx={{ color: theme.palette.primary.main }}
-                  >
-                    <ClearIcon />
-                  </IconButton>
-                )}
+                        '& .MuiPickersDay-root.Mui-selected': {
+                          backgroundColor: theme.palette.primary.main,
+                        },
+                      }}
+                    />
+                  </LocalizationProvider>
+                  {dateFilter && (
+                    <IconButton
+                      aria-label="Clear date filter"
+                      onClick={() => setDateFilter(null)}
+                      size="small"
+                      sx={{ color: theme.palette.primary.main, flexShrink: 0 }}
+                    >
+                      <ClearIcon />
+                    </IconButton>
+                  )}
+                </Box>
                 <FormControl size="small" sx={{ minWidth: 150 }}>
                   <InputLabel
                     id="status-filter-label"
