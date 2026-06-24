@@ -6,11 +6,8 @@ import {
   CardContent,
   CardHeader,
   CircularProgress,
-  TextField,
-  InputAdornment,
   Typography,
   useTheme,
-  Grid,
   IconButton,
   Select,
   MenuItem,
@@ -351,145 +348,9 @@ const InvoiceManagementPage: React.FC = () => {
         }}>
         <CardHeader
           title={
-            selectedInvoiceIds.length === 0 ? (
-              <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
-                <Box sx={{ maxWidth: 400 }}>
-                  <UnifiedSearchBar onSearch={handleSearch} onAiSearch={handleAiSearch} />
-                </Box>
-                <LocalizationProvider dateAdapter={AdapterDayjs}>
-                  <DatePicker
-                    label="Date Filter (±7 days)"
-                    value={dateFilter}
-                    onChange={(newValue) => setDateFilter(newValue)}
-                    slotProps={{
-                      textField: {
-                        size: 'small',
-                        placeholder: 'Select date for ±7 days range...',
-                      },
-                      day: {
-                        sx: {
-                          '&.Mui-selected': {
-                            backgroundColor: `${theme.palette.primary.main} !important`,
-                            '&:hover': {
-                              backgroundColor: `${theme.palette.primary.dark} !important`,
-                            },
-                          },
-                          '&:hover': {
-                            backgroundColor: theme.palette.primary.light,
-                          },
-                        },
-                      },
-                      calendarHeader: {
-                        sx: {
-                          '& .MuiPickersCalendarHeader-switchViewButton': {
-                            color: theme.palette.primary.main,
-                          },
-                          '& .MuiPickersArrowSwitcher-button': {
-                            color: theme.palette.primary.main,
-                          },
-                        },
-                      },
-                    }}
-                    sx={{
-                      '& .MuiOutlinedInput-root': {
-                        '&.Mui-focused fieldset': {
-                          borderColor: theme.palette.primary.main,
-                        },
-                        '&:hover fieldset': {
-                          borderColor: theme.palette.primary.light,
-                        },
-                      },
-                      '& .MuiInputLabel-root.Mui-focused': {
-                        color: theme.palette.primary.main,
-                      },
-                      '& .MuiIconButton-root': {
-                        color: theme.palette.primary.main,
-                      },
-                      '& .MuiPickersDay-root.Mui-selected': {
-                        backgroundColor: theme.palette.primary.main,
-                      },
-                    }}
-                  />
-                </LocalizationProvider>
-                {dateFilter && (
-                  <IconButton
-                    aria-label="Clear date filter"
-                    onClick={() => setDateFilter(null)}
-                    size="small"
-                    sx={{ color: theme.palette.primary.main }}
-                  >
-                    <ClearIcon />
-                  </IconButton>
-                )}
-                <FormControl size="small" sx={{ minWidth: 150 }}>
-                  <InputLabel
-                    id="status-filter-label"
-                    sx={{
-                      '&.Mui-focused': {
-                        color: theme.palette.primary.main,
-                      },
-                    }}
-                  >
-                    Status
-                  </InputLabel>
-                  <Select
-                    labelId="status-filter-label"
-                    id="status-filter"
-                    value={statusFilter}
-                    label="Status"
-                    onChange={(e) => setStatusFilter(e.target.value)}
-                    sx={{
-                      '& .MuiOutlinedInput-notchedOutline': {
-                        borderColor: theme.palette.divider,
-                      },
-                      '&:hover .MuiOutlinedInput-notchedOutline': {
-                        borderColor: theme.palette.primary.light,
-                      },
-                      '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                        borderColor: theme.palette.primary.main,
-                      },
-                    }}
-                  >
-                    <MenuItem value="">All Statuses</MenuItem>
-                    <MenuItem value="PAID">Paid</MenuItem>
-                    <MenuItem value="UNPAID">Unpaid</MenuItem>
-                    <MenuItem value="OVERDUE">Overdue</MenuItem>
-                  </Select>
-                </FormControl>
-                {statusFilter && (
-                  <IconButton
-                    aria-label="Clear status filter"
-                    onClick={() => setStatusFilter('')}
-                    size="small"
-                    sx={{ color: theme.palette.primary.main }}
-                  >
-                    <ClearIcon />
-                  </IconButton>
-                )}
-                <FormControlLabel
-                  control={
-                    <Switch
-                      checked={includeArchived}
-                      onChange={(e) => setIncludeArchived(e.target.checked)}
-                      sx={{
-                        '& .MuiSwitch-switchBase.Mui-checked': {
-                          color: theme.palette.primary.main,
-                        },
-                        '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
-                          backgroundColor: theme.palette.primary.main,
-                        },
-                      }}
-                    />
-                  }
-                  label="Show Archived"
-                  sx={{ ml: 1 }}
-                />
-              </Box>
-            ) : (
-              <Typography variant="h5" component="h1" sx={{ fontWeight: 'bold' }}>
-                {`${selectedInvoiceIds.length} selected`}
-              </Typography>
-            )
+            <Typography variant="h5" component="h1" sx={{ fontWeight: 'bold' }}>
+              {selectedInvoiceIds.length === 0 ? 'Invoice Management' : `${selectedInvoiceIds.length} selected`}
+            </Typography>
           }
           action={
             <Box sx={{ display: 'flex', flexDirection: 'row', gap: 2 }}>
@@ -546,6 +407,146 @@ const InvoiceManagementPage: React.FC = () => {
             </Box>
           }
         />
+        {selectedInvoiceIds.length === 0 && (
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: { xs: 'column', md: 'row' },
+              gap: 2,
+              alignItems: { xs: 'stretch', md: 'center' },
+              px: 3,
+              pb: 2,
+              borderBottom: `1px solid ${theme.palette.divider}`,
+            }}
+          >
+            <Box sx={{ flexGrow: 1, maxWidth: { md: 400 } }}>
+              <UnifiedSearchBar onSearch={handleSearch} onAiSearch={handleAiSearch} />
+            </Box>
+            <Box sx={{ display: 'flex', gap: 2, alignItems: 'center', flexWrap: 'wrap' }}>
+              <LocalizationProvider dateAdapter={AdapterDayjs}>
+                <DatePicker
+                  label="Date Filter (±7 days)"
+                  value={dateFilter}
+                  onChange={(newValue) => setDateFilter(newValue)}
+                  slotProps={{
+                    textField: {
+                      size: 'small',
+                      placeholder: 'Select date for ±7 days range...',
+                    },
+                    day: {
+                      sx: {
+                        '&.Mui-selected': {
+                          backgroundColor: `${theme.palette.primary.main} !important`,
+                          '&:hover': {
+                            backgroundColor: `${theme.palette.primary.dark} !important`,
+                          },
+                        },
+                        '&:hover': {
+                          backgroundColor: theme.palette.primary.light,
+                        },
+                      },
+                    },
+                    calendarHeader: {
+                      sx: {
+                        '& .MuiPickersCalendarHeader-switchViewButton': {
+                          color: theme.palette.primary.main,
+                        },
+                        '& .MuiPickersArrowSwitcher-button': {
+                          color: theme.palette.primary.main,
+                        },
+                      },
+                    },
+                  }}
+                  sx={{
+                    '& .MuiOutlinedInput-root': {
+                      '&.Mui-focused fieldset': {
+                        borderColor: theme.palette.primary.main,
+                      },
+                      '&:hover fieldset': {
+                        borderColor: theme.palette.primary.light,
+                      },
+                    },
+                    '& .MuiInputLabel-root.Mui-focused': {
+                      color: theme.palette.primary.main,
+                    },
+                    '& .MuiIconButton-root': {
+                      color: theme.palette.primary.main,
+                    },
+                    '& .MuiPickersDay-root.Mui-selected': {
+                      backgroundColor: theme.palette.primary.main,
+                    },
+                  }}
+                />
+              </LocalizationProvider>
+              {dateFilter && (
+                <IconButton
+                  aria-label="Clear date filter"
+                  onClick={() => setDateFilter(null)}
+                  size="small"
+                  color="primary"
+                >
+                  <ClearIcon />
+                </IconButton>
+              )}
+              <FormControl size="small" sx={{ minWidth: 150 }}>
+                <InputLabel
+                  id="status-filter-label"
+                  sx={{
+                    '&.Mui-focused': {
+                      color: theme.palette.primary.main,
+                    },
+                  }}
+                >
+                  Status
+                </InputLabel>
+                <Select
+                  labelId="status-filter-label"
+                  id="status-filter"
+                  value={statusFilter}
+                  label="Status"
+                  onChange={(e) => setStatusFilter(e.target.value)}
+                  sx={{
+                    '& .MuiOutlinedInput-notchedOutline': {
+                      borderColor: theme.palette.divider,
+                    },
+                    '&:hover .MuiOutlinedInput-notchedOutline': {
+                      borderColor: theme.palette.primary.light,
+                    },
+                    '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                      borderColor: theme.palette.primary.main,
+                    },
+                  }}
+                >
+                  <MenuItem value="">All Statuses</MenuItem>
+                  <MenuItem value="PAID">Paid</MenuItem>
+                  <MenuItem value="UNPAID">Unpaid</MenuItem>
+                  <MenuItem value="OVERDUE">Overdue</MenuItem>
+                </Select>
+              </FormControl>
+              {statusFilter && (
+                <IconButton
+                  aria-label="Clear status filter"
+                  onClick={() => setStatusFilter('')}
+                  size="small"
+                  color="primary"
+                >
+                  <ClearIcon />
+                </IconButton>
+              )}
+              <FormControlLabel
+                control={
+                  <Switch
+                    checked={includeArchived}
+                    onChange={(e) => setIncludeArchived(e.target.checked)}
+                    color="primary"
+                  />
+                }
+                label="Show Archived"
+                sx={{ ml: 1 }}
+              />
+            </Box>
+          </Box>
+        )}
         <CardContent sx={{ p: 0, '&:last-child': { pb: 0 } }}>
           {isInvoicesLoading && (
             <Box sx={{ display: 'flex', justifyContent: 'center', my: 5 }}>
