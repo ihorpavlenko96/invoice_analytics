@@ -15,6 +15,7 @@ import {
 } from '@mui/material';
 import SettingsIcon from '@mui/icons-material/Settings';
 import LogoutIcon from '@mui/icons-material/Logout';
+import LockResetIcon from '@mui/icons-material/LockReset';
 import { useClerk, useUser } from '@clerk/clerk-react';
 
 type CustomUserButtonProps = {
@@ -24,7 +25,7 @@ type CustomUserButtonProps = {
 const CustomUserButton: React.FC<CustomUserButtonProps> = ({ afterSignOutUrl }) => {
   const [anchorEl, setAnchorEl] = useState<HTMLDivElement | null>(null);
   const buttonRef = useRef<HTMLDivElement>(null);
-  const { signOut } = useClerk();
+  const { signOut, openUserProfile } = useClerk();
   const { user } = useUser();
   const theme = useTheme();
 
@@ -43,8 +44,17 @@ const CustomUserButton: React.FC<CustomUserButtonProps> = ({ afterSignOutUrl }) 
     handleClose();
   };
 
-  const handleManageAccount = (): void => {
+  const openProfileSection = (options?: { path?: string }): void => {
+    openUserProfile(options);
     handleClose();
+  };
+
+  const handleManageAccount = (): void => {
+    openProfileSection();
+  };
+
+  const handleResetPassword = (): void => {
+    openProfileSection({ path: 'security' });
   };
 
   const open = Boolean(anchorEl);
@@ -156,6 +166,24 @@ const CustomUserButton: React.FC<CustomUserButtonProps> = ({ afterSignOutUrl }) 
               <ListItemText primary="Manage account" />
             </ListItemButton>
           </ListItem>
+
+          {user?.passwordEnabled && (
+            <ListItem disablePadding>
+              <ListItemButton
+                onClick={handleResetPassword}
+                sx={{
+                  px: 2,
+                  '&:hover': {
+                    backgroundColor: theme.palette.action.hover,
+                  },
+                }}>
+                <ListItemIcon sx={{ minWidth: 36, color: theme.palette.primary.main }}>
+                  <LockResetIcon fontSize="small" />
+                </ListItemIcon>
+                <ListItemText primary="Reset password" />
+              </ListItemButton>
+            </ListItem>
+          )}
 
           <ListItem disablePadding>
             <ListItemButton
