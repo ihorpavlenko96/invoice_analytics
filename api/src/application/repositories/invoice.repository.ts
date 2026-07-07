@@ -41,17 +41,6 @@ export class InvoiceRepository {
         });
     }
 
-    async findAllForExport(tenantId: string): Promise<Invoice[]> {
-        // Export every invoice for the tenant, ignoring pagination and all filters
-        // (status, archived, etc.). Tenant scoping is preserved.
-        return this.invoiceRepository.find({
-            where: { tenantId },
-            order: {
-                issueDate: 'DESC',
-            },
-        });
-    }
-
     async findById(id: string, tenantId: string): Promise<Invoice | null> {
         return this.invoiceRepository.findOne({
             where: { id, tenantId },
