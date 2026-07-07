@@ -27,6 +27,8 @@ import useUserRoles from '../hooks/useUserRoles';
 import { ROLES } from '../constants/roles';
 import InvoiceFileUpload from '../../modules/invoices/components/InvoiceFileUpload';
 import { useThemeMode } from '../../themes/ThemeContext';
+import FeedbackDialog from '../../modules/feedback/components/FeedbackDialog';
+import { useFeedbackDialogStore } from '../../modules/feedback/stores/feedbackDialogStore';
 
 const drawerWidth = 240;
 
@@ -43,6 +45,7 @@ const MainLayout: React.FC = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const userRoles = useUserRoles();
   const { toggleTheme, currentThemeInfo } = useThemeMode();
+  const openFeedbackDialog = useFeedbackDialogStore((state) => state.openDialog);
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
@@ -65,37 +68,63 @@ const MainLayout: React.FC = () => {
   });
 
   const drawer = (
-    <Box onClick={handleDrawerToggle} sx={{ textAlign: 'center' }}>
-      <img src="/icon.svg" alt="App Logo" style={{ height: 32, margin: '16px 0' }} />
-      <List>
-        {filteredNavItems.map((item) => (
-          <ListItem key={item.path} disablePadding>
-            <ListItemButton
-              component={RouterNavLink}
-              to={item.path}
-              sx={(theme) => ({
-                textAlign: 'left',
-                border: '2px solid transparent',
-                transition: 'all 0.2s ease',
-                '&:hover': {
-                  borderColor: '#90CAF9',
-                },
-                '&.active': {
-                  fontWeight: 'bold',
-                  color: theme.palette.primary.main,
-                  backgroundColor: theme.palette.action.selected,
-                },
-              })}>
-              {item.icon && (
-                <ListItemIcon sx={{ minWidth: 'auto', marginRight: 1, color: 'inherit' }}>
-                  {item.icon}
-                </ListItemIcon>
-              )}
-              <ListItemText primary={item.label} />
-            </ListItemButton>
-          </ListItem>
-        ))}
-      </List>
+    <Box sx={{ textAlign: 'center' }}>
+      <Box onClick={handleDrawerToggle}>
+        <img src="/icon.svg" alt="App Logo" style={{ height: 32, margin: '16px 0' }} />
+        <List>
+          {filteredNavItems.map((item) => (
+            <ListItem key={item.path} disablePadding>
+              <ListItemButton
+                component={RouterNavLink}
+                to={item.path}
+                sx={(theme) => ({
+                  textAlign: 'left',
+                  border: '2px solid transparent',
+                  transition: 'all 0.2s ease',
+                  '&:hover': {
+                    borderColor: '#90CAF9',
+                  },
+                  '&.active': {
+                    fontWeight: 'bold',
+                    color: theme.palette.primary.main,
+                    backgroundColor: theme.palette.action.selected,
+                  },
+                })}>
+                {item.icon && (
+                  <ListItemIcon sx={{ minWidth: 'auto', marginRight: 1, color: 'inherit' }}>
+                    {item.icon}
+                  </ListItemIcon>
+                )}
+                <ListItemText primary={item.label} />
+              </ListItemButton>
+            </ListItem>
+          ))}
+        </List>
+      </Box>
+      {/* Feedback button in mobile drawer */}
+      <Box sx={{ px: 2, pb: 2 }}>
+        <Button
+          variant="outlined"
+          fullWidth
+          onClick={() => {
+            handleDrawerToggle();
+            openFeedbackDialog();
+          }}
+          sx={{
+            textTransform: 'none',
+            borderRadius: '8px',
+            borderColor: '#E5E5E5',
+            color: 'text.primary',
+            fontWeight: 400,
+            fontSize: 14,
+            '&:hover': {
+              borderColor: '#171717',
+              backgroundColor: 'transparent',
+            },
+          }}>
+          Feedback
+        </Button>
+      </Box>
     </Box>
   );
 
@@ -168,6 +197,30 @@ const MainLayout: React.FC = () => {
               ))}
             </Box>
 
+            {/* Feedback button – visible on desktop, outlined style per Figma */}
+            <Box sx={{ display: { xs: 'none', md: 'flex' }, ml: 1 }}>
+              <Button
+                variant="outlined"
+                size="small"
+                onClick={openFeedbackDialog}
+                sx={{
+                  textTransform: 'none',
+                  borderRadius: '8px',
+                  borderColor: '#E5E5E5',
+                  color: 'text.primary',
+                  fontWeight: 400,
+                  fontSize: 14,
+                  height: 36,
+                  px: 2,
+                  '&:hover': {
+                    borderColor: '#171717',
+                    backgroundColor: 'transparent',
+                  },
+                }}>
+                Feedback
+              </Button>
+            </Box>
+
             <Box sx={{ ml: { xs: 1, md: 2 }, display: 'flex', alignItems: 'center', gap: 1 }}>
               <Tooltip title={`Current theme: ${currentThemeInfo.displayName}`}>
                 <IconButton onClick={toggleTheme} color="inherit" size="small">
@@ -232,6 +285,9 @@ const MainLayout: React.FC = () => {
           </Typography>
         </Container>
       </Box>
+
+      {/* Feedback dialog – rendered at layout level so it's available from any page */}
+      <FeedbackDialog />
     </Box>
   );
 };
