@@ -353,7 +353,7 @@ const InvoiceManagementPage: React.FC = () => {
           title={
             selectedInvoiceIds.length === 0 ? (
               <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
-                <Box sx={{ maxWidth: 400 }}>
+                <Box sx={{ maxWidth: 240 }}>
                   <UnifiedSearchBar onSearch={handleSearch} onAiSearch={handleAiSearch} />
                 </Box>
                 <LocalizationProvider dateAdapter={AdapterDayjs}>
@@ -391,6 +391,7 @@ const InvoiceManagementPage: React.FC = () => {
                       },
                     }}
                     sx={{
+                      width: 170,
                       '& .MuiOutlinedInput-root': {
                         '&.Mui-focused fieldset': {
                           borderColor: theme.palette.primary.main,
@@ -421,7 +422,7 @@ const InvoiceManagementPage: React.FC = () => {
                     <ClearIcon />
                   </IconButton>
                 )}
-                <FormControl size="small" sx={{ minWidth: 150 }}>
+                <FormControl size="small" sx={{ minWidth: 120 }}>
                   <InputLabel
                     id="status-filter-label"
                     sx={{
@@ -482,7 +483,7 @@ const InvoiceManagementPage: React.FC = () => {
                     />
                   }
                   label="Show Archived"
-                  sx={{ ml: 1 }}
+                  sx={{ ml: 1, whiteSpace: 'nowrap' }}
                 />
               </Box>
             ) : (
