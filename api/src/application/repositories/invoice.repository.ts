@@ -41,6 +41,18 @@ export class InvoiceRepository {
         });
     }
 
+    async findAllForExport(tenantId: string): Promise<Invoice[]> {
+        // Export must include ALL invoices for the tenant regardless of
+        // pagination and filtering, so no skip/take or status/archived predicate
+        // is applied. Only the tenant scope is preserved to prevent cross-tenant leaks.
+        return this.invoiceRepository.find({
+            where: { tenantId },
+            order: {
+                issueDate: 'DESC',
+            },
+        });
+    }
+
     async findById(id: string, tenantId: string): Promise<Invoice | null> {
         return this.invoiceRepository.findOne({
             where: { id, tenantId },
