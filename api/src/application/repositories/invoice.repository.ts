@@ -41,17 +41,6 @@ export class InvoiceRepository {
         });
     }
 
-    async findAllForExport(tenantId: string): Promise<Invoice[]> {
-        // Export the full, unpaginated set for the tenant.
-        // Excludes archived invoices to match the app-wide aggregate/summary conventions.
-        return this.invoiceRepository.find({
-            where: { tenantId, isArchived: false },
-            order: {
-                issueDate: 'DESC',
-            },
-        });
-    }
-
     async findById(id: string, tenantId: string): Promise<Invoice | null> {
         return this.invoiceRepository.findOne({
             where: { id, tenantId },
