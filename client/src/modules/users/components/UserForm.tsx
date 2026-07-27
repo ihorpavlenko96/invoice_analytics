@@ -10,13 +10,9 @@ import {
   InputLabel,
   Select,
   MenuItem,
-  FormControlLabel,
-  Checkbox,
   CircularProgress,
   SelectChangeEvent,
-  FormGroup,
   FormHelperText,
-  useTheme,
 } from '@mui/material';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { User, Role } from '../types/user.ts';
@@ -32,6 +28,7 @@ import {
 
 import { getTenants } from '../../tenants/tenantQueries.ts';
 import { getRoles } from '../../roles/roleQueries.ts';
+import RoleSelector from '../../roles/components/RoleSelector';
 import useUserRoles from '../../../common/hooks/useUserRoles';
 import { ROLES } from '../../../common/constants/roles';
 import { CACHE_TIMES } from '../../../common/constants/cacheTimes.ts';
@@ -75,7 +72,6 @@ const generateUserSchema = (allRoles: Role[]) =>
   });
 
 const UserForm: React.FC<UserFormProps> = ({ user, onClose }) => {
-  const theme = useTheme();
   const queryClient = useQueryClient();
   const { enqueueSnackbar } = useSnackbar();
   const { setIsSubmitting } = useUserManagementStore();
@@ -209,12 +205,6 @@ const UserForm: React.FC<UserFormProps> = ({ user, onClose }) => {
     }
   };
 
-  const availableRoles: Role[] = allRoles.filter((role: Role) => {
-    if (isSuperAdmin) return true;
-
-    return role.name !== ROLES.SUPER_ADMIN;
-  });
-
   return (
     <Formik
       initialValues={initialValues}
@@ -223,9 +213,6 @@ const UserForm: React.FC<UserFormProps> = ({ user, onClose }) => {
       onSubmit={handleSubmit}
       enableReinitialize>
       {({ errors, touched, values, setFieldValue, dirty }) => {
-        const isSuperAdminSelected = values.roleIds.includes(superAdminRole?.id ?? '');
-        const isOtherRoleSelected = values.roleIds.some((id) => id !== superAdminRole?.id);
-
         return (
           <Form noValidate>
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 1 }}>
@@ -294,88 +281,21 @@ const UserForm: React.FC<UserFormProps> = ({ user, onClose }) => {
                 </FormControl>
               )}
 
-              <Box
-                sx={{
-                  border: `1px solid ${theme.palette.divider}`,
-                  borderRadius: 1,
-                  p: 2,
-                  mt: 1,
-                }}>
-                <FormControl
-                  component="fieldset"
-                  variant="standard"
-                  required
-                  error={touched.roleIds && !!errors.roleIds}
-                  disabled={rolesLoading || formIsSubmittingOverall}
-                  sx={{ width: '100%' }}>
-                  <InputLabel
-                    shrink
-                    htmlFor="roles-group-label"
-                    sx={{
-                      position: 'relative',
-                      transform: 'none',
-                      mb: 1,
-                      fontWeight: 'medium',
-                    }}>
-                    Roles
-                  </InputLabel>
-                  <FormGroup id="roles-group-label" sx={{ pl: 1 }}>
-                    {rolesLoading ? (
-                      <CircularProgress size={20} />
-                    ) : (
-                      availableRoles.map((role) => {
-                        const isThisSuperAdmin = role.id === superAdminRole?.id;
-
-                        const isDisabled =
-                          (isThisSuperAdmin && isOtherRoleSelected) ||
-                          (!isThisSuperAdmin && isSuperAdminSelected);
-
-                        return (
-                          <Field
-                            as={FormControlLabel}
-                            key={role.id}
-                            name="roleIds"
-                            value={role.id}
-                            control={
-                              <Checkbox
-                                checked={values.roleIds.includes(role.id)}
-                                disabled={isDisabled || rolesLoading || formIsSubmittingOverall}
-                              />
-                            }
-                            label={role.name}
-                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                              const roleId = e.target.value;
-                              const isChecked = e.target.checked;
-                              let newRoleIds: string[] = [];
-
-                              if (roleId === superAdminRole?.id) {
-                                newRoleIds = isChecked ? [roleId] : [];
-                                if (isChecked) {
-                                  setFieldValue('tenantId', undefined);
-                                }
-                              } else {
-                                if (isChecked) {
-                                  newRoleIds = [
-                                    ...values.roleIds.filter((id) => id !== superAdminRole?.id),
-                                    roleId,
-                                  ];
-                                } else {
-                                  newRoleIds = values.roleIds.filter((id) => id !== roleId);
-                                }
-                              }
-                              setFieldValue('roleIds', newRoleIds);
-                            }}
-                            disabled={isDisabled || rolesLoading || formIsSubmittingOverall}
-                          />
-                        );
-                      })
-                    )}
-                  </FormGroup>
-                  {touched.roleIds && errors.roleIds && (
-                    <FormHelperText error>{errors.roleIds}</FormHelperText>
-                  )}
-                </FormControl>
-              </Box>
+              <RoleSelector
+                allRoles={allRoles}
+                value={values.roleIds}
+                isSuperAdmin={isSuperAdmin}
+                loading={rolesLoading}
+                disabled={formIsSubmittingOverall}
+                error={touched.roleIds && Boolean(errors.roleIds)}
+                helperText={touched.roleIds ? (errors.roleIds as string) : undefined}
+                onChange={(roleIds) => {
+                  setFieldValue('roleIds', roleIds);
+                  if (roleIds.length === 1 && roleIds[0] === superAdminRole?.id) {
+                    setFieldValue('tenantId', undefined);
+                  }
+                }}
+              />
               <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1, mt: 3 }}>
                 <Button onClick={onClose} disabled={formIsSubmittingOverall}>
                   Cancel
