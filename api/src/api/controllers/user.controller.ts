@@ -28,7 +28,12 @@ import {
 import { UpdateUserDto } from '../../application/users/dto/update-user.dto';
 import { UserDto } from '../../application/users/dto/user.dto';
 import { RoleName } from '../../domain/enums/role-name.enum';
-import { Authorize } from '../../infrastructure/auth/decorators/authorize.decorator';
+import { PermissionResource } from '../../domain/enums/permission-resource.enum';
+import { PermissionAction } from '../../domain/enums/permission-action.enum';
+import {
+    Authorize,
+    RequirePermissions,
+} from '../../infrastructure/auth/decorators/authorize.decorator';
 import { RequestWithTenant } from 'src/infrastructure/middleware/request-with-tenant.interface';
 import {
     ApiTags,
@@ -67,6 +72,7 @@ export class UserController {
 
     @Post('super')
     @Authorize(RoleName.SUPER_ADMIN)
+    @RequirePermissions({ resource: PermissionResource.USERS, action: PermissionAction.CREATE })
     @HttpCode(HttpStatus.CREATED)
     @ApiOperation({
         summary: 'Create a user as super admin',
@@ -86,6 +92,7 @@ export class UserController {
 
     @Post()
     @Authorize(RoleName.ADMIN)
+    @RequirePermissions({ resource: PermissionResource.USERS, action: PermissionAction.CREATE })
     @HttpCode(HttpStatus.CREATED)
     @ApiOperation({ summary: 'Create a user', description: 'Creates a new user within the tenant' })
     @ApiBody({ type: CreateUserDto })
@@ -112,6 +119,7 @@ export class UserController {
     }
 
     @Get()
+    @RequirePermissions({ resource: PermissionResource.USERS, action: PermissionAction.READ })
     @ApiOperation({
         summary: 'Get all users',
         description: 'Retrieves all users based on role permissions',
@@ -139,6 +147,7 @@ export class UserController {
     }
 
     @Get(':id')
+    @RequirePermissions({ resource: PermissionResource.USERS, action: PermissionAction.READ })
     @ApiOperation({ summary: 'Get user by ID', description: 'Retrieves a specific user by ID' })
     @ApiParam({
         name: 'id',
@@ -159,6 +168,7 @@ export class UserController {
     }
 
     @Patch(':id')
+    @RequirePermissions({ resource: PermissionResource.USERS, action: PermissionAction.UPDATE })
     @ApiOperation({ summary: 'Update user', description: 'Updates an existing user' })
     @ApiParam({
         name: 'id',
@@ -183,6 +193,7 @@ export class UserController {
 
     @Delete(':id')
     @Authorize(RoleName.ADMIN, RoleName.SUPER_ADMIN)
+    @RequirePermissions({ resource: PermissionResource.USERS, action: PermissionAction.DELETE })
     @HttpCode(HttpStatus.NO_CONTENT)
     @ApiOperation({ summary: 'Delete user', description: 'Deletes a user' })
     @ApiParam({
@@ -203,6 +214,7 @@ export class UserController {
 
     @Patch(':id/activate')
     @Authorize(RoleName.ADMIN, RoleName.SUPER_ADMIN)
+    @RequirePermissions({ resource: PermissionResource.USERS, action: PermissionAction.UPDATE })
     @HttpCode(HttpStatus.NO_CONTENT)
     @ApiOperation({ summary: 'Activate user', description: 'Activates a deactivated user' })
     @ApiParam({
@@ -223,6 +235,7 @@ export class UserController {
 
     @Patch(':id/deactivate')
     @Authorize(RoleName.ADMIN, RoleName.SUPER_ADMIN)
+    @RequirePermissions({ resource: PermissionResource.USERS, action: PermissionAction.UPDATE })
     @HttpCode(HttpStatus.NO_CONTENT)
     @ApiOperation({ summary: 'Deactivate user', description: 'Deactivates an active user' })
     @ApiParam({

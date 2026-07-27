@@ -22,7 +22,12 @@ import { CreateTenantDto } from '../../application/tenants/dto/create-tenant.dto
 import { UpdateTenantDto } from '../../application/tenants/dto/update-tenant.dto';
 import { TenantDto } from '../../application/tenants/dto/tenant.dto';
 import { RoleName } from '../../domain/enums/role-name.enum';
-import { Authorize } from '../../infrastructure/auth/decorators/authorize.decorator';
+import { PermissionResource } from '../../domain/enums/permission-resource.enum';
+import { PermissionAction } from '../../domain/enums/permission-action.enum';
+import {
+    Authorize,
+    RequirePermissions,
+} from '../../infrastructure/auth/decorators/authorize.decorator';
 import {
     ApiTags,
     ApiOperation,
@@ -47,6 +52,7 @@ export class TenantController {
     ) {}
 
     @Post()
+    @RequirePermissions({ resource: PermissionResource.TENANTS, action: PermissionAction.CREATE })
     @HttpCode(HttpStatus.CREATED)
     @ApiOperation({ summary: 'Create tenant', description: 'Creates a new tenant' })
     @ApiBody({ type: CreateTenantDto })
@@ -62,6 +68,7 @@ export class TenantController {
     }
 
     @Get()
+    @RequirePermissions({ resource: PermissionResource.TENANTS, action: PermissionAction.READ })
     @ApiOperation({ summary: 'Get all tenants', description: 'Retrieves all tenants' })
     @ApiResponse({
         status: HttpStatus.OK,
@@ -75,6 +82,7 @@ export class TenantController {
     }
 
     @Get(':id')
+    @RequirePermissions({ resource: PermissionResource.TENANTS, action: PermissionAction.READ })
     @ApiOperation({ summary: 'Get tenant by ID', description: 'Retrieves a specific tenant by ID' })
     @ApiParam({
         name: 'id',
@@ -94,6 +102,7 @@ export class TenantController {
     }
 
     @Patch(':id')
+    @RequirePermissions({ resource: PermissionResource.TENANTS, action: PermissionAction.UPDATE })
     @ApiOperation({ summary: 'Update tenant', description: 'Updates an existing tenant' })
     @ApiParam({
         name: 'id',
@@ -117,6 +126,7 @@ export class TenantController {
     }
 
     @Delete(':id')
+    @RequirePermissions({ resource: PermissionResource.TENANTS, action: PermissionAction.DELETE })
     @HttpCode(HttpStatus.NO_CONTENT)
     @ApiOperation({ summary: 'Delete tenant', description: 'Deletes a tenant' })
     @ApiParam({
