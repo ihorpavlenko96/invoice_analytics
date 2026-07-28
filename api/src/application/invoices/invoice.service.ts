@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import * as ExcelJS from 'exceljs';
 import { IInvoiceService } from './interfaces/invoice.service.interface';
 import { InvoiceRepository } from '../repositories/invoice.repository';
@@ -10,6 +10,8 @@ import { InvoiceItem } from '../../domain/entities/invoice-item.entity';
 
 @Injectable()
 export class InvoiceService implements IInvoiceService {
+    private readonly logger = new Logger(InvoiceService.name);
+
     constructor(
         private readonly invoiceRepository: InvoiceRepository,
         private readonly invoiceMapper: InvoiceMapper,
@@ -104,11 +106,9 @@ export class InvoiceService implements IInvoiceService {
         await this.invoiceRepository.remove(id, tenantId);
     }
 
-    async exportToExcel(
-        tenantId: string,
-        paginationParams: PaginationParamsDto,
-    ): Promise<Buffer> {
-        const [invoices] = await this.invoiceRepository.findAll(tenantId, paginationParams);
+    async exportToExcel(tenantId: string): Promise<Buffer> {
+        const invoices = await this.invoiceRepository.findAllByTenant(tenantId);
+        this.logger.log(`exportToExcel: tenant=${tenantId} rows=${invoices.length}`);
 
         const workbook = new ExcelJS.Workbook();
         const worksheet = workbook.addWorksheet('Invoices');
@@ -169,9 +169,8 @@ export class InvoiceService implements IInvoiceService {
             });
         });
 
-        // Generate buffer
         const buffer = await workbook.xlsx.writeBuffer();
-        return Buffer.from(buffer);
+        return buffer as Buffer;
     }
 
     private formatDateValue(dateValue: ExcelJS.CellValue): string {

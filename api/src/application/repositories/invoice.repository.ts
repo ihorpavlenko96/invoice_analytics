@@ -41,6 +41,15 @@ export class InvoiceRepository {
         });
     }
 
+    // Returns all invoices for the tenant, including archived, ordered by issue date.
+    async findAllByTenant(tenantId: string): Promise<Invoice[]> {
+        return this.invoiceRepository.find({
+            where: { tenantId },
+            order: { issueDate: 'DESC' },
+            loadEagerRelations: false,
+        });
+    }
+
     async findById(id: string, tenantId: string): Promise<Invoice | null> {
         return this.invoiceRepository.findOne({
             where: { id, tenantId },
