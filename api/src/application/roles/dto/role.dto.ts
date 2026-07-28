@@ -1,17 +1,16 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { RoleName } from '../../../domain/enums/role-name.enum';
+import { PermissionDto } from './permission.dto';
 
 export class RoleDto {
-    @ApiProperty({
-        description: 'Unique identifier of the role',
-        example: '123e4567-e89b-12d3-a456-426614174000',
-    })
+    @ApiProperty({ example: '123e4567-e89b-12d3-a456-426614174000' })
     id: string;
 
-    @ApiProperty({
-        description: 'Name of the role',
-        enum: RoleName,
-        example: RoleName.ADMIN,
-    })
-    name: RoleName;
+    @ApiProperty({ description: 'Role name (built-in or custom)', example: 'Billing Manager' })
+    name: string;
+
+    @ApiProperty({ type: [PermissionDto], required: false })
+    permissions?: PermissionDto[];
+
+    @ApiProperty({ description: 'True for the fixed Super Admin/Admin/User roles', example: false })
+    isBuiltIn: boolean;
 }
