@@ -33,6 +33,7 @@ import {
 } from '@nestjs/swagger';
 import { InvoiceDto } from '../../application/invoices/dto/invoice.dto';
 import {
+    ExportInvoicesParamsDto,
     PaginatedResponseDto,
     PaginationParamsDto,
 } from '../../application/invoices/dto/pagination.dto';
@@ -192,25 +193,39 @@ export class InvoiceController {
     @Authorize(RoleName.SUPER_ADMIN)
     @ApiOperation({
         summary: 'Export invoices to Excel',
-        description: 'Exports all invoices to an Excel file based on pagination and filters',
-    })
-    @ApiQuery({
-        name: 'page',
-        required: false,
-        type: Number,
-        description: 'Page number (starts from 1)',
-    })
-    @ApiQuery({
-        name: 'limit',
-        required: false,
-        type: Number,
-        description: 'Number of items per page',
+        description:
+            'Exports ALL invoices matching the active filters to an Excel file. ' +
+            'Pagination is bypassed — every matching record is included regardless of page/limit.',
     })
     @ApiQuery({
         name: 'status',
         required: false,
         enum: ['PAID', 'UNPAID', 'OVERDUE'],
-        description: 'Filter invoices by status',
+        description: 'Filter exported invoices by status',
+    })
+    @ApiQuery({
+        name: 'includeArchived',
+        required: false,
+        type: Boolean,
+        description: 'Include archived invoices in the export',
+    })
+    @ApiQuery({
+        name: 'search',
+        required: false,
+        type: String,
+        description: 'Search term to filter by vendor or customer name (case-insensitive)',
+    })
+    @ApiQuery({
+        name: 'dateFrom',
+        required: false,
+        type: String,
+        description: 'Start of date range filter (YYYY-MM-DD)',
+    })
+    @ApiQuery({
+        name: 'dateTo',
+        required: false,
+        type: String,
+        description: 'End of date range filter (YYYY-MM-DD)',
     })
     @ApiResponse({
         status: HttpStatus.OK,
@@ -221,10 +236,10 @@ export class InvoiceController {
     async exportToExcel(
         @Req() request: RequestWithTenant,
         @Res() response: Response,
-        @Query() paginationParams: PaginationParamsDto,
+        @Query() exportParams: ExportInvoicesParamsDto,
     ): Promise<void> {
         const tenantId = request.tenantId!;
-        const buffer = await this.invoiceService.exportToExcel(tenantId, paginationParams);
+        const buffer = await this.invoiceService.exportToExcel(tenantId, exportParams);
 
         response.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
         response.setHeader('Content-Disposition', `attachment; filename=invoices-${Date.now()}.xlsx`);

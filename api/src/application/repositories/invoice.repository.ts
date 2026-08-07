@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Invoice } from '../../domain/entities/invoice.entity';
-import { PaginationParamsDto } from '../invoices/dto/pagination.dto';
+import { ExportInvoicesParamsDto, PaginationParamsDto } from '../invoices/dto/pagination.dto';
 import { AnalyticsFiltersDto } from '../analytics/dto/analytics-filters.dto';
 
 @Injectable()
@@ -39,6 +39,76 @@ export class InvoiceRepository {
                 issueDate: 'DESC',
             },
         });
+    }
+
+    /**
+     * Retrieves all invoices matching the given export filters without any pagination.
+     * Intended exclusively for the export flow — pagination must not limit export results.
+     *
+     * @param tenantId - The tenant to scope the query to
+     * @param exportParams - Optional filters: status, includeArchived, search (vendor/customer name), dateFrom, dateTo
+     * @returns All matching Invoice records ordered by issueDate DESC
+     */
+    async findAllForExport(
+        tenantId: string,
+        exportParams: ExportInvoicesParamsDto,
+    ): Promise<Invoice[]> {
+        const query = this.invoiceRepository
+            .createQueryBuilder('invoice')
+            .where('invoice.tenantId = :tenantId', { tenantId })
+            .orderBy('invoice.issueDate', 'DESC');
+
+        // By default, exclude archived invoices unless explicitly requested
+        if (!exportParams.includeArchived) {
+            query.andWhere('invoice.isArchived = :isArchived', { isArchived: false });
+        }
+
+        // Optional status filter
+        if (exportParams.status) {
+            query.andWhere('invoice.status = :status', { status: exportParams.status });
+        }
+
+        // Optional text search across vendor name and customer name (case-insensitive)
+        if (exportParams.search) {
+            query.andWhere(
+                '(LOWER(invoice.vendorName) LIKE :search OR LOWER(invoice.customerName) LIKE :search)',
+                { search: `%${exportParams.search.toLowerCase()}%` },
+            );
+        }
+
+        // Optional date range — match invoices whose issueDate or dueDate falls within [dateFrom, dateTo]
+        if (exportParams.dateFrom || exportParams.dateTo) {
+            const conditions: string[] = [];
+            const params: Record<string, string> = {};
+
+            if (exportParams.dateFrom) {
+                params.dateFrom = exportParams.dateFrom;
+            }
+            if (exportParams.dateTo) {
+                params.dateTo = exportParams.dateTo;
+            }
+
+            if (exportParams.dateFrom && exportParams.dateTo) {
+                conditions.push(
+                    '(invoice.issueDate >= :dateFrom AND invoice.issueDate <= :dateTo)',
+                    '(invoice.dueDate >= :dateFrom AND invoice.dueDate <= :dateTo)',
+                );
+            } else if (exportParams.dateFrom) {
+                conditions.push(
+                    'invoice.issueDate >= :dateFrom',
+                    'invoice.dueDate >= :dateFrom',
+                );
+            } else if (exportParams.dateTo) {
+                conditions.push(
+                    'invoice.issueDate <= :dateTo',
+                    'invoice.dueDate <= :dateTo',
+                );
+            }
+
+            query.andWhere(`(${conditions.join(' OR ')})`, params);
+        }
+
+        return query.getMany();
     }
 
     async findById(id: string, tenantId: string): Promise<Invoice | null> {
