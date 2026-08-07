@@ -12,8 +12,13 @@ import {
 } from '@nestjs/common';
 
 import { SecretKey } from '../../domain/enums/secret-key.enum';
-import { Authorize } from '../../infrastructure/auth/decorators/authorize.decorator';
+import {
+    Authorize,
+    RequirePermissions,
+} from '../../infrastructure/auth/decorators/authorize.decorator';
 import { RoleName } from '../../domain/enums/role-name.enum';
+import { PermissionResource } from '../../domain/enums/permission-resource.enum';
+import { PermissionAction } from '../../domain/enums/permission-action.enum';
 import { RequestWithTenant } from '../../infrastructure/middleware/request-with-tenant.interface';
 import { SecretDto } from '../../application/secrets/dto/secret.dto';
 import {
@@ -40,6 +45,7 @@ export class SecretsController {
     constructor(@Inject(SECRET_SERVICE) private readonly secretService: ISecretService) {}
 
     @Get()
+    @RequirePermissions({ resource: PermissionResource.SECRETS, action: PermissionAction.READ })
     @ApiOperation({
         summary: 'Get all secrets',
         description: 'Retrieves all secrets for the tenant',
@@ -58,6 +64,7 @@ export class SecretsController {
     }
 
     @Get(':key')
+    @RequirePermissions({ resource: PermissionResource.SECRETS, action: PermissionAction.READ })
     @ApiOperation({
         summary: 'Get secret by key',
         description: 'Retrieves a specific secret by key',
@@ -80,6 +87,7 @@ export class SecretsController {
     }
 
     @Post()
+    @RequirePermissions({ resource: PermissionResource.SECRETS, action: PermissionAction.CREATE })
     @HttpCode(HttpStatus.NO_CONTENT)
     @ApiOperation({ summary: 'Set secret', description: 'Sets a secret value for the tenant' })
     @ApiBody({ type: SecretDto })

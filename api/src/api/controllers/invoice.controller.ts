@@ -36,8 +36,13 @@ import {
     PaginatedResponseDto,
     PaginationParamsDto,
 } from '../../application/invoices/dto/pagination.dto';
-import { Authorize } from '../../infrastructure/auth/decorators/authorize.decorator';
+import {
+    Authorize,
+    RequirePermissions,
+} from '../../infrastructure/auth/decorators/authorize.decorator';
 import { RoleName } from '../../domain/enums/role-name.enum';
+import { PermissionResource } from '../../domain/enums/permission-resource.enum';
+import { PermissionAction } from '../../domain/enums/permission-action.enum';
 import { RequestWithTenant } from '../../infrastructure/middleware/request-with-tenant.interface';
 import {
     INVOICE_SERVICE,
@@ -64,6 +69,7 @@ export class InvoiceController {
 
     @Get()
     @Authorize(RoleName.SUPER_ADMIN)
+    @RequirePermissions({ resource: PermissionResource.INVOICES, action: PermissionAction.READ })
     @ApiOperation({
         summary: 'Get all invoices',
         description: 'Retrieves all invoices with pagination',
@@ -109,6 +115,7 @@ export class InvoiceController {
 
     @Get(':id')
     @Authorize(RoleName.SUPER_ADMIN)
+    @RequirePermissions({ resource: PermissionResource.INVOICES, action: PermissionAction.READ })
     @ApiOperation({
         summary: 'Get invoice by ID',
         description: 'Retrieves a specific invoice by ID with all its items',
@@ -132,6 +139,7 @@ export class InvoiceController {
 
     @Post('import')
     @Authorize(RoleName.USER, RoleName.ADMIN, RoleName.SUPER_ADMIN)
+    @RequirePermissions({ resource: PermissionResource.INVOICES, action: PermissionAction.CREATE })
     @UseInterceptors(FileInterceptor('file'))
     @ApiOperation({
         summary: 'Import invoice from Excel',
@@ -171,6 +179,7 @@ export class InvoiceController {
     @Delete(':id')
     @HttpCode(HttpStatus.NO_CONTENT)
     @Authorize(RoleName.SUPER_ADMIN)
+    @RequirePermissions({ resource: PermissionResource.INVOICES, action: PermissionAction.DELETE })
     @ApiOperation({
         summary: 'Delete an invoice',
         description: 'Deletes an invoice and all its line items by ID',
@@ -190,6 +199,7 @@ export class InvoiceController {
 
     @Get('export/excel')
     @Authorize(RoleName.SUPER_ADMIN)
+    @RequirePermissions({ resource: PermissionResource.INVOICES, action: PermissionAction.READ })
     @ApiOperation({
         summary: 'Export invoices to Excel',
         description: 'Exports all invoices to an Excel file based on pagination and filters',
@@ -226,14 +236,21 @@ export class InvoiceController {
         const tenantId = request.tenantId!;
         const buffer = await this.invoiceService.exportToExcel(tenantId, paginationParams);
 
-        response.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-        response.setHeader('Content-Disposition', `attachment; filename=invoices-${Date.now()}.xlsx`);
+        response.setHeader(
+            'Content-Type',
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        );
+        response.setHeader(
+            'Content-Disposition',
+            `attachment; filename=invoices-${Date.now()}.xlsx`,
+        );
         response.send(buffer);
     }
 
     @Patch('archive')
     @HttpCode(HttpStatus.NO_CONTENT)
     @Authorize(RoleName.SUPER_ADMIN)
+    @RequirePermissions({ resource: PermissionResource.INVOICES, action: PermissionAction.UPDATE })
     @ApiOperation({
         summary: 'Archive invoices',
         description: 'Archives multiple invoices by their IDs (bulk operation)',
@@ -265,6 +282,7 @@ export class InvoiceController {
     @Patch('unarchive')
     @HttpCode(HttpStatus.NO_CONTENT)
     @Authorize(RoleName.SUPER_ADMIN)
+    @RequirePermissions({ resource: PermissionResource.INVOICES, action: PermissionAction.UPDATE })
     @ApiOperation({
         summary: 'Unarchive invoices',
         description: 'Restores multiple archived invoices by their IDs (bulk operation)',

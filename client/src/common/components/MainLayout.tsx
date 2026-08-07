@@ -54,6 +54,7 @@ const MainLayout: React.FC = () => {
     { label: 'Tenants', path: '/tenant-management', roles: [ROLES.SUPER_ADMIN] },
     { label: 'Users', path: '/user-management', roles: [ROLES.ADMIN, ROLES.SUPER_ADMIN] },
     { label: 'Secrets', path: '/secrets', roles: [ROLES.ADMIN] },
+    { label: 'Roles', path: '/roles', roles: [ROLES.SUPER_ADMIN] },
   ];
 
   const filteredNavItems = navItems.filter((item) => {
