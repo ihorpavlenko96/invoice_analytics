@@ -67,7 +67,7 @@ const TenantManagementPage: React.FC<TenantManagementPageProps> = () => {
     staleTime: CACHE_TIMES.DEFAULT,
   });
 
-  const { mutateAsync: removeTenant } = useMutation({
+  const { mutateAsync: removeTenant, isPending: isDeleting } = useMutation({
     mutationFn: deleteTenant,
     onSuccess: () => queryClient.invalidateQueries({ queryKey: [TENANT_QUERY_KEYS.GET_TENANTS] }),
     onError: (error: Error) => {
@@ -277,6 +277,7 @@ const TenantManagementPage: React.FC<TenantManagementPageProps> = () => {
         message={`Are you sure you want to delete tenant ID: ${tenantToDeleteId}? This action cannot be undone.`}
         confirmText="Delete"
         cancelText="Cancel"
+        isLoading={isDeleting}
         confirmButtonProps={{
           variant: 'contained',
           sx: {
