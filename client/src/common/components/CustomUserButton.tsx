@@ -13,9 +13,10 @@ import {
   Tooltip,
   useTheme,
 } from '@mui/material';
-import SettingsIcon from '@mui/icons-material/Settings';
+import LockResetIcon from '@mui/icons-material/LockReset';
 import LogoutIcon from '@mui/icons-material/Logout';
-import { useClerk, useUser } from '@clerk/clerk-react';
+import { useClerk, useUser, useSignIn } from '@clerk/clerk-react';
+import { useSnackbar } from 'notistack';
 
 type CustomUserButtonProps = {
   afterSignOutUrl: string;
@@ -26,6 +27,9 @@ const CustomUserButton: React.FC<CustomUserButtonProps> = ({ afterSignOutUrl }) 
   const buttonRef = useRef<HTMLDivElement>(null);
   const { signOut } = useClerk();
   const { user } = useUser();
+  const { signIn, isLoaded: isSignInLoaded } = useSignIn();
+  const { enqueueSnackbar } = useSnackbar();
+  const [isResetting, setIsResetting] = useState(false);
   const theme = useTheme();
 
   const handleClick = (): void => {
@@ -43,8 +47,33 @@ const CustomUserButton: React.FC<CustomUserButtonProps> = ({ afterSignOutUrl }) 
     handleClose();
   };
 
-  const handleManageAccount = (): void => {
+  const handleResetPassword = async (): Promise<void> => {
     handleClose();
+
+    if (!isSignInLoaded || !signIn) return;
+
+    const email = user?.emailAddresses[0]?.emailAddress;
+    if (!email) return;
+
+    setIsResetting(true);
+    try {
+      await signIn.create({
+        strategy: 'reset_password_email_code',
+        identifier: email,
+      });
+      enqueueSnackbar('Password reset email sent. Check your inbox.', {
+        variant: 'success',
+      });
+    } catch (err) {
+      const clerkError = err as { errors?: Array<{ longMessage?: string }> };
+      const message =
+        clerkError?.errors?.[0]?.longMessage ||
+        (err as Error).message ||
+        'Failed to send password reset email. Please try again.';
+      enqueueSnackbar(message, { variant: 'error' });
+    } finally {
+      setIsResetting(false);
+    }
   };
 
   const open = Boolean(anchorEl);
@@ -143,7 +172,8 @@ const CustomUserButton: React.FC<CustomUserButtonProps> = ({ afterSignOutUrl }) 
         <List disablePadding>
           <ListItem disablePadding>
             <ListItemButton
-              onClick={handleManageAccount}
+              onClick={handleResetPassword}
+              disabled={isResetting}
               sx={{
                 px: 2,
                 '&:hover': {
@@ -151,9 +181,9 @@ const CustomUserButton: React.FC<CustomUserButtonProps> = ({ afterSignOutUrl }) 
                 },
               }}>
               <ListItemIcon sx={{ minWidth: 36, color: theme.palette.primary.main }}>
-                <SettingsIcon fontSize="small" />
+                <LockResetIcon fontSize="small" />
               </ListItemIcon>
-              <ListItemText primary="Manage account" />
+              <ListItemText primary="Reset password" />
             </ListItemButton>
           </ListItem>
 
