@@ -15,7 +15,9 @@ import {
 } from '@mui/material';
 import SettingsIcon from '@mui/icons-material/Settings';
 import LogoutIcon from '@mui/icons-material/Logout';
+import LockResetIcon from '@mui/icons-material/LockReset';
 import { useClerk, useUser } from '@clerk/clerk-react';
+import ResetPasswordDialog from './ResetPasswordDialog';
 
 type CustomUserButtonProps = {
   afterSignOutUrl: string;
@@ -23,6 +25,7 @@ type CustomUserButtonProps = {
 
 const CustomUserButton: React.FC<CustomUserButtonProps> = ({ afterSignOutUrl }) => {
   const [anchorEl, setAnchorEl] = useState<HTMLDivElement | null>(null);
+  const [resetPasswordOpen, setResetPasswordOpen] = useState(false);
   const buttonRef = useRef<HTMLDivElement>(null);
   const { signOut } = useClerk();
   const { user } = useUser();
@@ -45,6 +48,11 @@ const CustomUserButton: React.FC<CustomUserButtonProps> = ({ afterSignOutUrl }) 
 
   const handleManageAccount = (): void => {
     handleClose();
+  };
+
+  const handleResetPassword = (): void => {
+    handleClose();
+    setResetPasswordOpen(true);
   };
 
   const open = Boolean(anchorEl);
@@ -159,6 +167,22 @@ const CustomUserButton: React.FC<CustomUserButtonProps> = ({ afterSignOutUrl }) 
 
           <ListItem disablePadding>
             <ListItemButton
+              onClick={handleResetPassword}
+              sx={{
+                px: 2,
+                '&:hover': {
+                  backgroundColor: theme.palette.action.hover,
+                },
+              }}>
+              <ListItemIcon sx={{ minWidth: 36, color: theme.palette.primary.main }}>
+                <LockResetIcon fontSize="small" />
+              </ListItemIcon>
+              <ListItemText primary="Reset password" />
+            </ListItemButton>
+          </ListItem>
+
+          <ListItem disablePadding>
+            <ListItemButton
               onClick={handleSignOut}
               sx={{
                 px: 2,
@@ -174,6 +198,11 @@ const CustomUserButton: React.FC<CustomUserButtonProps> = ({ afterSignOutUrl }) 
           </ListItem>
         </List>
       </Popover>
+
+      <ResetPasswordDialog
+        open={resetPasswordOpen}
+        onClose={() => setResetPasswordOpen(false)}
+      />
     </>
   );
 };
