@@ -6,10 +6,10 @@ export const pinkGreyTheme = createTheme({
   palette: {
     mode: 'dark',
     primary: {
-      main: '#FFC0CB', // Light Pink
-      light: lighten('#FFC0CB', 0.1),
-      dark: darken('#FFC0CB', 0.15),
-      contrastText: '#000000',
+      main: '#1B3A5C', // Navy blue
+      light: '#4A6A8C',
+      dark: '#12293F',
+      contrastText: '#FFFFFF',
     },
     secondary: {
       main: '#9CA3AF',
@@ -86,18 +86,18 @@ export const pinkGreyTheme = createTheme({
           },
         },
         contained: {
-          backgroundColor: '#FFC0CB',
-          color: '#000000',
+          backgroundColor: '#1B3A5C', // Navy blue primary
+          color: '#FFFFFF',
           '&:hover': {
-            backgroundColor: darken('#FFC0CB', 0.15),
+            backgroundColor: '#12293F', // primary.dark fallback
           },
         },
         outlined: {
-          borderColor: lighten('#FFC0CB', 0.1),
-          color: '#FFC0CB',
+          borderColor: '#4A6A8C', // primary.light for visibility on dark backgrounds
+          color: '#4A6A8C',
           '&:hover': {
-            borderColor: '#FFC0CB',
-            backgroundColor: 'rgba(255, 192, 203, 0.08)',
+            borderColor: '#1B3A5C',
+            backgroundColor: 'rgba(27, 58, 92, 0.08)',
           },
         },
       },
@@ -106,7 +106,7 @@ export const pinkGreyTheme = createTheme({
       styleOverrides: {
         root: {
           '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-            borderColor: '#FFC0CB',
+            borderColor: '#1B3A5C',
           },
           '&:hover .MuiOutlinedInput-notchedOutline': {
             borderColor: 'rgba(255, 255, 255, 0.23)',
@@ -118,10 +118,10 @@ export const pinkGreyTheme = createTheme({
       styleOverrides: {
         root: {
           '&.Mui-selected': {
-            backgroundColor: 'rgba(255, 192, 203, 0.16)',
+            backgroundColor: 'rgba(27, 58, 92, 0.16)',
           },
           '&.Mui-selected:hover': {
-            backgroundColor: 'rgba(255, 192, 203, 0.24)',
+            backgroundColor: 'rgba(27, 58, 92, 0.24)',
           },
           '&:hover': {
             backgroundColor: 'rgba(255, 255, 255, 0.08)',
@@ -180,7 +180,7 @@ export const pinkGreyTheme = createTheme({
               borderColor: 'rgba(255, 255, 255, 0.4)',
             },
             '&.Mui-focused fieldset': {
-              borderColor: '#FFC0CB',
+              borderColor: '#1B3A5C',
             },
           },
         },
