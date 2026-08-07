@@ -19,4 +19,24 @@ export default tseslint.config(
     },
     rules: {},
   },
+  // Allow Jest globals (`describe`, `it`, `expect`, `jest`, ...) inside
+  // spec files and the shared test harness without importing them.
+  {
+    files: ['**/*.spec.{ts,tsx}', 'src/test-utils/**/*.{ts,tsx}'],
+    languageOptions: {
+      globals: {
+        ...globals.jest,
+        ...globals.node,
+      },
+    },
+    rules: {
+      // Mocks frequently accept an intentionally-unused parameter to match
+      // the real signature (e.g. BroadcastChannel#postMessage). Relax the
+      // unused-args rule where a leading underscore marks the intent.
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        { argsIgnorePattern: '^_', varsIgnorePattern: '^_' },
+      ],
+    },
+  },
 );

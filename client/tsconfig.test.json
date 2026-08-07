@@ -1,0 +1,40 @@
+{
+  "extends": "./tsconfig.app.json",
+  "compilerOptions": {
+    // ts-jest will transpile TS to CommonJS for Jest. The app's own tsconfig
+    // targets ESNext module output (bundler mode), so we override a few keys
+    // here to keep ts-jest happy without affecting the Vite build.
+    "module": "CommonJS",
+    "moduleResolution": "node",
+    "target": "ES2020",
+    "jsx": "react-jsx",
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "resolveJsonModule": true,
+    "allowJs": true,
+    "isolatedModules": true,
+    "noEmit": true,
+
+    // Tests often have intentionally unused params (mock signatures, etc.).
+    // Relax the app's strict "noUnused*" flags so test fixtures don't fight them.
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+
+    // `allowImportingTsExtensions` from the app config conflicts with the CJS
+    // emission Jest needs. Turn it off for the test project.
+    "allowImportingTsExtensions": false,
+
+    "types": ["jest", "node", "@testing-library/jest-dom"],
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"]
+    }
+  },
+  "include": [
+    "src/**/*.spec.ts",
+    "src/**/*.spec.tsx",
+    "src/test-utils/**/*.ts",
+    "src/test-utils/**/*.tsx"
+  ],
+  "exclude": []
+}
