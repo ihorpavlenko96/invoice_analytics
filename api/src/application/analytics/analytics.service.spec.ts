@@ -56,6 +56,7 @@ describe('AnalyticsService', () => {
                 paidCount: 8,
                 overdueCount: 2,
             });
+            // eslint-disable-next-line @typescript-eslint/unbound-method
             expect(mockInvoiceRepository.getSummaryAnalytics).toHaveBeenCalledWith('tenant-1', undefined);
         });
 
@@ -181,6 +182,7 @@ describe('AnalyticsService', () => {
 
             await service.getSummaryAnalytics('tenant-1', filters);
 
+            // eslint-disable-next-line @typescript-eslint/unbound-method
             expect(mockInvoiceRepository.getSummaryAnalytics).toHaveBeenCalledWith('tenant-1', filters);
         });
     });

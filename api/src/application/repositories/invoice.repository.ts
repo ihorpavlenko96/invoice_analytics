@@ -41,6 +41,14 @@ export class InvoiceRepository {
         });
     }
 
+    async findNonArchived(tenantId: string): Promise<Invoice[]> {
+        return this.invoiceRepository.find({
+            where: { tenantId, isArchived: false },
+            order: { issueDate: 'DESC' },
+            loadEagerRelations: false,
+        });
+    }
+
     async findById(id: string, tenantId: string): Promise<Invoice | null> {
         return this.invoiceRepository.findOne({
             where: { id, tenantId },
