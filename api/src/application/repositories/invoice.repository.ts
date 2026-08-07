@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Invoice } from '../../domain/entities/invoice.entity';
-import { PaginationParamsDto } from '../invoices/dto/pagination.dto';
+import { ExportFilterParamsDto, PaginationParamsDto } from '../invoices/dto/pagination.dto';
 import { AnalyticsFiltersDto } from '../analytics/dto/analytics-filters.dto';
 
 @Injectable()
@@ -35,6 +35,33 @@ export class InvoiceRepository {
             where: whereClause,
             skip,
             take: limit,
+            order: {
+                issueDate: 'DESC',
+            },
+        });
+    }
+
+    /**
+     * Retrieves all invoices matching the given filters without any pagination constraints.
+     * Intended exclusively for export operations so the full dataset is always exported.
+     */
+    async findAllForExport(
+        tenantId: string,
+        filterParams: ExportFilterParamsDto,
+    ): Promise<Invoice[]> {
+        // Build where clause with optional status and archive filters
+        const whereClause: any = { tenantId };
+        if (filterParams.status) {
+            whereClause.status = filterParams.status;
+        }
+
+        // By default, exclude archived invoices unless explicitly requested
+        if (!filterParams.includeArchived) {
+            whereClause.isArchived = false;
+        }
+
+        return this.invoiceRepository.find({
+            where: whereClause,
             order: {
                 issueDate: 'DESC',
             },
