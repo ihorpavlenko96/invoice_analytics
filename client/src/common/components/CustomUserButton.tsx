@@ -12,10 +12,13 @@ import {
   Divider,
   Tooltip,
   useTheme,
+  Snackbar,
+  Alert,
 } from '@mui/material';
 import SettingsIcon from '@mui/icons-material/Settings';
 import LogoutIcon from '@mui/icons-material/Logout';
-import { useClerk, useUser } from '@clerk/clerk-react';
+import LockResetIcon from '@mui/icons-material/LockReset';
+import { useClerk, useUser, useSignIn } from '@clerk/clerk-react';
 
 type CustomUserButtonProps = {
   afterSignOutUrl: string;
@@ -26,7 +29,13 @@ const CustomUserButton: React.FC<CustomUserButtonProps> = ({ afterSignOutUrl }) 
   const buttonRef = useRef<HTMLDivElement>(null);
   const { signOut } = useClerk();
   const { user } = useUser();
+  const { isLoaded: signInLoaded, signIn } = useSignIn();
   const theme = useTheme();
+  const [snackbar, setSnackbar] = useState<{ open: boolean; message: string; severity: 'success' | 'error' }>({
+    open: false,
+    message: '',
+    severity: 'success',
+  });
 
   const handleClick = (): void => {
     setAnchorEl(buttonRef.current);
@@ -45,6 +54,34 @@ const CustomUserButton: React.FC<CustomUserButtonProps> = ({ afterSignOutUrl }) 
 
   const handleManageAccount = (): void => {
     handleClose();
+  };
+
+  const showSnackbar = (message: string, severity: 'success' | 'error'): void => {
+    setSnackbar({ open: true, message, severity });
+  };
+
+  const handleResetPassword = async (): Promise<void> => {
+    handleClose();
+    if (!signInLoaded || !signIn) return;
+    const identifier = user?.emailAddresses[0]?.emailAddress;
+    if (!identifier) return;
+    try {
+      await signIn.create({
+        strategy: 'reset_password_email_code',
+        identifier,
+      });
+      showSnackbar('Password reset email sent. Check your inbox.', 'success');
+    } catch (err) {
+      showSnackbar(
+        err instanceof Error ? err.message : 'Failed to send reset email. Please try again.',
+        'error',
+      );
+    }
+  };
+
+  const handleSnackbarClose = (_event?: React.SyntheticEvent | Event, reason?: string): void => {
+    if (reason === 'clickaway') return;
+    setSnackbar((prev) => ({ ...prev, open: false }));
   };
 
   const open = Boolean(anchorEl);
@@ -159,6 +196,22 @@ const CustomUserButton: React.FC<CustomUserButtonProps> = ({ afterSignOutUrl }) 
 
           <ListItem disablePadding>
             <ListItemButton
+              onClick={handleResetPassword}
+              sx={{
+                px: 2,
+                '&:hover': {
+                  backgroundColor: theme.palette.action.hover,
+                },
+              }}>
+              <ListItemIcon sx={{ minWidth: 36, color: theme.palette.primary.main }}>
+                <LockResetIcon fontSize="small" />
+              </ListItemIcon>
+              <ListItemText primary="Reset password" />
+            </ListItemButton>
+          </ListItem>
+
+          <ListItem disablePadding>
+            <ListItemButton
               onClick={handleSignOut}
               sx={{
                 px: 2,
@@ -174,6 +227,15 @@ const CustomUserButton: React.FC<CustomUserButtonProps> = ({ afterSignOutUrl }) 
           </ListItem>
         </List>
       </Popover>
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={5000}
+        onClose={handleSnackbarClose}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}>
+        <Alert onClose={handleSnackbarClose} severity={snackbar.severity} sx={{ width: '100%' }}>
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </>
   );
 };
