@@ -6,6 +6,7 @@ import { SummaryAnalyticsDto } from './dto/summary-analytics.dto';
 import { StatusDistributionDto } from './dto/status-distribution.dto';
 import { MonthlyTrendsDto } from './dto/monthly-trends.dto';
 import { TopVendorsDto, TopCustomersDto } from './dto/top-entities.dto';
+import { OverdueMonthlyDto } from './dto/overdue-monthly.dto';
 
 @Injectable()
 export class AnalyticsService implements IAnalyticsService {
@@ -69,6 +70,18 @@ export class AnalyticsService implements IAnalyticsService {
                 name: result.name,
                 totalAmount: parseFloat(result.totalAmount) || 0,
                 invoiceCount: parseInt(result.invoiceCount) || 0,
+            })),
+        };
+    }
+
+    async getOverdueMonthlyStatistics(tenantId: string): Promise<OverdueMonthlyDto> {
+        const results = await this.invoiceRepository.getOverdueMonthlyStatistics(tenantId);
+
+        return {
+            statistics: results.map(result => ({
+                year: parseInt(result.year),
+                month: parseInt(result.month),
+                count: parseInt(result.count) || 0,
             })),
         };
     }
