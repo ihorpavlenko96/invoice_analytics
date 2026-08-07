@@ -1,4 +1,5 @@
 import { createTheme } from '@mui/material';
+import { darken, lighten } from '@mui/material/styles';
 
 // Clean Black & White Theme (Light Mode)
 export const darkTheme = createTheme({
@@ -85,18 +86,18 @@ export const darkTheme = createTheme({
           },
         },
         contained: {
-          backgroundColor: '#90CAF9',
+          backgroundColor: '#FF1493',
           color: '#000000',
           '&:hover': {
-            backgroundColor: '#42A5F5',
+            backgroundColor: darken('#FF1493', 0.15),
           },
         },
         outlined: {
           borderColor: 'rgba(255, 255, 255, 0.23)',
-          color: '#90CAF9',
+          color: '#FF1493',
           '&:hover': {
-            borderColor: '#90CAF9',
-            backgroundColor: 'rgba(144, 202, 249, 0.08)',
+            borderColor: '#FF1493',
+            backgroundColor: 'rgba(255, 20, 147, 0.08)',
           },
         },
       },
