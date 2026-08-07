@@ -15,7 +15,9 @@ import {
 } from '@mui/material';
 import SettingsIcon from '@mui/icons-material/Settings';
 import LogoutIcon from '@mui/icons-material/Logout';
-import { useClerk, useUser } from '@clerk/clerk-react';
+import LockResetIcon from '@mui/icons-material/LockReset';
+import { useClerk, useUser, useSignIn } from '@clerk/clerk-react';
+import { useSnackbar } from 'notistack';
 
 type CustomUserButtonProps = {
   afterSignOutUrl: string;
@@ -23,9 +25,12 @@ type CustomUserButtonProps = {
 
 const CustomUserButton: React.FC<CustomUserButtonProps> = ({ afterSignOutUrl }) => {
   const [anchorEl, setAnchorEl] = useState<HTMLDivElement | null>(null);
+  const [isResettingPassword, setIsResettingPassword] = useState(false);
   const buttonRef = useRef<HTMLDivElement>(null);
   const { signOut } = useClerk();
   const { user } = useUser();
+  const { signIn } = useSignIn();
+  const { enqueueSnackbar } = useSnackbar();
   const theme = useTheme();
 
   const handleClick = (): void => {
@@ -45,6 +50,28 @@ const CustomUserButton: React.FC<CustomUserButtonProps> = ({ afterSignOutUrl }) 
 
   const handleManageAccount = (): void => {
     handleClose();
+  };
+
+  const handleResetPassword = async (): Promise<void> => {
+    const email = user?.emailAddresses[0]?.emailAddress;
+    if (!email || !signIn) return;
+
+    handleClose();
+    setIsResettingPassword(true);
+
+    try {
+      await signIn.create({
+        identifier: email,
+        strategy: 'reset_password_email_code',
+      });
+      enqueueSnackbar('Password reset email sent', { variant: 'success' });
+    } catch (err) {
+      const errorMessage =
+        err instanceof Error ? err.message : 'Failed to send password reset email';
+      enqueueSnackbar(errorMessage, { variant: 'error' });
+    } finally {
+      setIsResettingPassword(false);
+    }
   };
 
   const open = Boolean(anchorEl);
@@ -154,6 +181,23 @@ const CustomUserButton: React.FC<CustomUserButtonProps> = ({ afterSignOutUrl }) 
                 <SettingsIcon fontSize="small" />
               </ListItemIcon>
               <ListItemText primary="Manage account" />
+            </ListItemButton>
+          </ListItem>
+
+          <ListItem disablePadding>
+            <ListItemButton
+              onClick={handleResetPassword}
+              disabled={isResettingPassword}
+              sx={{
+                px: 2,
+                '&:hover': {
+                  backgroundColor: theme.palette.action.hover,
+                },
+              }}>
+              <ListItemIcon sx={{ minWidth: 36, color: theme.palette.primary.main }}>
+                <LockResetIcon fontSize="small" />
+              </ListItemIcon>
+              <ListItemText primary="Reset password" />
             </ListItemButton>
           </ListItem>
 
