@@ -85,18 +85,18 @@ export const darkTheme = createTheme({
           },
         },
         contained: {
-          backgroundColor: '#90CAF9',
+          backgroundColor: '#FFC0CB',
           color: '#000000',
           '&:hover': {
-            backgroundColor: '#42A5F5',
+            backgroundColor: '#FFB6C1',
           },
         },
         outlined: {
           borderColor: 'rgba(255, 255, 255, 0.23)',
-          color: '#90CAF9',
+          color: '#FFC0CB',
           '&:hover': {
-            borderColor: '#90CAF9',
-            backgroundColor: 'rgba(144, 202, 249, 0.08)',
+            borderColor: '#FFC0CB',
+            backgroundColor: 'rgba(255, 192, 203, 0.08)',
           },
         },
       },
