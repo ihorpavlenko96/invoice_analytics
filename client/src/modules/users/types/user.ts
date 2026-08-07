@@ -1,8 +1,6 @@
-import { RoleValue } from '../../../common/constants/roles';
-
 export type Role = {
   id: string;
-  name: RoleValue;
+  name: string;
 };
 
 export type User = {

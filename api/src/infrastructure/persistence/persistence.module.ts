@@ -4,6 +4,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { Tenant } from '../../domain/entities/tenant.entity';
 import { Role } from '../../domain/entities/role.entity';
 import { User } from '../../domain/entities/user.entity';
+import { Permission } from '../../domain/entities/permission.entity';
 import { TenantRepository } from './repositories/tenant.repository';
 import { RoleRepository } from './repositories/role.repository';
 import { UserRepository } from './repositories/user.repository';
@@ -12,7 +13,7 @@ import { TENANT_REPOSITORY } from '../../application/repositories/tenant.reposit
 import { ROLE_REPOSITORY } from '../../application/repositories/role.repository.interface';
 import { USER_REPOSITORY } from '../../application/repositories/user.repository.interface';
 
-const entities = [Tenant, Role, User];
+const entities = [Tenant, Role, User, Permission];
 
 const providers = [
     {
