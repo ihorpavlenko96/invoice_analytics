@@ -41,6 +41,18 @@ export class InvoiceRepository {
         });
     }
 
+    /**
+     * Fetches all invoices for a tenant without pagination, status, or archived filters.
+     */
+    async findAllUnpaginated(tenantId: string): Promise<Invoice[]> {
+        return this.invoiceRepository.find({
+            where: { tenantId },
+            order: {
+                issueDate: 'DESC',
+            },
+        });
+    }
+
     async findById(id: string, tenantId: string): Promise<Invoice | null> {
         return this.invoiceRepository.findOne({
             where: { id, tenantId },
