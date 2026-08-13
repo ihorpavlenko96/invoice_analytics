@@ -1,8 +1,15 @@
 import React, { ReactNode, createContext, useState, useContext, useEffect } from 'react';
-import { ThemeProvider as MuiThemeProvider, Theme } from '@mui/material';
+import { ThemeProvider as MuiThemeProvider, Theme, createTheme } from '@mui/material';
 import { darkTheme } from './darkTheme';
 import { pinkGreyTheme } from './pinkGreyTheme';
 import { charcoalCitrusTheme } from './charcoalCitrusTheme';
+
+// Fallback theme in case of theme loading errors
+const fallbackTheme = createTheme({
+  palette: {
+    mode: 'dark',
+  },
+});
 
 type ThemeMode = 'dark' | 'pinkGrey' | 'charcoalCitrus';
 
@@ -39,24 +46,33 @@ export const ThemeProvider: React.FC<{ children: ReactNode }> = ({ children }) =
   });
 
   const getThemeInfo = (mode: ThemeMode): ThemeInfo => {
-    switch (mode) {
-      case 'pinkGrey':
-        return {
-          theme: pinkGreyTheme,
-          displayName: 'Pink Grey',
-        };
-      case 'charcoalCitrus':
-        return {
-          theme: charcoalCitrusTheme,
-          displayName: '🍋 Charcoal Citrus',
-          iconColor: '#FF8C00', // Orange icon
-        };
-      case 'dark':
-      default:
-        return {
-          theme: darkTheme,
-          displayName: 'Dark',
-        };
+    try {
+      switch (mode) {
+        case 'pinkGrey':
+          return {
+            theme: pinkGreyTheme,
+            displayName: 'Pink Grey',
+          };
+        case 'charcoalCitrus':
+          return {
+            theme: charcoalCitrusTheme,
+            displayName: '🍋 Charcoal Citrus',
+            iconColor: '#FF8C00', // Orange icon
+          };
+        case 'dark':
+        default:
+          return {
+            theme: darkTheme,
+            displayName: 'Dark',
+          };
+      }
+    } catch (error) {
+      console.error('Error loading theme:', error);
+      // Return fallback theme if theme loading fails
+      return {
+        theme: fallbackTheme,
+        displayName: 'Default',
+      };
     }
   };
 
@@ -64,30 +80,40 @@ export const ThemeProvider: React.FC<{ children: ReactNode }> = ({ children }) =
   const currentTheme = currentThemeInfo.theme;
 
   const toggleTheme = () => {
-    setThemeMode((prev) => {
-      let newMode: ThemeMode;
-      if (prev === 'dark') {
-        newMode = 'pinkGrey';
-      } else if (prev === 'pinkGrey') {
-        newMode = 'charcoalCitrus';
-      } else {
-        newMode = 'dark';
-      }
-      // Persist to localStorage
-      try {
-        localStorage.setItem(THEME_STORAGE_KEY, newMode);
-      } catch {
-        // Ignore localStorage errors (e.g., private browsing)
-      }
-      return newMode;
-    });
+    try {
+      setThemeMode((prev) => {
+        let newMode: ThemeMode;
+        if (prev === 'dark') {
+          newMode = 'pinkGrey';
+        } else if (prev === 'pinkGrey') {
+          newMode = 'charcoalCitrus';
+        } else {
+          newMode = 'dark';
+        }
+        // Persist to localStorage
+        try {
+          localStorage.setItem(THEME_STORAGE_KEY, newMode);
+        } catch (error) {
+          console.error('Error saving theme preference:', error);
+          // Ignore localStorage errors (e.g., private browsing)
+        }
+        return newMode;
+      });
+    } catch (error) {
+      console.error('Error toggling theme:', error);
+      // Continue with current theme if toggle fails
+    }
   };
 
   useEffect(() => {
     // Sync with localStorage changes (e.g., from other tabs)
     const handleStorageChange = (e: StorageEvent) => {
-      if (e.key === THEME_STORAGE_KEY && e.newValue) {
-        setThemeMode(e.newValue as ThemeMode);
+      try {
+        if (e.key === THEME_STORAGE_KEY && e.newValue) {
+          setThemeMode(e.newValue as ThemeMode);
+        }
+      } catch (error) {
+        console.error('Error handling storage change:', error);
       }
     };
     window.addEventListener('storage', handleStorageChange);
