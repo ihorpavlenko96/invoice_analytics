@@ -262,7 +262,8 @@ const InvoiceManagementPage: React.FC = () => {
   const handleExportToExcel = async () => {
     setIsExporting(true);
     try {
-      const blob = await invoiceService.exportInvoices(page, limit, statusFilter || undefined);
+      // Exports every invoice for the tenant, not just the current page
+      const blob = await invoiceService.exportInvoices(includeArchived);
 
       // Create download link
       const url = window.URL.createObjectURL(blob);
@@ -277,6 +278,7 @@ const InvoiceManagementPage: React.FC = () => {
       window.URL.revokeObjectURL(url);
     } catch (error) {
       console.error('Error exporting invoices:', error);
+      enqueueSnackbar('Failed to export invoices.', { variant: 'error' });
     } finally {
       setIsExporting(false);
     }
@@ -535,12 +537,13 @@ const InvoiceManagementPage: React.FC = () => {
                 startIcon={<DownloadIcon />}
                 onClick={handleExportToExcel}
                 disabled={isExporting}
+                title="Exports all invoices, not just the current page"
                 sx={{
                   backgroundColor: theme.palette.primary.main,
                   color: theme.palette.primary.contrastText,
                   '&:hover': { backgroundColor: theme.palette.primary.dark },
                 }}>
-                {isExporting ? 'Exporting...' : 'Export to Excel'}
+                {isExporting ? 'Exporting...' : 'Export All to Excel'}
               </Button>
               <ThemeToggle />
             </Box>
