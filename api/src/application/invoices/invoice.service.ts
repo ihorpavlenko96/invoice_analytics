@@ -5,6 +5,7 @@ import { InvoiceRepository } from '../repositories/invoice.repository';
 import { InvoiceMapper } from './invoice.mapper';
 import { InvoiceDto } from './dto/invoice.dto';
 import { PaginatedResponseDto, PaginationParamsDto } from './dto/pagination.dto';
+import { ExportInvoicesParamsDto } from './dto/export-invoices.dto';
 import { Invoice } from '../../domain/entities/invoice.entity';
 import { InvoiceItem } from '../../domain/entities/invoice-item.entity';
 
@@ -106,10 +107,8 @@ export class InvoiceService implements IInvoiceService {
 
     async exportToExcel(
         tenantId: string,
-        paginationParams: PaginationParamsDto,
+        exportParams: ExportInvoicesParamsDto,
     ): Promise<Buffer> {
-        const [invoices] = await this.invoiceRepository.findAll(tenantId, paginationParams);
-
         const workbook = new ExcelJS.Workbook();
         const worksheet = workbook.addWorksheet('Invoices');
 
@@ -144,34 +143,48 @@ export class InvoiceService implements IInvoiceService {
             fgColor: { argb: 'FFE0E0E0' },
         };
 
-        // Add data rows
-        invoices.forEach((invoice) => {
-            worksheet.addRow({
-                invoiceNumber: invoice.invoiceNumber,
-                issueDate: invoice.issueDate,
-                dueDate: invoice.dueDate,
-                vendorName: invoice.vendorName,
-                vendorAddress: invoice.vendorAddress,
-                vendorPhone: invoice.vendorPhone,
-                vendorEmail: invoice.vendorEmail,
-                customerName: invoice.customerName,
-                customerAddress: invoice.customerAddress,
-                customerPhone: invoice.customerPhone,
-                customerEmail: invoice.customerEmail,
-                status: invoice.status || 'N/A',
-                currency: invoice.currency || 'USD',
-                subtotal: invoice.subtotal,
-                discount: invoice.discount,
-                taxRate: invoice.taxRate,
-                taxAmount: invoice.taxAmount,
-                totalAmount: invoice.totalAmount,
-                terms: invoice.terms || '',
+        // Add data rows for every invoice of the tenant, regardless of pagination
+        // and status filtering. Archived invoices are included only when requested.
+        for await (const batch of this.invoiceRepository.findAllForExport(
+            tenantId,
+            exportParams.includeArchived ?? false,
+        )) {
+            batch.forEach((invoice) => {
+                worksheet.addRow(this.toExportRow(invoice));
             });
-        });
+        }
 
         // Generate buffer
         const buffer = await workbook.xlsx.writeBuffer();
         return Buffer.from(buffer);
+    }
+
+    /**
+     * Maps an invoice to a worksheet row. Keys must match the `key` values of the
+     * export worksheet columns.
+     */
+    private toExportRow(invoice: Invoice): Record<string, unknown> {
+        return {
+            invoiceNumber: invoice.invoiceNumber,
+            issueDate: invoice.issueDate,
+            dueDate: invoice.dueDate,
+            vendorName: invoice.vendorName,
+            vendorAddress: invoice.vendorAddress,
+            vendorPhone: invoice.vendorPhone,
+            vendorEmail: invoice.vendorEmail,
+            customerName: invoice.customerName,
+            customerAddress: invoice.customerAddress,
+            customerPhone: invoice.customerPhone,
+            customerEmail: invoice.customerEmail,
+            status: invoice.status || 'N/A',
+            currency: invoice.currency || 'USD',
+            subtotal: invoice.subtotal,
+            discount: invoice.discount,
+            taxRate: invoice.taxRate,
+            taxAmount: invoice.taxAmount,
+            totalAmount: invoice.totalAmount,
+            terms: invoice.terms || '',
+        };
     }
 
     private formatDateValue(dateValue: ExcelJS.CellValue): string {

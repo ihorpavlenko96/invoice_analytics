@@ -7,10 +7,26 @@ import { AnalyticsFiltersDto } from '../analytics/dto/analytics-filters.dto';
 
 @Injectable()
 export class InvoiceRepository {
+    private static readonly EXPORT_BATCH_SIZE = 500;
+
     constructor(
         @InjectRepository(Invoice)
         private readonly invoiceRepository: Repository<Invoice>,
     ) {}
+
+    /**
+     * Where clause for the full-export read: tenant-scoped, no status filter,
+     * archived excluded unless explicitly requested.
+     */
+    private buildExportWhereClause(tenantId: string, includeArchived: boolean): any {
+        const whereClause: any = { tenantId };
+
+        if (!includeArchived) {
+            whereClause.isArchived = false;
+        }
+
+        return whereClause;
+    }
 
     async findAll(
         tenantId: string,
@@ -39,6 +55,45 @@ export class InvoiceRepository {
                 issueDate: 'DESC',
             },
         });
+    }
+
+    /**
+     * Yields every invoice for the tenant in batches, unpaginated and without a
+     * status filter. Batched to bound memory usage on large tenants.
+     */
+    async *findAllForExport(
+        tenantId: string,
+        includeArchived = false,
+    ): AsyncGenerator<Invoice[]> {
+        const whereClause = this.buildExportWhereClause(tenantId, includeArchived);
+        const take = InvoiceRepository.EXPORT_BATCH_SIZE;
+        let skip = 0;
+
+        for (;;) {
+            const batch = await this.invoiceRepository.find({
+                where: whereClause,
+                skip,
+                take,
+                // `id` is the stable tiebreaker: offset paging needs a total order,
+                // otherwise invoices sharing an issueDate can repeat or be skipped.
+                order: {
+                    issueDate: 'DESC',
+                    id: 'ASC',
+                },
+            });
+
+            if (batch.length === 0) {
+                return;
+            }
+
+            yield batch;
+
+            if (batch.length < take) {
+                return;
+            }
+
+            skip += take;
+        }
     }
 
     async findById(id: string, tenantId: string): Promise<Invoice | null> {
