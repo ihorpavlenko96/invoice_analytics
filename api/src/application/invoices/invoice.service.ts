@@ -10,6 +10,9 @@ import { InvoiceItem } from '../../domain/entities/invoice-item.entity';
 
 @Injectable()
 export class InvoiceService implements IInvoiceService {
+    /** Rows fetched per repository round-trip when exporting. */
+    private static readonly EXPORT_BATCH_SIZE = 500;
+
     constructor(
         private readonly invoiceRepository: InvoiceRepository,
         private readonly invoiceMapper: InvoiceMapper,
@@ -104,12 +107,7 @@ export class InvoiceService implements IInvoiceService {
         await this.invoiceRepository.remove(id, tenantId);
     }
 
-    async exportToExcel(
-        tenantId: string,
-        paginationParams: PaginationParamsDto,
-    ): Promise<Buffer> {
-        const [invoices] = await this.invoiceRepository.findAll(tenantId, paginationParams);
-
+    async exportToExcel(tenantId: string): Promise<Buffer> {
         const workbook = new ExcelJS.Workbook();
         const worksheet = workbook.addWorksheet('Invoices');
 
@@ -144,30 +142,44 @@ export class InvoiceService implements IInvoiceService {
             fgColor: { argb: 'FFE0E0E0' },
         };
 
-        // Add data rows
-        invoices.forEach((invoice) => {
-            worksheet.addRow({
-                invoiceNumber: invoice.invoiceNumber,
-                issueDate: invoice.issueDate,
-                dueDate: invoice.dueDate,
-                vendorName: invoice.vendorName,
-                vendorAddress: invoice.vendorAddress,
-                vendorPhone: invoice.vendorPhone,
-                vendorEmail: invoice.vendorEmail,
-                customerName: invoice.customerName,
-                customerAddress: invoice.customerAddress,
-                customerPhone: invoice.customerPhone,
-                customerEmail: invoice.customerEmail,
-                status: invoice.status || 'N/A',
-                currency: invoice.currency || 'USD',
-                subtotal: invoice.subtotal,
-                discount: invoice.discount,
-                taxRate: invoice.taxRate,
-                taxAmount: invoice.taxAmount,
-                totalAmount: invoice.totalAmount,
-                terms: invoice.terms || '',
+        // Add data rows: read every invoice of the tenant in batches — no pagination,
+        // no filters, archived included (IA-598). Batching keeps peak memory to one
+        // batch of hydrated entities plus the workbook.
+        let skip = 0;
+        let batch: Invoice[];
+        do {
+            batch = await this.invoiceRepository.findAllForExport(
+                tenantId,
+                skip,
+                InvoiceService.EXPORT_BATCH_SIZE,
+            );
+
+            batch.forEach((invoice) => {
+                worksheet.addRow({
+                    invoiceNumber: invoice.invoiceNumber,
+                    issueDate: invoice.issueDate,
+                    dueDate: invoice.dueDate,
+                    vendorName: invoice.vendorName,
+                    vendorAddress: invoice.vendorAddress,
+                    vendorPhone: invoice.vendorPhone,
+                    vendorEmail: invoice.vendorEmail,
+                    customerName: invoice.customerName,
+                    customerAddress: invoice.customerAddress,
+                    customerPhone: invoice.customerPhone,
+                    customerEmail: invoice.customerEmail,
+                    status: invoice.status || 'N/A',
+                    currency: invoice.currency || 'USD',
+                    subtotal: invoice.subtotal,
+                    discount: invoice.discount,
+                    taxRate: invoice.taxRate,
+                    taxAmount: invoice.taxAmount,
+                    totalAmount: invoice.totalAmount,
+                    terms: invoice.terms || '',
+                });
             });
-        });
+
+            skip += batch.length;
+        } while (batch.length === InvoiceService.EXPORT_BATCH_SIZE);
 
         // Generate buffer
         const buffer = await workbook.xlsx.writeBuffer();

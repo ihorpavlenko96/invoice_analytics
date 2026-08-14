@@ -41,6 +41,24 @@ export class InvoiceRepository {
         });
     }
 
+    /**
+     * Reads invoices for the Excel export: scoped to the tenant ONLY.
+     * Deliberately applies no status filter and no isArchived filter — the export
+     * must return every invoice of the tenant (IA-598). `skip`/`take` come from the
+     * caller's batching loop, never from PaginationParamsDto.
+     */
+    async findAllForExport(tenantId: string, skip: number, take: number): Promise<Invoice[]> {
+        return this.invoiceRepository.find({
+            where: { tenantId },
+            skip,
+            take,
+            order: {
+                issueDate: 'DESC',
+                id: 'ASC',
+            },
+        });
+    }
+
     async findById(id: string, tenantId: string): Promise<Invoice | null> {
         return this.invoiceRepository.findOne({
             where: { id, tenantId },

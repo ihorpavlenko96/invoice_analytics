@@ -18,6 +18,7 @@ import {
   InputLabel,
   FormControlLabel,
   Switch,
+  Tooltip,
 } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
@@ -262,7 +263,7 @@ const InvoiceManagementPage: React.FC = () => {
   const handleExportToExcel = async () => {
     setIsExporting(true);
     try {
-      const blob = await invoiceService.exportInvoices(page, limit, statusFilter || undefined);
+      const blob = await invoiceService.exportInvoices();
 
       // Create download link
       const url = window.URL.createObjectURL(blob);
@@ -275,8 +276,11 @@ const InvoiceManagementPage: React.FC = () => {
       // Cleanup
       link.parentNode?.removeChild(link);
       window.URL.revokeObjectURL(url);
+
+      enqueueSnackbar('All invoices exported successfully.', { variant: 'success' });
     } catch (error) {
       console.error('Error exporting invoices:', error);
+      enqueueSnackbar('Failed to export invoices.', { variant: 'error' });
     } finally {
       setIsExporting(false);
     }
@@ -530,18 +534,20 @@ const InvoiceManagementPage: React.FC = () => {
                 }}>
                 AI Assistant
               </Button>
-              <Button
-                variant="contained"
-                startIcon={<DownloadIcon />}
-                onClick={handleExportToExcel}
-                disabled={isExporting}
-                sx={{
-                  backgroundColor: theme.palette.primary.main,
-                  color: theme.palette.primary.contrastText,
-                  '&:hover': { backgroundColor: theme.palette.primary.dark },
-                }}>
-                {isExporting ? 'Exporting...' : 'Export to Excel'}
-              </Button>
+              <Tooltip title="Exports all invoices, including archived ones. Page and filters are ignored.">
+                <Button
+                  variant="contained"
+                  startIcon={<DownloadIcon />}
+                  onClick={handleExportToExcel}
+                  disabled={isExporting}
+                  sx={{
+                    backgroundColor: theme.palette.primary.main,
+                    color: theme.palette.primary.contrastText,
+                    '&:hover': { backgroundColor: theme.palette.primary.dark },
+                  }}>
+                  {isExporting ? 'Exporting...' : 'Export to Excel'}
+                </Button>
+              </Tooltip>
               <ThemeToggle />
             </Box>
           }
