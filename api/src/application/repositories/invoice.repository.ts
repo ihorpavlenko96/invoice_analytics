@@ -41,19 +41,6 @@ export class InvoiceRepository {
         });
     }
 
-    /**
-     * Returns EVERY invoice for the tenant - no pagination, no status filter,
-     * archived invoices INCLUDED. Used only by the Excel export.
-     */
-    async findAllForExport(tenantId: string): Promise<Invoice[]> {
-        return this.invoiceRepository.find({
-            where: { tenantId },
-            order: {
-                issueDate: 'DESC',
-            },
-        });
-    }
-
     async findById(id: string, tenantId: string): Promise<Invoice | null> {
         return this.invoiceRepository.findOne({
             where: { id, tenantId },
